@@ -1,8 +1,8 @@
  Unquery-lite software and all its source code except for the libs/rapidjson directory, 
  are licensed under GPLv3, as listed below.
  
- The rapidjson library in libs/rapidjson is copyrighted by THL A29 Limited, a Tencent company, and Milo Yip, 
- and licensed under MIT license.
+ The rapidjson library in libs/rapidjson is copyrighted by THL A29 Limited, a Tencent
+ company, and Milo Yip, and licensed under MIT license.
  
  -----------------------------------------------------------------
                       GNU GENERAL PUBLIC LICENSE
