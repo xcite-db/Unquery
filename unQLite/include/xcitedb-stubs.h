@@ -1,3 +1,5 @@
+// Copyright (c) 2022 by Sela Mador-Haim
+
 #include <string>
 #include "rapidjson/document.h"
 #include <set>

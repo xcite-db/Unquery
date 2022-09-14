@@ -1,3 +1,5 @@
+// Copyright (c) 2022 by Sela Mador-Haim
+
 #ifndef TEMPLATEPARSER_H
 #define TEMPLATEPARSER_H
 

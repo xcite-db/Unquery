@@ -1,3 +1,5 @@
+// Copyright (c) 2022 by Sela Mador-Haim
+
 #ifndef PARAMS_H
 #define PARAMS_H
 

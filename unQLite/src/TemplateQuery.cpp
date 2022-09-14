@@ -1,3 +1,5 @@
+// Copyright (c) 2022 by Sela Mador-Haim
+
 #include "TemplateQuery.h"
 //#include "query.h"
 #include "utils.h"

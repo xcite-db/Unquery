@@ -1,3 +1,5 @@
+// Copyright (c) 2022 by Sela Mador-Haim
+
 #ifndef UTILS_H_INCLUDED
 #define UTILS_H_INCLUDED
 #include <string>

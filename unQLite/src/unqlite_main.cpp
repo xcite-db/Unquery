@@ -1,3 +1,5 @@
+// Copyright (c) 2022 by Sela Mador-Haim
+
 #include "params.h"
 #include "shared/version.h"
 #include "rapidjson/document.h"

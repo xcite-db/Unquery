@@ -1,3 +1,5 @@
+// Copyright (c) 2022 by Sela Mador-Haim
+
 #ifndef TEMPLATEQUERY_H
 #define TEMPLATEQUERY_H
 

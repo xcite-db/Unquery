@@ -1,3 +1,5 @@
+// Copyright (c) 2022 by Sela Mador-Haim
+
 #include "TemplateParser.h"
 #include "utils.h"
 #include <iostream>
