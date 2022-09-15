@@ -1,0 +1,26 @@
+{
+    "FirstName":"John",
+    "LastName":"Smith",
+    "Title":"CTO",
+    "Salary":320000,
+    "Address": {
+	"Street":"123 Oak Street",
+	"City":"Austin",
+	"State":"TX",
+	"Zip":78705
+    },
+    "Dependants": [
+	{"FirstName":"Jane",
+	 "LastName":"Smith",
+	 "Relation":"Wife"
+	},
+	{"FirstName":"Jake",
+	 "LastName":"Smith",
+	 "Relation":"Child"
+	},
+	{"FirstName":"Jenna",
+	 "LastName":"Smith",
+	 "Relation":"Child"
+	}
+    ]
+}

@@ -1,0 +1,12 @@
+{
+    "FirstName":"Arthur",
+    "LastName":"McLaud",
+    "Title":"Developer",
+    "Salary":120000,
+    "Address": {
+	"Street":"701H Highlander Avenue",
+	"City":"Oakland",
+	"State":"CA",
+	"Zip":94001
+    }
+}

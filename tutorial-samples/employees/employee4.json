@@ -1,0 +1,26 @@
+{
+    "FirstName":"Elena",
+    "LastName":"Brioche",
+    "Title":"Senior Developer",
+    "Salary":150000,
+    "Address": {
+	"Street":"2 Manticore Ct",
+	"City":"Atlantic City",
+	"State":"NJ",
+	"Zip":12345
+    },
+    "Dependants": [
+	{"FirstName":"Jacques",
+	 "LastName":"Macaron",
+	 "Relation":"Husband"
+	},
+	{"FirstName":"Suzette",
+	 "LastName":"Macaron",
+	 "Relation":"Child"
+	},
+	{"FirstName":"Galette",
+	 "LastName":"Macaron",
+	 "Relation":"Child"
+	}
+    ]
+}

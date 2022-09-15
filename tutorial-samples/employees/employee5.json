@@ -1,0 +1,21 @@
+{
+    "FirstName":"Rene",
+    "LastName":"Descartes",
+    "Title":"Janitor",
+    "Salary":700000,
+    "Address": {
+	"Street":"17 Whoknows street",
+	"City":"Nowhere",
+	"State":"NY",
+	"Zip":10001
+    },
+    "Dependants": [
+	{"FirstName":"Shrodinger",
+	 "Relation":"Cat"
+	},
+	{"FirstName":"Cogito",
+	 "LastName":"Ergo-Sum",
+	 "Relation":"Tortoise"
+	}
+    ]
+}

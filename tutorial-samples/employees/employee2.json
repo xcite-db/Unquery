@@ -1,0 +1,22 @@
+{
+    "FirstName":"Dganit",
+    "LastName":"Tirosh",
+    "Title":"CEO",
+    "Salary":500000,
+    "Address": {
+	"Street":"500 Temple Street",
+	"City":"Oakland",
+	"State":"CA",
+	"Zip":94001
+    },
+    "Dependants": [
+	{"FirstName":"Yaniv",
+	 "LastName":"Tirosh-Ron",
+	 "Relation":"Husband"
+	},
+	{"FirstName":"Galit",
+	 "LastName":"Tirosh-Ron",
+	 "Relation":"Child"
+	}
+    ]
+}
