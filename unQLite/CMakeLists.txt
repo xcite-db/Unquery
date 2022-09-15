@@ -18,6 +18,7 @@ set(SOURCES
   src/TemplateParser.cpp
   src/params.cpp
   src/utils.cpp
+  src/json-utils.cpp
   )
 
 add_executable(unQLite src/unqlite_main.cpp ${SOURCES})

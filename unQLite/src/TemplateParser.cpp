@@ -260,6 +260,12 @@ TemplateQueryP TParser::context_mod(bool frame_flag, ContextModMode parse_mode)
             throwError("Error parsing [expression] in context modifier");
         }
         expect(")");
+    } else if (nextToken(false)[0]=='$') {
+        mode = ContextMode::Eval;
+        expr = expression();
+        if (!expr) {
+            throwError("Error parsing [expression] in context modifier");
+        }
     } else if (ifNext("->")) {
         mode = ContextMode::Arrow;
         if (ifNext("$")) {

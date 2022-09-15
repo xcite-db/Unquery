@@ -2,6 +2,7 @@
 
 #include <string>
 #include "rapidjson/document.h"
+#include "json-utils.h"
 #include <set>
 #include <ostream>
 
@@ -77,21 +78,6 @@ public:
     void traverse(pugi::xml_node& n) {}
     DocStructure doc_conf() {return DocStructure();}
     bool no_children;
-};
-
-class ObjectFieldSet
-{
-public:
-    ObjectFieldSet() {}
-    ObjectFieldSet(const std::string& str) {}
-    void add(const std::string& s) {}
-    auto begin() {
-        return fields.begin();
-    }
-    auto end() {
-        return fields.end();
-    }
-    std::set<std::string> fields;
 };
 
 class JSONMetaReader
