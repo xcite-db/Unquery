@@ -96,6 +96,11 @@ Similarly, you can extract information from a specific element inside an array. 
 
 And get the result: `"Jane"`.
 
+Note that in case we have any characters other than alphanumeric and underscore, we need to enclose it in backticks. For example, if the field name was `"First Name"`, we should write:
+```
+"`First Name`"
+```
+
 Instead of just extracting a single field, we can specify multiple fields we want to extract, as an object:
 ```
 {
@@ -141,6 +146,30 @@ with `[...]`:
 ["FirstName"]
 ```
 
-Now we get an array with all the first names. In general, an array in ~Q contains a single element, which could be either a string literal or a more complex value (an object, or another array etc.). Once the query is evluated, the array is expended, with new value added each time with process a new file or a new value.
+Now we get an array with all the first names. In general, an array in ~Q contains a single element, which could be either a string literal or a more complex value (an object, or another array etc.). Once the query is evluated, the array is expended to include all the values from all the files we process. Without square brackets, all we can expect is a single value (or a single object).
+
+The array we get with the above query is unsorted. We can sort the results by adding a sorting directive. For example, to sort the first names in ascending order, we can write:
+```
+["FirstName@ascending"]
+```
+
+Similarly, we can use `@descending` and also `@unique_ascending` and `@unique_descending` to sort and remove duplicates.
+
+We can also use conditions to filter the results (similar to `WHERE` clauses in SQL. There are multiple ways to specify a condition in ~Q. One of them is a predicate at the end of the value expression, with `?` followed by a condition. For example, to get the last name of all employees earning over 200,000, we can write:
+```
+["LastName?Salary>200000"]
+```
+
+Now, suppose we want to get first and last name and title for all developers. We can write:
+```
+[{
+	"FirstName":"FirstName",
+	"LastName":"LastName",
+	"Title":"Title contains 'Developer'"
+}]
+```
+
+Note that in this case, we didn't use the `?`. When we have a constraint on a value we display, we can write the costraint directly on that value.
+
 
 
