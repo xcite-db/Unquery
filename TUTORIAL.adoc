@@ -58,4 +58,62 @@ the directory `tutorial-samples/employees`. Each file contains information about
     ]
 }
 ```
+
+### Simple queries
+
+Suppose we want to extract the field `FirstName` from employee1.json. All we need to do is to write a query file `query1.unq` (the extension is just a convention, and you can choose any name) with the following text:
 ```
+"FirstNames"
+```
+
+Assuming `unQLite` is in your search path, you can write:
+```shell
+unQLite -f query1.unq employee1.json
+```
+
+And you'll get the result:
+```
+"John"
+```
+
+For such a simple query, you may want to write the query directly in the command line, instead of storing the query in a file. You can do this with the `-c` option:
+```shell
+unQLite -c '"FirstName"' employee1.json
+```
+
+Note that we use single quotes around the query, so that all the special characters (including the double quotes in this case) would be passed to the program.
+
+But wait! Didn't I just say earlier that each query in ~Q is a json file? This doesn't look very much like json. But in fact, a string literal (in double quotes) is a legal json value. In the simplest cases, where we just want to extract a single value, this is all we need. When we want to extract a specific field, all we need to do is to write the field name in quotes. If the field is in a nested object, we can use the syntax `field1.field2`. For example, try query2.unq:
+```
+"Address.City"
+```
+And you'll get the response: `"Austin"`.
+
+Similarly, you can extract information from a specific element inside an array. For example, to get the first name of the first dependant, you can write:
+```
+"Dependants[0].FirstName"
+```
+
+And get the result: `"Jane"`.
+
+Instead of just extracting a single field, we can specify multiple fields we want to extract, as an object:
+```
+{
+  "fullname": "FirstName++' '++LastName",
+  "title":"Title",
+  "city": "Address.City"
+ }
+ ```
+ 
+ This looks much more like what we think of as json. And it shows how ~Q can express queries as templates. The result would be:
+ ```
+ {
+    "fullname": "John Smith",
+    "title": "CTO",
+    "city": "Austin"
+}
+```
+
+Two things to note here. First, the keys in this object don't have to match the keys in the original json. We renamed `Title` as `title`, etc. Also, notice that we used an expression that connects first and last name into a single string, with the concatenation operator, `++`.
+
+
