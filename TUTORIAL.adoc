@@ -59,7 +59,7 @@ the directory `tutorial-samples/employees`. Each file contains information about
 }
 ```
 
-### Simple queries
+=== Simple queries
 
 Suppose we want to extract the field `FirstName` from employee1.json. All we need to do is to write a query file `query1.unq` (the extension is just a convention, and you can choose any name) with the following text:
 ```
@@ -115,5 +115,32 @@ Instead of just extracting a single field, we can specify multiple fields we wan
 ```
 
 Two things to note here. First, the keys in this object don't have to match the keys in the original json. We renamed `Title` as `title`, etc. Also, notice that we used an expression that connects first and last name into a single string, with the concatenation operator, `++`.
+
+We can also create new nested objects. For example, if we want to group title and salary together inside an "employment" object, we can write the query:
+```
+{
+  "name": "FirstName++' '++LastName",
+  "employment": {
+     "title":"Title",
+     "salary":"Salary"
+  }
+}
+```
+
+=== Collecting information
+
+Suppose we want to collect information from multiple json file. We can try, for example, to run the query `"FirstName"` on all the employees:
+```shell
+unQLite -c '"FirstName"' *.json
+```
+
+Oh no! This is not what we expected. The result is only `"John"` again. What happened to all the other names? Recall that the output 
+structure should correspond to the query structure. In this case, we expect to get an array of names. So we need to specify an array in the query
+with `[...]`:
+```
+["FirstName"]
+```
+
+Now we get an array with all the first names. In general, an array in ~Q contains a single element, which could be either a string literal or a more complex value (an object, or another array etc.). Once the query is evluated, the array is expended, with new value added each time with process a new file or a new value.
 
 
