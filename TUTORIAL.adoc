@@ -1,0 +1,61 @@
+= Unquery-lite tutorial
+:sectnums:
+Sela Mador-Haim
+:toc:
+
+== Introduction
+
+~Q (pronounced un-query) is a language for querying and transforming structured documents. It was originally developed 
+for http://www.xcitedb.com[XCiteDB], a fast and reliable document-oriented noSQL database for storing structured documents,
+suppoting XML and JSON, with temporal versionning and branches.
+
+unQuery-lite is a command line tool for running ~Q queries directly on json files, without loading it to a database. It can read one or multiple json files and a ~Q query, and produce a new json file with the result of the query. This tutorial shows how to write ~Q queries and use them with unQuery-lite. It will not show parts of the language that are supported only by XCiteDB, such as reading XML, or querying across multiple versions and branches.
+
+=== ~Q Language Overview
+
+~Q is a powerful and easy to use querying language. For JSON, it can be used to:
+
+* Extract information from a JSON file.
+* Collect information from multiple JSON files.
+* Transform a JSON file, change the way it is organized, add or remove information.
+* Perform calculations on json data, including aggregation.
+
+One of the key properties of ~Q is that each query is formatted as json, and the structure of the result always corresponds to the structure of the query.
+You can think about ~Q (or at least simple ~Q queries) as a template for the result, and structure the query according to the way you want the result to look.
+As we would show you in this tutorial, this is one of ~Q's key strengths. 
+
+== Simple example: employee data
+
+=== Data structure
+
+As an introdction to ~Q, we'll start with a simple dataset. We have multiple files with information about employees in some company. Those files are stored in 
+the directory `tutorial-samples/employees`. Each file contains information about one employee in this fictituous company, and looks like:
+```
+{
+    "FirstName":"John",
+    "LastName":"Smith",
+    "Title":"CTO",
+    "Salary":320000,
+    "Address": {
+	"Street":"123 Oak Street",
+	"City":"Austin",
+	"State":"TX",
+	"Zip":78705
+    },
+    "Dependants": [
+	{"FirstName":"Jane",
+	 "LastName":"Smith",
+	 "Relation":"Wife"
+	},
+	{"FirstName":"Jake",
+	 "LastName":"Smith",
+	 "Relation":"Child"
+	},
+	{"FirstName":"Jenna",
+	 "LastName":"Smith",
+	 "Relation":"Child"
+	}
+    ]
+}
+```
+```
