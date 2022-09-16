@@ -1,5 +1,6 @@
 #include <string>
-#include <set>
+#include <vector>
+#include <map>
 
 class ObjectFieldSet
 {
@@ -20,5 +21,6 @@ public:
         return fields.end();
     }
 private:
-    std::set<std::string> fields;
+    std::vector<std::string> fields;
+    std::map<std::string,int> fields_map;
 };

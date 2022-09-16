@@ -255,6 +255,8 @@ public:
     virtual Strings getKeys(TQContext& ctx) = 0;
     virtual KeyType getKeyType() const {return KeyType::Values;}
     virtual string getName() const {return {};}
+
+    virtual bool isSorted() const {return true;}
 };
 
 typedef std::shared_ptr<TQKey> TQKeyP;
@@ -265,6 +267,7 @@ public:
     TQSimpleKey(const std::string& k): key(k) {}
     virtual Strings getKeys(TQContext& ctx);
     virtual string getName() const {return key;}
+    virtual bool isSorted() const {return false;}
 private:
     std::string key;
 };
@@ -274,6 +277,7 @@ class TQParamKey: public TQKey
 public:
     TQParamKey(const TExpressionP& e): expr(e) {}
     virtual Strings getKeys(TQContext& ctx);
+    virtual bool isSorted() const;
 private:
     TExpressionP expr;
 };
@@ -581,11 +585,16 @@ public:
     virtual bool isOrdered() const {return q->isOrdered();}
     virtual bool compare(const TQDataP& other) const;
     virtual bool equal(const TQDataP& other) const;
-    virtual bool isEmpty() {return fields.empty();}
+    virtual bool isEmpty() {return sorted_fields.empty()&&unsorted_fields.empty();}
 
 private:
+    TQDataP getFieldData(const string& key, TemplateQueryP& tq, bool sorted);
+    void storeData(const string& key, TQDataP& data, bool sorted);
+
     TQObject* q;
-    std::map<std::string, TQDataP> fields;
+    std::map<std::string, int> unsorted_fields_map;
+    std::map<std::string, TQDataP> sorted_fields;
+    std::vector<std::pair<std::string, TQDataP> > unsorted_fields;
     std::map<int, TQDataP> ordering;
 };
 
@@ -600,7 +609,8 @@ public:
     virtual bool isBool(TQContext* ctx = NULL) {return false;}
     virtual bool exists(TQContext& ctx) {return false;}
     virtual bool isAggregate(TQContext* ctx) {return false;}
-    virtual bool isField() {return false;}
+    virtual bool isField() const {return false;}
+    virtual bool isSortedKey() const {return true;}
 
     JSONValueP asJSON(TQContext& ctx);
 
@@ -816,7 +826,7 @@ public:
     virtual bool isDouble(TQContext* ctx);
     virtual bool isInt(TQContext* ctx);
     virtual bool isBool(TQContext* ctx);
-    virtual bool isField() {return true;}
+    virtual bool isField() const {return true;}
     virtual bool exists(TQContext& ctx);
     virtual JSONValueP getJSON(TQContext& ctx);
     virtual string getString(TQContext& ctx);
@@ -842,7 +852,7 @@ public:
     virtual bool isDouble(TQContext* ctx) {return exp->isDouble();}
     virtual bool isInt(TQContext* ctx) {return exp->isInt();}
     virtual bool isBool(TQContext* ctx) {return exp->isBool();}
-    virtual bool isField() {return op!=Operator::PREVID && exp->isField();}
+    virtual bool isField() const {return op!=Operator::PREVID && exp->isField();}
     virtual bool exists(TQContext& ctx);
     virtual JSONValueP getJSON(TQContext& ctx);
     virtual string getString(TQContext& ctx);
@@ -965,12 +975,14 @@ class TExprKey: public TExprString
 {
 public:
     virtual string getString(TQContext& ctx);
+    virtual bool isSortedKey() const {return false;}
 };
 
 class TExprReskey: public TExprString
 {
 public:
     virtual string getString(TQContext& ctx);
+    virtual bool isSortedKey() const {return false;}
 };
 
 class TExprFilename: public TExprString
@@ -1120,7 +1132,7 @@ public:
     virtual bool isBool(TQContext* ctx);
 
     virtual bool exists(TQContext& ctx);
-    virtual bool isField() {return arg->isField()&&(!subpath.empty()||expr);}
+    virtual bool isField() const {return arg->isField()&&(!subpath.empty()||expr);}
     virtual JSONValueP getJSON(TQContext& ctx);
     virtual string getString(TQContext& ctx);
     virtual int64_t getInt(TQContext& ctx);

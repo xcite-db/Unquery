@@ -1,4 +1,5 @@
 #include "json-utils.h"
+#include <algorithm>
 
 using namespace std;
 
@@ -21,7 +22,7 @@ ObjectFieldSet::ObjectFieldSet(const string& str)
 
 void ObjectFieldSet::add(const string& str)
 {
-    fields.insert(str);
+    fields.push_back(str);
 }
 
 void ObjectFieldSet::add(const ObjectFieldSet& o)
@@ -33,7 +34,8 @@ void ObjectFieldSet::add(const ObjectFieldSet& o)
 
 bool ObjectFieldSet::remove(const string& str)
 {
-    auto it = fields.find(str);
+
+    auto it = find(fields.begin(), fields.end(), str);
     if (it==fields.end()) {
         return false;
     }

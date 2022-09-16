@@ -299,7 +299,7 @@ JSONValueP TQContext::findLocalPath(const string& path, JSONValueP val)
             val = JSONValueP(&val->GetArray()[inx], DontDeleteJSONValue());
             next++;
         } else {
-            if (val->IsArray()) {
+            if (val->IsArray() && !val->GetArray().Empty()) {
                 JSONValueP newval(new JSONValue(rapidjson::kArrayType));
                 for (auto& i: val->GetArray()) {
                     if (!i.IsObject()) {
@@ -536,6 +536,11 @@ Strings TQParamKey::getKeys(TQContext& ctx)
         res.push_back(key);
     }
     return res;
+}
+
+bool TQParamKey::isSorted() const
+{
+    return expr->isSortedKey();
 }
 
 Strings TQRegexKey::getKeys(TQContext& ctx)
@@ -991,6 +996,40 @@ void TQObject::add(const TQKeyP& key, const TemplateQueryP& value, const Templat
     }
 }
 
+TQDataP TQObjectData::getFieldData(const string& key, TemplateQueryP& tq, bool sorted)
+{
+    if (sorted) {
+        auto it = sorted_fields.find(key);
+        if (it==sorted_fields.end()) {
+            return tq->makeData();
+        }
+        return it->second;
+    }
+    // unsorted
+    auto it = unsorted_fields_map.find(key);
+    if (it==unsorted_fields_map.end()) {
+        return tq->makeData();
+    }
+    return unsorted_fields[it->second].second;
+}
+
+void TQObjectData::storeData(const string& key, TQDataP& data, bool sorted)
+{
+    if (sorted) {
+        sorted_fields[key] = data;
+    } else {
+        auto it = unsorted_fields_map.find(key);
+        if (it==unsorted_fields_map.end()) {
+            unsorted_fields_map[key] = unsorted_fields.size();
+            unsorted_fields.push_back(make_pair(key, data));
+        } else {
+            unsorted_fields[it->second].second = data;
+        }
+    }
+}
+
+
+
 bool TQObjectData::processData(TQContext& ctx)
 {
     // Test all conditions
@@ -1031,17 +1070,12 @@ bool TQObjectData::processData(TQContext& ctx)
             continue;
         }
         Strings ks = m.first->getKeys(ctx);
+        bool sorted = m.first->isSorted();
         for (const string& k: ks) {
             ctx.pushReskey(k);
-            TQDataP data;
-            auto it = fields.find(k);
-            if (it==fields.end()) {
-                data = m.second->makeData();
-            } else {
-                data = it->second;
-            }
+            TQDataP data = getFieldData(k, m.second, sorted);
             if (data->processData(ctx)) {
-                fields[k] = data;
+                storeData(k, data, sorted);
             }
             if (data->isOrdered()) {
                 ordering[data->getOrderNumber()] = data;
@@ -1053,7 +1087,7 @@ bool TQObjectData::processData(TQContext& ctx)
         ctx.popVar(var);
     }
     ctx.popData(this);
-    return !fields.empty();
+    return !isEmpty();
 }
 
 JSONValue TQObjectData::getJSON(TQContext& ctx)
@@ -1074,28 +1108,16 @@ JSONValue TQObjectData::getJSON(TQContext& ctx)
     set<string> used;
     JSONValue res(rapidjson::kObjectType);
     
-    for (auto& m: q->fields) {
-        string k = m.first->getName();
-        if (m.first->getKeyType()!=KeyType::Values || k.empty()) {
-            continue;
-        }
-        auto vali = fields.find(k);
-        if (vali==fields.end()) {
-            continue;
-        }
-        JSONValue key_val(k.c_str(), alloc);
-        JSONValue val = vali->second->getJSON(ctx);
+    for (auto& m: unsorted_fields) {
+        JSONValue key_val(m.first.c_str(), alloc);
+        JSONValue val = m.second->getJSON(ctx);
         if (!val.IsNull()) {
             res.AddMember(key_val, val, alloc);
         }
-        used.insert(k);
     }
-    
-    for (auto& m: fields) {
+
+    for (auto& m: sorted_fields) {
         
-        if (used.find(m.first)!=used.end()) {
-            continue;
-        }
         JSONValue key_val(m.first.c_str(), alloc);
         JSONValue val = m.second->getJSON(ctx);
         if (!val.IsNull()) {
