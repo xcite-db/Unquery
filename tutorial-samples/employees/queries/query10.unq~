@@ -1,5 +1,0 @@
-[{
-	"#if":"$size(Dependants)>=2",
-	"FirstName":"FirstName",
-	"LastName":"LastName"
-}]

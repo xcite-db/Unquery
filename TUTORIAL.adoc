@@ -108,10 +108,10 @@ Instead of just extracting a single field, we can specify multiple fields we wan
   "title":"Title",
   "city": "Address.City"
  }
- ```
+```
  
  This looks much more like what we think of as json. And it shows how ~Q can express queries as templates. The result would be:
- ```
+```
  {
     "fullname": "John Smith",
     "title": "CTO",
@@ -134,7 +134,7 @@ We can also create new nested objects. For example, if we want to group title an
 
 === Collecting information
 
-Suppose we want to collect information from multiple json file. We can try, for example, to run the query `"FirstName"` on all the employees:
+Suppose we want to collect information from multiple json files. We can try, for example, to run the query `"FirstName"` on all the employees:
 ```shell
 unQLite -c '"FirstName"' *.json
 ```

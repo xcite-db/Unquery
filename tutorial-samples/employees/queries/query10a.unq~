@@ -1,5 +1,0 @@
-[{
-	"num:Dependants[]?Relation='Child'":"$count>1",
-	"FirstName":"FirstName",
-	"LastName":"LastName"
-}]
