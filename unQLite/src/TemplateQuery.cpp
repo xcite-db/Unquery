@@ -327,6 +327,19 @@ JSONValueP TQContext::findLocalPath(const string& path, JSONValueP val)
 
 }
 
+bool TQContext::isObject(const string& key)
+{
+    if (in_local) {
+        JSONValueP val = findLocalPath(key);
+        return val->IsObject();
+    }
+
+    string path = fullPath(key);
+    string s = tr->readMetaNode(path);
+    return !s.empty()&&s[0]=='{';
+}
+
+
 bool TQContext::isString(const string& key)
 {
     if (in_local) {
@@ -637,7 +650,8 @@ bool TQContextModData::contextMod(const TQDataP& data, TQContext& ctx)
             res = data->processData(ctx) || res;
             ctx.popPath();
         }
-        if (size == 0) {
+        
+        if (size == 0 && ctx.isObject(context)) {
             res = data->processData(ctx);
         }
         ctx.popPath();

@@ -171,5 +171,44 @@ Now, suppose we want to get first and last name and title for all developers. We
 
 Note that in this case, we didn't use the `?`. When we have a constraint on a value we display, we can write the costraint directly on that value.
 
+Another way to filter the results is using the `#if` directive. 
+For example, suppose we want to list employees with three dependants or more. We can use the query:
+```
+[{
+	"#if":"$size(Dependants)>=3",
+	"FirstName":"FirstName",
+	"LastName":"LastName"
+}]
+```
 
+The function `$size` returns the size of an array. At this point, you might ask: what if we want to filter by the number of children, 
+and not all dependants? Can we do this? Of course we can. We'll get back to this later.
+
+Suppose we want to collect all the information we have on employees, and not just specific fields. We can do this using the dot
+operator. `"."` stands for the current value we handle. If we didn't use any context modifiers (more on this later), it's the entire
+file. So the query:
+```
+["."]
+```
+
+Would create one big array, containing all employee data.
+
+We can also use aggregation functions to calculate all sort of values such as min, max, sum, average etc. For example:
+```
+"$avg(Salary)"
+```
+
+Would return the average salary in the company.
+
+```
+"$count"
+```
+
+Would return the total number of employees. We can also combine aggregation functions with predicates. This would make
+the function do the aggregation only for elements where the condition is true. For example:
+```
+$count?Salary>200000
+```
+
+Would return the total number of employees with salary greater than 200,000.
 

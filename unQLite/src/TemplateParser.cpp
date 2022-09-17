@@ -424,6 +424,9 @@ TQConditionP TParser::baseCondition(const TExpressionP& arg1)
         }
     }
     TExpressionP rhs = expression();
+    if ((lhs->isAggregate(0)&&!rhs->isLiteral())||(rhs->isAggregate(0)&&!lhs->isLiteral())) {
+        throwError("Aggregates can only be compared with literals");
+    }
     if (lhs->isString() && rhs->isString()) {
         if (op=="=") {
             return TQConditionP(new TQStringTest(lhs, rhs, Operator::EQ));

@@ -103,8 +103,9 @@ int main(int argc, char* argv[])
             }
 
         }
-
+        ctx.in_get_JSON = true;
         JSONValue value = tq->getJSON(ctx);
+        ctx.in_get_JSON = false;
         (JSONValue&)(*ctx.doc) = value;
 
         StringBuffer sb;

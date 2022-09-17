@@ -152,6 +152,7 @@ public:
         return findLocalPath(path, localJSON());
     }
     JSONValueP findLocalPath(const string& path, JSONValueP val);
+    bool isObject(const string& key);
     bool isString(const string& key);
     bool isDouble(const string& key);
     bool isInt(const string& key);
@@ -611,6 +612,7 @@ public:
     virtual bool isAggregate(TQContext* ctx) {return false;}
     virtual bool isField() const {return false;}
     virtual bool isSortedKey() const {return true;}
+    virtual bool isLiteral() const {return false;}
 
     JSONValueP asJSON(TQContext& ctx);
 
@@ -891,6 +893,7 @@ class TExprStringConst: public TExpression
 public:
     TExprStringConst(const string& s): str(s) {}
     virtual bool isString(TQContext* ctx) {return true;}
+    virtual bool isLiteral() const {return true;}
     virtual string getString(TQContext& ctx)
         {return str;}
 private:
@@ -902,6 +905,7 @@ class TExprIntConst: public TExpression
 public:
     TExprIntConst(int v): val(v) {}
     virtual bool isInt(TQContext* ctx) {return true;}
+    virtual bool isLiteral() const {return true;}
     virtual int64_t getInt(TQContext& ctx)
         {return val;}
     virtual double getDouble(TQContext& ctx)
@@ -918,6 +922,7 @@ class TExprDoubleConst: public TExpression
 public:
     TExprDoubleConst(double v): val(v) {}
     virtual bool isDouble(TQContext* ctx) {return true;}
+    virtual bool isLiteral() const {return true;}
     virtual double getDouble(TQContext& ctx)
         {return val;}
     virtual int64_t getInt(TQContext& ctx)
@@ -935,6 +940,7 @@ class TExprBoolConst: public TExpression
 public:
     TExprBoolConst(bool v): val(v) {}
     virtual bool isBool(TQContext* ctx) {return true;}
+    virtual bool isLiteral() const {return true;}
     virtual bool getBool(TQContext& ctx)
         {return val;}
 private:
