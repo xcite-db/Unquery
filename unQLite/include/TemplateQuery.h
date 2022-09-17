@@ -973,7 +973,9 @@ public:
 class TExprIndex: public TExprString
 {
 public:
+    virtual bool isInt(TQContext* ctx) {return true;}
     virtual string getString(TQContext& ctx);
+    virtual int64_t getInt(TQContext&ctx);
 };
 
 

@@ -1611,6 +1611,12 @@ string TExprIndex::getString(TQContext& ctx)
     return path.substr(starts+1,ends-starts-1);
 }
 
+int64_t TExprIndex::getInt(TQContext& ctx)
+{
+    string s = getString(ctx);
+    return stoi(s);
+}
+
 string TExprKey::getString(TQContext& ctx)
 {
     string path = ctx.path();

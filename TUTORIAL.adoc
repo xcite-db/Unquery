@@ -212,3 +212,97 @@ $count?Salary>200000
 
 Would return the total number of employees with salary greater than 200,000.
 
+=== Context modifiers
+
+Context modifiers are one of the most powerful and versatile mechanisms in ~Q. The context is the path we use in different places
+in the query. By default, the context is an empty path, and all fields are relative to the top node, but we can change it
+with a context modifier. For example, suppose we want to get the full address in one string. We can do it with the expression:
+```
+[{
+	"FullAddress":"Address.Street++' '++Address.City++' '++Address.State++', '++Address.Zip"
+}]
+```
+
+But if we change the context to `Address`, we no longer have to write it over and over in the expression. We change the context
+using a context modifier, which is an expression following a colon in the key name:
+```
+[{
+	"FullAddress:Address":"Street++' '++City++' '++State++', '++Zip"
+}]
+```
+
+Context modifiers can do more than just changing the path. It can be used to iterate over multiple paths. We do that using Two
+square brackets without any index inside it. If, for example, we want to get all employees childrens' names, we can run the
+query:
+
+```
+{
+	"Childen:Dependants[]?Relation='Child'" :
+	[
+		"FirstName++' '++LastName"
+	]
+}
+```
+
+In this case, we also used a predicate following the context modifier. In this query, it would have the same effect as adding
+a predicate after the value expression. Also note that the result here is a single array containing all children for all employees.
+If we added outer square brachets, this would change, and we'll have a seperate array of chilren for each employee:
+```
+[{
+	"Childen:Dependants[]?Relation='Child'" :
+	[
+		"FirstName++' '++LastName"
+	]
+}]
+```
+
+Predicates can be used to control which elements to traverse in other ways. For example, we can use the `$index` function to traverse
+only certain elements in the array:
+```
+[{
+	"Dependants:Dependants[]?$index<2":
+	[
+		"FirstName++' '++LastName"
+	]
+}]
+```
+
+We can also combine multiple context modifiers with the `|` (or) operator. For example, if we want to collect both employee names
+and dependant names into a single array, we can run the query:
+```
+{
+        "names:.|Dependants[]":
+        [
+                "FirstName++' '++LastName"
+        ]
+}
+```
+
+Note that the context here is either `.` (the current path) or `Dependants[]`.
+
+When aggregation functions are within a context modifier, those functions can be used to aggregate inside an array. For example,
+if we want the number of children for each employee, we can do:
+```
+[{
+        "FirstName:" : ".",
+        "LastName:" : ".",
+        "NumOfChildren:Dependants[]":"$count?Relation='Child'"
+}]
+```
+
+In the above example, note the use of `:` without any context modifier following the colon. In this case, the context modifier is
+the same as the field names, so `"FirstName:"` is the same as `"FirstName:FirstName"`.
+
+This brings us to the question we had earlier in this tutorial: how do we filter employees based on their number of children?
+We can do it using context modifiers and aggregation function, as in the following query:
+```
+[{
+	"#if:Dependants[]?Relation='Child'": "$count>1",
+	"FirstName:" : ".",
+	"LastName:" : "."
+}]
+```
+
+Though ~Q allows using aggregation functions in conditions, as shown in the above example, note that this should be done with
+caution, and it is not always possible. ~Q allows comparing aggregation functions with a constant literal (e.g. a number),
+but does not allow comparing aggregation function with some field value in the json file.
