@@ -110,7 +110,7 @@ Instead of just extracting a single field, we can specify multiple fields we wan
  }
 ```
  
- This looks much more like what we think of as json. And it shows how ~Q can express queries as templates. The result would be:
+This looks much more like what we think of as json. And it shows how ~Q can express queries as templates. The result would be:
 ```
  {
     "fullname": "John Smith",
@@ -306,3 +306,159 @@ We can do it using context modifiers and aggregation function, as in the followi
 Though ~Q allows using aggregation functions in conditions, as shown in the above example, note that this should be done with
 caution, and it is not always possible. ~Q allows comparing aggregation functions with a constant literal (e.g. a number),
 but does not allow comparing aggregation function with some field value in the json file.
+
+=== Dynamic key names
+
+So far, the key names we used were constants. But ~Q allows us to use expressions for key names as well. 
+The function `$(expression)` allows us to evaluate the expression and use it as a value. For example:
+```
+{
+        "$(LastName)":"."
+}
+```
+
+This query, for each json file, would add a field with the `LastName` as a key name, and would store the content 
+of that json (i.e. the employee record) in that field. This would generate a "directionay style" object with all the last names, 
+and for each last name, we would have the matching employee record. This would work if each employee have a unique last name.
+But what happens if there are two employees with the same last name? We need an array of employee records after each last name,
+but since we don't have an array in the query, we would get only one employee record for each last name. We could also combine
+the last and first names for the key:
+
+```
+{
+        "$(LastName++' '++FirstName)":"."
+}
+```
+
+But we would still have a problem if there are two or more employees with the same first and last name. Or, we can simply add square
+brackets after the key, so that we would have an array of employee records for each name:
+```
+{
+        "$(LastName)":["."]
+}
+```
+
+This would add each employee record to the array of records with the same last name. The effect of such query is similar to 
+`GROUP BY` in SQL. We can use this pattern to group elements by a field name or any other expression. We can use a similar
+query to group dependants by relation type (child, husband, wife, etc.):
+```
+{
+        "dependants:Dependants[]": {
+                "$(Relation)":["."]
+        }
+}
+```
+
+Similarly, we can perform aggregation on each group. For example, if we want to count dependants by each relation type:
+```
+{
+	"dependants:Dependants[]": {
+		"$(Relation)":"$count"
+	}
+}
+```
+
+=== Field iterators
+
+We showed earlier we can use context modifiers to iterate over array elements. But what if we want to iterate over fields
+of an object, instead of an array? Fortunately, ~Q allows use to do it in the same way. We just need to use `{}` in the 
+context modifier instead of `[]`.
+
+For example, we can create an dictionary-style object containing all employee records, with the `ID` as the key:
+```shell
+unQLite -c '{"$(ID)":"."}' employee*.json > dict-employees.json
+```
+
+If we want to go back from the dictionary-style object to an array of employee records, we can run:
+```shell
+unQLite -c '{"employees:{}":["."]}' dict-employees.json
+```
+
+We could use field iterators to do many other things. For example, to add a field to an object. Suppose we want to collect all
+employees into a dictionary-style object with `ID` as key, and add the filename for each employee record. We can run the query:
+```
+{
+	"$(ID):{}": {
+		    "Filename":"$filename",
+		    "$key":"."
+	}
+}
+```
+
+Here, `$key` is the name of the last key in the pass. And in this case, since we iterate over all the fields, each time `$key`
+is the field selected in that iteration. Recall that ~Q doesn't create duplicate keys with the same name. So we add `Filename`
+only once.
+
+Similarly, we can also remove fields. Suppose, again, we create a dictionary, with the `ID` as the key. Since we already use `ID`
+as key, we want to avoid redundancy, and remove it from the employee record. To do this, we use field iterator, with a predicate
+that filters out the `ID` field:
+```
+{
+        "$(ID):{}?$key!='ID'": {
+                    "$key":"."
+        }
+}
+```
+
+There are cases where using context modifiers can be cumbersome. For example, suppose we want to collect all employee records into
+an array, and add the filename. We can do:
+```
+[{
+	"employee:{}": {
+		"Filename":"$filename",
+		"$key":"."
+	}
+}]
+
+If we want to use context modifiers, it is necessary to add another wrapping object with the `employee` key so that we
+would have a place for the field iterator as a context modifier. But this is not exactly the json structure we want. 
+Fortunately, we have another way to iterate over fields, that doesn't involve context modifiers. We can use `{}` as the
+field name, and this would be replaced with all the fields in the object:
+```
+[{
+	"Filename":"$filename",
+	"{}:": "."
+}]
+```
+
+Similarly, we can also remove fields:
+```
+[{
+	"{}:": ".?$key!='Dependants'"
+}]
+```
+
+=== Using variables
+
+For more advanced queries, ~Q allows the user to define variables and use them. The simplest way to use variable is
+to store some value and use it later (possibly multiple times). For example, we want to create an array of all dependants,
+and for each dependant object, add the employee name. We can use a variable to remember the employee name before we
+change the context to `Dependants[]`:
+```
+{
+	"#var employee":"FirstName++' '++LastName",
+	"all_dependants:Dependants[]": [{
+		"{}:":".",
+		"Employee":"$var(employee)"
+	}]
+}
+```
+
+There are many other uses for variables. For example, suppose we want to change state names to full name instead of abbrevations.
+We can define a variable with a dictionary that translates each abbrevaion with the state's full name, and use it:
+```
+{
+        "#var states": {
+                "CA": "'California'",
+                "NJ": "'New Jersey'",
+                "NY": "'New York'",
+                "TX": "'Texas'"
+        },
+        "employees": [{
+                     "FirstName:":".",
+                     "LastName:":".",
+                     "State":"$var(states).$(Address.State)"
+        }]
+}
+```
+

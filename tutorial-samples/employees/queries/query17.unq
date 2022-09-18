@@ -1,0 +1,6 @@
+{
+	"$(ID):{}": {
+		    "Filename":"$filename",
+		    "$key":"."
+	}
+}

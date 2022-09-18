@@ -1838,7 +1838,7 @@ string TExprSubfield::getSubpath(TQContext& ctx)
     if (!expr) {
         return {};
     }
-    string s= expr->getString(ctx);
+    string s= expr->getFieldPath(ctx);
     if (is_index) {
         s = "["+s+"]";
     } else {
@@ -1914,8 +1914,11 @@ JSONValueP TExprSubfield::getJSON(TQContext& ctx)
     if (val->IsNull()) {
         return JSONValueP(new JSONValue);
     }
-    ctx.startLocalJSON(val);
     string s = getSubpath(ctx);
+    if (s.empty()||s==".") {
+        return JSONValueP(new JSONValue);
+    }
+    ctx.startLocalJSON(val);
     JSONValueP res = ctx.findLocalPath(s);
     ctx.endLocalJSON();
     return res;

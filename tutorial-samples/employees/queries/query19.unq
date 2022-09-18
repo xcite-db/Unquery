@@ -1,0 +1,13 @@
+{
+	"#var states": {
+		"CA": "'California'",
+		"NJ": "'New Jersey'",
+		"NY": "'New York'",
+		"TX": "'Texas'"
+	},
+	"employees": [{
+		     "FirstName:":".",
+		     "LastName:":".",
+		     "State":"$var(states).$(Address.State)"
+	}]
+}

@@ -288,6 +288,7 @@ class TQRegexKey: public TQKey
 public:
     TQRegexKey(const string& s): r(s), re(s) {}
     virtual Strings getKeys(TQContext& ctx);
+    virtual bool isSorted() const {return false;}
 private:
     string r;
     std::regex re;
