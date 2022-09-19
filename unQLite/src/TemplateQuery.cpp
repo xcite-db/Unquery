@@ -246,7 +246,7 @@ string TQContext::fullPath(const string& subpath, string currpath)
         return fullPath(subpath.substr(1), {});
     }
     if (subpath.compare(0,3,"../")==0) {
-        size_t pos = currpath.rfind('.');
+        size_t pos = currpath.find_last_of(".[");
         if (pos==string::npos) {
             currpath.clear();
         } else {
@@ -277,9 +277,10 @@ JSONValueP TQContext::findLocalPath(const string& path, JSONValueP val)
     }
     if (path.compare(0,3,"../")==0) {
         int i = localJSONs.size()-2;
+        /*
         while (i>=0 && localJSONs[i]->IsArray()) {
             i--;
-        }
+        }*/
         if (i<0) {
             return JSONValueP(new JSONValue);
         }
@@ -1568,7 +1569,7 @@ void TExprChangepath::adjustPath(TQContext& ctx)
         ctx.adjustPath("");
     } else if (op==Operator::UP) {
         string path = ctx.path();
-        size_t pos = path.rfind('.');
+        size_t pos = path.find_last_of(".[");
         if (pos==string::npos) {
             ctx.adjustPath("");
         } else {
@@ -1596,6 +1597,17 @@ JSONValueP TExprITE::getJSON(TQContext& ctx)
         return el->asJSON(ctx);
     }
 }
+
+string TExprChangeCase::getString(TQContext& ctx)
+{
+    string res = exp->getString(ctx);
+    if (lower) {
+        return to_lowercase(res);
+    } else {
+        return to_uppercase(res);
+    }
+}
+
 
 string TExprPath::getString(TQContext& ctx)
 {

@@ -965,6 +965,19 @@ public:
     virtual bool isString(TQContext* ctx) {return true;}
 };
 
+class TExprChangeCase: public TExprString
+{
+public:
+    TExprChangeCase(const TExpressionP& e, bool lower_)
+        : exp(e), lower(lower_) {}
+
+    virtual string getString(TQContext& ctx);
+
+    TExpressionP exp;
+    bool lower;
+};
+
+
 class TExprPath: public TExprString
 {
 public:
@@ -1060,7 +1073,6 @@ private:
     string XMLToString(const pugi::xml_node& n);
     TExpressionP arg;
 };
-
 
 class TExprArithmetic: public TExpression
 {

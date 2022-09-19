@@ -54,6 +54,8 @@ std::string strip_nonalnum(const std::string& s);
 
 std::string to_lowercase(const std::string& s);
 
+std::string to_uppercase(const std::string& s);
+
 std::string getExtension(const std::string& filename);
 
 size_t find_nth_occurance(const std::string& s, char c, int n);

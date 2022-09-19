@@ -578,6 +578,11 @@ TExpressionP TParser::baseExpression()
         TExpressionP def = expression();
         expect(")");
         res = TExpressionP(new TExprPrev(def));
+    } else if (token=="$lower" || token=="$upper") {
+        expect("(");
+        TExpressionP exp = expression();
+        expect(")");
+        res = TExpressionP(new TExprChangeCase(exp, token=="$lower"));
     } else if (token=="$path") {
         res = TExpressionP(new TExprPath);
     } else if (token=="$index") {

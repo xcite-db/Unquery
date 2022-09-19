@@ -457,6 +457,19 @@ string to_lowercase(const string& s)
 	return res;
 }
 
+string to_uppercase(const string& s)
+{
+    string res = s;
+	int i;
+	char c;
+	for (i=0;i<s.length();i++) {
+		c = s[i];
+		if (c>='a' && c<='z')
+			res[i]=c-'a'+'A';
+	}
+	return res;
+}
+
 
 string getExtension(const string& filename)
 {
