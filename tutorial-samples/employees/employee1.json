@@ -13,7 +13,7 @@
     "Dependants": [
 	{"FirstName":"Jane",
 	 "LastName":"Smith",
-	 "Relation":"Wife"
+	 "Relation":"Spouse"
 	},
 	{"FirstName":"Jake",
 	 "LastName":"Smith",

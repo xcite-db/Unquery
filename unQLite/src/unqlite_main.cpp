@@ -53,6 +53,10 @@ int main(int argc, char* argv[])
     Document json_query;
     if (!query_file.empty()) {
         FILE* fp = fopen(query_file.c_str(), "r");
+        if (!fp) {
+            cerr<<"Error. Could not open query file: "<<query_file<<endl;
+            exit(1);
+        }
         char readBuffer[65536];
         FileReadStream jsonfile(fp, readBuffer, sizeof(readBuffer));
         json_query.ParseStream<kParseCommentsFlag>(jsonfile);
@@ -77,10 +81,19 @@ int main(int argc, char* argv[])
         TQContext ctx;
         JSONValueP json_val(new Document);
         Document& json_doc = *static_cast<Document*>(json_val.get());
-        while (!args.isEnd()) {
-            string filename = args.nextArg();
+        bool use_stdin = args.isEnd();
+        while (!args.isEnd() || use_stdin) {
+            string filename;
             //cerr<<"Filename: "<<filename<<endl;
-            FILE* fp = fopen(filename.c_str(), "r");
+            FILE* fp;
+            if (use_stdin) {
+                fp = stdin;
+                filename = "stdin";
+                use_stdin = false;
+            } else {
+                filename = args.nextArg();
+                fp = fopen(filename.c_str(), "r");
+            }
             char readBuffer[65536];
             FileReadStream jsonfile(fp, readBuffer, sizeof(readBuffer));
             json_doc.ParseStream<kParseCommentsFlag>(jsonfile);
