@@ -36,3 +36,56 @@ Or alternatively, you can write:
 unQLite -c '["firstName"]' *.json
 ```
 
+## Frequently Asked Questions?
+
+### Why do we need another json query language?
+
+*There already over a dozen different quey languages for json. Why do we need yet another one?*
+
+While there are a lot of query languages for json, ~Q is different. And, we believe, better. The approach we used for designing ~Q is based on two principles:
+* Any ~Q query is a well-formed json.
+* The structure of the query matches the structure of the result.
+
+The advantages of ~Q are:
+* Readability: because te structure of the query matches the structure of the result, it is easy to unserstand what the query does.
+* Succint: complex queries can be writen using relatively shot queries.
+* Simple: there are only few constructs the user need to learn to write complex queries.
+* Powerfull: we do not compromise on the expressive power of the language. 
+* Recursive structure: json is recursive, and allows unlimited nesting depth of objects and arrays. Similarly, ~Q is capable of querying nested arrays and objects with  ease.
+* Guarantee to produce well-formed json.
+* Fully embrace json: query json files with queries written in json, and results in json.
+* Fast. The implementation is written in C++, and use RapidJSON, the fastest c++ json library, to parse json files.
+* The same query language is used in XCiteDB, a powerfull database for XML and JSON.
+
+### Are there any disadvantages?
+
+*What are the disadvantages of ~Q, compared to other query languages?*
+
+~Q does have some disadvantages as well:
+* The queries are written in json, and may come with some syntactic overhead. Mostly, lots of double quotes, which are required for strings.
+* It can only produce well-formed json. So if you need non-json results, it wouldn't be a good match.
+* The implmentation is in C++ (and not Javascript). So it cannot run on the client's side inside the browser.
+
+### Is the implementation complete?
+
+*It looks like unQLite is still being developped. Is it ready to be used?*
+
+The implementation is fully working. All the features shown in the tutorial (and many more) are already implemented. It is still a beta version, and may still have bugs. The more you use it, the better it would become.
+
+### What about documentation?
+
+*Where is the reference manual?*
+
+Working on it. I will post it soon.
+
+### Other programming languages
+
+*Having a command line utility is cool. But I want to use it in a Python/NodeJS/C++ project. Do you plan to have language bindings for those languages?*
+
+Yes.
+
+### License
+
+*Can I use it? Do I need to pay?*
+
+unQLite is an open source project, disctributed under the terms Apache 2.0. So it is completely free.
