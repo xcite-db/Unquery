@@ -1088,6 +1088,11 @@ bool TQObjectData::processData(TQContext& ctx)
             JSONValueP j = JSONValueP(new JSONValue(d->getJSON(ctx)));
             ctx.assignVar(name, j);
             continue;
+        } else if (kt==KeyType::Return) {
+            if (!returned) {
+                returned = m.second->makeData();
+            }
+            returned->processData(ctx);
         }
         Strings ks = m.first->getKeys(ctx);
         bool sorted = m.first->isSorted();
@@ -1112,6 +1117,9 @@ bool TQObjectData::processData(TQContext& ctx)
 
 JSONValue TQObjectData::getJSON(TQContext& ctx)
 {
+    if (returned) {
+        return returned->getJSON(ctx);
+    }
     auto& alloc = ctx.doc->GetAllocator();
 
     for (auto& c: q->conditions_data) {

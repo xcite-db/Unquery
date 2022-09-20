@@ -206,6 +206,8 @@ TQKeyP TParser::key()
             res = TQKeyP(new TQDirectiveKey(KeyType::Exists));
         } else if (name == "notexists") {
             res = TQKeyP(new TQDirectiveKey(KeyType::Notexists));
+        } else if (name == "return") {
+            res = TQKeyP(new TQDirectiveKey(KeyType::Return));
         } else {
             throwError("Unknown directive \""+name+"\"");
         }

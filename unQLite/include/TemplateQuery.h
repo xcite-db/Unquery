@@ -248,7 +248,16 @@ class TQPlaceholder: public TemplateQuery
 };
 
 
-enum class KeyType {Values, Cond, Func, Variable, Assign,Exists,Notexists};
+enum class KeyType {
+    Values, 
+    Cond, 
+    Func, 
+    Variable, 
+    Assign,
+    Exists,
+    Notexists,
+    Return
+};
 
 class TQKey
 {
@@ -597,6 +606,7 @@ private:
     std::map<std::string, int> unsorted_fields_map;
     std::map<std::string, TQDataP> sorted_fields;
     std::vector<std::pair<std::string, TQDataP> > unsorted_fields;
+    TQDataP returned;
     std::map<int, TQDataP> ordering;
 };
 
