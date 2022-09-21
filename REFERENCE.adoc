@@ -1,0 +1,145 @@
+= ~Q Reference Manual
+:sectnums:
+Sela Mador-Haim
+:toc:
+
+A full reference of the ~Q language.
+
+== Overview
+
+The query language ~Q (Pronounced "unquery") is a query language for structured documents, currently supporting JSON and XML. It is the query language of `XCiteDB`, a structured document database with version control, supporting XML as well as JSON metadata. It is also used in unQuery-lite, a tool for querying and transforming JSON documents. While supporting multiple documents formats as input, the result of ~Q is always represented as JSON. In case of XML, the query results are represented as strings inside a JSON document.
+
+There are two main design principles for ~Q:
+
+* Principle 1: Each ~Q query is a well-formed JSON document.
+* Principle 2: The structure of the query result corresponds to the structure of the query itself.
+
+There are few exceptions to those principles. First, we allow c-style comments (both `//` and `/* ... /*`) in ~Q. And second, few language features may violate Principle 2 and create results that may not completely correspond to the query structure.
+
+== Query structure and evaluation
+
+Each query is evaluated by traversing the query from the top node to the leaves in the order they appear in the query. When querying multiple documents, the query is repeatedly evaluated for each document. Objects in ~Q generate corresponding objects in the result. Arrays in ~q generate arrays, and strings contain expressions that are evaluated into JSON values in the result (either a string, or any other value).
+
+=== Strings
+
+A string in ~Q represents an expression. The simplest expressions are paths in the queried JSON document. For example:
+
+* `"Field1"` is the value for the key `Field1`.
+* `"Field1.Field2"` is the value of `Field2` within `Field1`
+* `"[1]"` is the 2nd element in an array (starting from `0`)
+* `"Field1[0]"` is the first element in the array in `Field1`.
+* `"Field1[0].Field2"` is the value of `Field2` in the object at the first element in the array in `Field1`.
+
+When a field name includes characters other than alphanumeric characters on underscore, we need to enclose it in backticks. E.g:
+
+```
+"`The Second Field`"
+```
+
+Note that a path does not have to result in a string value. It can be evaluated to any JSON value, including arrays, objects, and even complex structures such as objects containing arrays of objects etc.
+
+Other basic expressions include constant numbers, bool values, or strings. String constants need to be enclosed in single quotes: `"'A String'"` or escaped quotes: `"\"A String\""`.
+
+We can write more complex expressions with operators. For example `"Field1+Field2"`, use parentheses for presedence. For example: `"(Field1+2)*5"`, and use functions, such as: `"$length(Field1)"` for the length of the string in `Field1`. Functions always start with a `$` sign. We will list all supported operators and functions later in this document.
+
+At the end of the string, after an expression, we may add a predicate, which starts with the symbol `?` followed by a condition. For example: `"Field1?Field2=5"`. Given a predicate, the expression would be evaluated only when the condition is true.
+
+We may also provide sorting specifier for ordering values inside an array. E.g. `"Field1@ascending"`.
+
+=== Arrays
+
+An array in ~Q may contain one or more values. An array in the query evaluates to an array in the result. Each time we evaluate the array in the query (for each document, or multiple times when iterating over elements within the document), we add a new element for the result array.
+
+For example, suppose the query is:
+`["FirstName"]`
+
+If we evaluate multiple documents, when one document is for John Doe, the other is for Jane Doe, and the third is for David Gill, the result would be:
+`["John","Jane","David"]`
+
+Similarly, if the query is:
+`["FirstName","LastName"]`
+
+The result would be:
+`["John","Doe","Jane","Doe","David","Gill"]`
+
+=== Objects
+
+Objects in ~Q evaluate to objects in the results. Each object in the query contains pairs of string keys, and values. In the simplest case, constant keys in the querry would correspond to keys with the same name at the result. For example, for the query:
+```
+{
+    "key1":"Field1",
+    "key2": "2+5"
+}
+```
+
+The result would be:
+```
+{
+    "key1":"The value of Field1",
+    "key2":"7"
+}
+```
+
+The keys are evaluated in order. And for each key, the query evalautes the value. Note that when the value is a simple string expression as in the above example, it is evaluated once, and then can no longer change, even if we evaluate the same object again for a different documents. If, for one document, the value of `Field1` is "One value", and for another, the value is "Another value", the result would be just "One value".
+
+Also note that the order of the fields in the result is not guaranteed. While ~Q tries to preserve the order of the fields in an object, the order might not be preserved at some cases, especially when using dynamic key names (See Section ???).
+
+Key names in ~Q are not just constant strings. The language support other types of key names, such as directives (special instructions, starting with `#`, for example, `"#if"`), and dynamic key names which evaluate to one or more key names (for example, `"$(Field1)"`).
+
+Following the key name, ~Q allows a language construct called context modifier (See Section ???).
+
+=== Mixing objects and arrays
+
+~Q allows mixing object and arrays in any possible way. For example, when the query is `[{"key1":"Field1"}]`, the result would be:
+```
+[{"key1":"value1"}, {"key1","value2"},{"key1":"vale3"}]
+```
+
+For the query: `{"key1":["Field1"]}`
+
+The result is:
+```
+{"key1":["value1","value2","value3"]}
+```
+
+And for: `[["Field1"]]`, the result is:
+```
+[["value1"],["value2"],["value3"]]
+```
+
+For the last example, note that there are three entries for the outer array, and a single entry for each inner array. The reason is that each time we evaluate a new document, we add a new entry to the outer array. When we evaluate the second document, we add a new entry to the outer array, so we no longer modify the inner array for the first entry.
+
+Mixing arrays and objects become even more interesting once we use context modifier iterators. For example, the query:
+```
+{"result:Array1[]": ["Field1"]}
+```
+
+Would result in one long array with all the values for `Array1[].Field1` for all documents. e.g.:
+```
+{"result": ["doc1_value1","doc1_value2","doc2_value1","doc2_value2"]}
+```
+
+But if we enclose the entire query in square brackets:
+```
+[{"result:Array1[]": ["Field1"]}]
+```
+
+We would get:
+```
+[{"result":["doc1_value1","doc1_value2"]},
+ {"result":["doc2_value1","doc2_value2"]}]
+```
+
+Note that once again, when we use arrays within arrays, the result is that ~Q creates a new object for each document in the outer array, and within each document, it adds new values to the inner array.
+
+== Conditions
+
+== Dynamic field names
+
+== Context modifiers
+
+== Directives
+
+== Operators
+
+== Functions
