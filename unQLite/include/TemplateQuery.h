@@ -497,10 +497,13 @@ public:
 class TQArray: public TemplateQuery
 {
 public:
-    TQArray(const TemplateQueryP& v): val(v) {}
+    TQArray() {}
+    void add(const TemplateQueryP& val) {
+        vals.push_back(val);
+    }
     virtual TQDataP makeData();
 
-    TemplateQueryP val;
+    std::vector<TemplateQueryP> vals;
 };
 
 typedef std::shared_ptr<TQArray> TQArrayP;

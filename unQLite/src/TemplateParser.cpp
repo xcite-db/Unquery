@@ -833,8 +833,12 @@ TemplateQueryP JSONToTQ(JSONValue& v)
 {
     TemplateQueryP res;
     if (v.IsArray()) {
-        TemplateQueryP val = JSONToTQ(v[0]);
-        res = TemplateQueryP(new TQArray(val));
+        TQArray* array = new TQArray;
+        res = TemplateQueryP(array);
+        for (auto& e: v.GetArray()) {
+            TemplateQueryP val = JSONToTQ(e);
+            array->add(val);
+        }
     } else if (v.IsObject()) {
         TQObject* obj = new TQObject;
         res = TemplateQueryP(obj);
@@ -884,6 +888,15 @@ TemplateQueryP JSONToTQ(JSONValue& v)
         } else {
             res = vc.first;
         }
+    } else if (v.IsInt64()) {
+        TExpressionP exp(new TExprIntConst(v.GetInt()));
+        res = TemplateQueryP(new TQValue(exp));
+    } else if (v.IsDouble()) {
+        TExpressionP exp(new TExprDoubleConst(v.GetDouble()));
+        res = TemplateQueryP(new TQValue(exp));
+    } else if (v.IsBool()) {
+        TExpressionP exp(new TExprBoolConst(v.GetBool()));
+        res = TemplateQueryP(new TQValue(exp));
     }
 
     return res;

@@ -901,17 +901,27 @@ TQDataP TQArray::makeData()
 
 bool TQArrayData::processData(TQContext& ctx)
 {
-    TQDataP new_data = q->val->makeData();
-    if (new_data->processData(ctx)) {
-        array.push_back(new_data);
-        return true;
+    bool res = false;
+    for (TemplateQueryP& val: q->vals) {
+        TQDataP new_data = val->makeData();
+        if (new_data->processData(ctx)) {
+            array.push_back(new_data);
+            res = true;
+        }
     }
-    return false;
+    return res;
 }
 
 JSONValue TQArrayData::getJSON(TQContext& ctx)
 {
-    if (q->val->isOrdered()) {
+    bool ordered = false;
+    for (auto& val: q->vals) {
+        if (val->isOrdered()) {
+            ordered = true;
+        }
+    }
+
+    if (ordered) {
         sort(array.begin(), array.end(), compare_data);
         auto it = unique(array.begin(), array.end(), equal_data);
         array.resize(std::distance(array.begin(), it));
