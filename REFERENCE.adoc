@@ -132,9 +132,79 @@ We would get:
 
 Note that once again, when we use arrays within arrays, the result is that ~Q creates a new object for each document in the outer array, and within each document, it adds new values to the inner array.
 
+== Path expressions
+
+A path expression is used to select a value in a document by specifying the path (i.e. keys and array indexes) from the top. A path in ~Q is relative to the current context path, which is intially the document's root (or top), unless changed with a context modifier.
+
+=== Dot
+
+A `.` (dot) is used to specify the current value. Without any context modifiers, it is the document's root, and would therefore return the entire document. For example:
+```
+["."]
+```
+
+Would return all queried documents as an array. And:
+```
+{"result:Field1": "."}
+```
+
+Is equivalent to:
+```
+{"result":"Field1"}
+```
+=== Field name
+
+A field name returns a value corresponding to a key at the current context path. For example: `"Field1"`` would return the value of `Field1`.
+
+When the field name includes spaces or any symbols other than underscore or alphanumeric characters, you need to use backtick. For example:
+
+```
+"`Field name with spaces`"
+```
+
+=== Subfield
+
+A dot followed by field name (without any spaces between the dot and the key name) extracts a subfield (key for a value). For example: `"Field1.Subfield2"`. 
+
+A subfield extraction operator can be used after an expression, and not just a path. For example: `"$var(x).Subfield1"` extracts the field `Subfield1` from the JSON stored in variable `x`.
+
+The subfield name doesn't have to be a string. We can use an expression an evaluate it to get the key name. For example: `Field1.$(Field2)` would read the value of `Field2` and use the value as the key name to extract.
+
+=== Array element
+
+A number in square brackets, e.g. `[1]`, extracts the corresponding element number from the array (in this case, element `1`, which is the 2nd element). An array element can appear anywhere in a path. For example: `[0].Field1`, or `Field1[0][2].Field2`.
+
+We can use an expession instead of a constant number. For example `Field1[1+1]` or `Field1[$index]`.
+
+=== Whole array
+
+Two square brackets without any number or expression between them returns all of the elements of an array. For example: `Array1[]`. In this case, this would be equivalent to `Array1` without any square brackets, since the value of `Array1` is the entire array.
+
+Hovever, we do need to use the `[]` operator when doing array projection. For example: `Array1[].Field1` would return an array of Field1 value for each object in `Array1`. We could achieve the same effect using content iterators, as in:
+```
+{"result:Array1[]":["Field1"]}
+```
+
+Which is usually preferable since it's more idiomatic for ~Q. But in some cases, array projections are more convenient. For example, when using the `in` operator.
+
+=== Root
+
+In case we changed the current path with a context modifier, we can still access the root element, or any path that starts with the root element (i.e. absolute path) by using a `/` (slash) operator. For example:
+```
+{"result:Field1": "/Field2"}
+```
+
+This would return `Field2` of the top object, and not `Field1.Field2`.
+
+=== Up
+
+The `../` (two dots and slash) operator changes the context to one level up in the path. For example, if the current path is `Field1.Field2`, the path expression `../Field3` returns the value of `Field1.Field3`. Note that the up opator also skips array indexes, so when the path is `Field1.Field2[3]`, the expression: `../Field3` would still return: `Field1.Field3`.
+
 == Conditions
 
 == Dynamic field names
+
+== Array sorting
 
 == Context modifiers
 

@@ -1876,10 +1876,12 @@ string TExprSubfield::getSubpath(TQContext& ctx)
     if (!expr) {
         return {};
     }
-    string s= expr->getFieldPath(ctx);
+    string s;
     if (is_index) {
-        s = "["+s+"]";
+        size_t n = expr->getInt(ctx);
+        s = "["+to_string(n)+"]";
     } else {
+        s = expr->getFieldPath(ctx);
         s = "."+s;
     }
     return s;

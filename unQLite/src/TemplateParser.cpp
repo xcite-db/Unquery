@@ -813,8 +813,7 @@ string TParser::pathWithBrackets(const std::string& path)
     // If '[' followed by number, add to string. Otherwise, backtrace and return
     else if (ifNext("[")) {
         string token = nextToken();
-        if (isnumber(token)) {
-            expect("]");
+        if (isnumber(token) && ifNext("]")) {
             res = res+"["+token+"]";
         } else {
             restorePosition();
