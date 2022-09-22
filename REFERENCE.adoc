@@ -200,6 +200,20 @@ This would return `Field2` of the top object, and not `Field1.Field2`.
 
 The `../` (two dots and slash) operator changes the context to one level up in the path. For example, if the current path is `Field1.Field2`, the path expression `../Field3` returns the value of `Field1.Field3`. Note that the up opator also skips array indexes, so when the path is `Field1.Field2[3]`, the expression: `../Field3` would still return: `Field1.Field3`.
 
+=== Previous document
+
+The `<<` operator would temporary switch back to the previous context, before switching to a different document. For example:
+```
+{
+    "result->$file('another.unq')" : {
+        "key1":"Field1",
+        "key2":"<<Field1"
+    }
+}
+```
+
+In this case, `key1` would contain the value of `Field1` in `another.unq`, and `key2` would contain the value of `Field1` in the original document.
+
 == Conditions
 
 == Dynamic field names
@@ -213,3 +227,5 @@ The `../` (two dots and slash) operator changes the context to one level up in t
 == Operators
 
 == Functions
+
+== Aggregate functions
