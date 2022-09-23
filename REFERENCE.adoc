@@ -301,6 +301,127 @@ The operator `in` is true when a value is found inside an array. The operator `n
 
 == Dynamic field names
 
+Keys (field names) can be either a constant string, or an expression that get evaluated to a value (or multiple values, in some cases). A non-constant key is a dynamic value.
+
+=== Constant keys
+
+When a key is an alphanumeric string (including underscores), or enclosed in backticks, it is treated as a constant. The key in the result is the same as the key in the query.
+
+=== Eval expression
+
+When using `$(expression)`, the expression is evaluated, and the resulting value is the key name. For example: 
+```
+{
+   "Field1": "value1",
+   "$(Field2)": "value2"
+}
+```
+
+In this case, the name of the first field would be `"Field1"`, and the name of the second field would be `"Field2"`.
+
+Note that if we evaluate this object multiple times (either for multiple documents, or when using iterators), we would add more fields to the result object. This can be used to construct a dictionary-style object.
+
+Another case where this is useful is when some key values occure multiple times. We can use the pattern:
+```
+{
+    "$(bin)": ["value"]
+}
+```
+
+The effect would be similar to `group_by` in other query languages. For example, if we have the JSONs:
+```
+[
+    {
+        "bin": "One",
+        "value": "val1"
+    },
+    {
+        "bin": "Two",
+        "value": "val2"
+    },
+    {
+        "bin": "One",
+        "value": "val3"
+    },
+    {
+        "bin": "Two",
+        "value": "val4"
+    },
+
+]
+```
+
+And the query:
+```
+{
+    "results:[]": {
+        "$(bin)" : ["value"]
+    }
+}
+```
+
+The result would be:
+```
+{
+    "results": {
+        "One": ["val1", "val3"],
+        "Two": ["val2", "val4"]
+    }
+}
+```
+
+Note that when using function (starting with `$` sign), the `$(...)` is redundant. For example, in the key, we can use `"$index"` instead of `"$($index)"`.
+
+=== Copy keys from queried object
+
+When using `"{}"` as the key, this would be evaluated to all keys in the queried object. For example, when the query is:
+```
+{
+    "{}": "value"
+}
+```
+
+And the queried object contains `key1`, `key2` and `key3`, the result would be:
+```
+{
+    "key1": "value",
+    "key2": "value",
+    "key3": "value"
+}
+```
+
+The value in all three keys is identical here, which is probably rarely useful. A more useful pattern is:
+
+```
+{
+    "{}:" : "."
+}
+```
+
+The colon after the `{}` means that the context for each key would be modified accoding to the name of the key, so that `"."` is the value of the corresponding key in each case. The result is copying all keys and their correspond values from the queried objects. This would allow us to copy all fields, and possibly add extra fields to the result.
+
+If we wanted to filter out some fields instead of copying everything, there are several ways we can do that. One is by adding a predicate to the value expression. For example, for copying all fields except `key2`, we can write:
+```
+{
+    "{}:" : ".?$key!='key2'"
+}
+```
+
+Another syntax we support is:
+```
+{
+    "{'regex'}:" : "."
+}
+```
+
+This is equivalent to:
+```
+{
+    "{}:" : ".?$key matches 'regex'"
+}
+```
+
+
 == Array sorting
 
 == Context modifiers

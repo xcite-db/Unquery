@@ -550,7 +550,15 @@ Strings TQSimpleKey::getKeys(TQContext& ctx)
 Strings TQParamKey::getKeys(TQContext& ctx)
 {
     Strings res;
-    string key = expr->getString(ctx);
+    string key;
+    if (expr->isString(&ctx)) {
+        key = expr->getString(ctx);
+    } else if (expr->isInt(&ctx)) {
+        key = to_string(expr->getInt(ctx));
+    } else if (expr->isDouble(&ctx)) {
+        key = to_string(expr->getDouble(ctx));
+    }
+
     if (!key.empty()) {
         res.push_back(key);
     }
