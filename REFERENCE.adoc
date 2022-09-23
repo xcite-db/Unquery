@@ -216,6 +216,89 @@ In this case, `key1` would contain the value of `Field1` in `another.unq`, and `
 
 == Conditions
 
+Conditions are used to filter out results. Conditions can appear in four different places in ~Q:
+
+* <<Predicates>>
+* <<if_directive,`#if` directives>>
+* <<Constraints,Constrainst on a value>>
+* <<if_function,`$if` functions>>
+
+=== Predicates
+
+Predicates appear in a value, after an expression, or in a key, after a context modifier. The syntax is `? condition`. When there is a predicate on a value, the value is evaluated only when the predicate is true. 
+
+When the predicate is false, the expression is skipped. When the predicate appears in a array value, the value won't be added to the array. When a predicate appears in an object, the specific key and value won't be added to the object, but other fields may still be evaluated and added. When a false predicate appears after an aggregate function, the aggregate value won't be updated in this case.
+
+For example:
+```
+{
+   "key1": "value1?x!=1",
+   "key2": "value2",
+}
+```
+
+When `x` is 1, `"key1"` won't appear, but `"key2"` would still be there.
+
+=== Constraints
+
+Constrains have the syntax: `<expression1> <comparator-op> <expression2>`. When used in an array or standalone value, the effect of `"value1 = value2"` (for example) would be the same as `"value1? value1 = value2"`. However, when used in an object field, the entire object won't be evaluated when the constraints are not met. For example:
+
+```
+{
+    "key1": "value1!=1",
+    "key2": "value2>5",
+    "key3": "value3"
+}
+```
+
+This object is evaluated only when both `value1!=1` and `value2>5`. This is equivalent to using the`#if` directive:
+```
+{
+    "#if": "value1!=1 & value2>5"
+    "key1": "value1",
+    "key2": "value2",
+    "key3": "value3"
+}
+```
+
+=== Equality and inequality operators
+
+We can compare the value of two expressions using equality and inequality operators: `=`, `<`, `>`, `<=`, `>=`, '!='.
+
+For example `x != y`.
+
+=== Negation
+
+We can negate the condition using a `!` before the condition. For example `! x=y` is equivalent to `x!=y`.
+
+=== Exists
+
+An exclamation mark after a field name or path is true only if the field exist in the document. For example: `"Field1.Field2!"` is true when Field2 exists in Field1. This operator can also be used as value constraint. For example:
+```
+{
+    "key1": "Field1!",
+    "key2": "value_expr"
+}
+```
+
+The object is evaluated only when `Field1` exists.
+
+=== Conjunctions and parentheses
+
+The operators `&` (and) and `|` (or) can be used to combine conditions. `&` have higher precedence than `|'. Paretheses are allowed to change the order of precedence. 
+
+For example: `x=5 | (y>7 & x=z)`
+
+=== String conditions
+
+~Q supports the operators `contains`, `starts_with`, `ends_with` and `matches`. Where the first three test if a string contains, starts with or ends with another string, and the last one tests if a string matches a regular expression.
+
+For example: `Field1 contains 'Developer' & Field2 matches 'A.*b'`.
+
+=== Value in array
+
+The operator `in` is true when a value is found inside an array. The operator `not_in` is its negation: `value not_in array` is equivalent to `!(value in array)`.
+
 == Dynamic field names
 
 == Array sorting
@@ -224,8 +307,12 @@ In this case, `key1` would contain the value of `Field1` in `another.unq`, and `
 
 == Directives
 
+=== #if[[if_directive]]
+
 == Operators
 
 == Functions
+
+=== $if[[if_function]]
 
 == Aggregate functions

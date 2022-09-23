@@ -440,7 +440,7 @@ TQConditionP TParser::baseCondition(const TExpressionP& arg1)
             return TQConditionP(new TQStringTest(lhs, rhs, Operator::STARTS));
         } else if (op=="ends_with") {
             return TQConditionP(new TQStringTest(lhs, rhs, Operator::ENDS));
-        } else if (op=="match") {
+        } else if (op=="matches") {
             return TQConditionP(new TQStringTest(lhs, rhs, Operator::MATCH));
         }
     } else if (lhs->isInt() && rhs->isInt() || lhs->isDouble() && rhs->isDouble()) {
