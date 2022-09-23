@@ -655,6 +655,24 @@ TExpressionP TParser::baseExpression()
         TExpressionP arg = expression();
         expect(")");
         res = TExpressionP(new TExprMinmax(token=="$max",arg));
+    } else if (token=="$substr") {
+        expect("(");
+        TExpressionP arg = expression();
+        expect(",");
+        TExpressionP s = expression(0);
+        TExpressionP l;
+        if (ifNext(",")) {
+            l = expression(0);
+        }
+        expect(")");
+        res = TExpressionP(new TExprSubstr(arg, s, l));
+    } else if ((token=="$find"||token=="$ifind")) {
+        expect("(");
+        TExpressionP arg = expression();
+        expect(",");
+        TExpressionP s = expression(0);
+        expect(")");
+        res = TExpressionP(new TExprFind(arg, s, token=="$find"));
     } else if (token=="$D") {
         string date = stripQuotes_(nextToken());
         time_t epoch = stringToTime(date);
@@ -740,22 +758,6 @@ TExpressionP TParser::expression(int prec)
             consume();
             TExpressionP arg2 = expression(2);
             res = TExpressionP(new TExprArithmetic(res, Operator::MOD, arg2));
-        } else if (op=="substr" && prec<=2) {
-            consume();
-            expect("(");
-            TExpressionP s = expression(0);
-            TExpressionP l;
-            if (ifNext(",")) {
-                l = expression(0);
-            }
-            expect(")");
-            res = TExpressionP(new TExprSubstr(res, s, l));
-        } else if ((op=="find"||op=="ifind") && prec<=2) {
-            consume();
-            expect("(");
-            TExpressionP s = expression(0);
-            expect(")");
-            res = TExpressionP(new TExprFind(res, s, op=="find"));
         } else if ((op=="[" || op==".") && prec<=3) {
             consume();
             TExpressionP e;
