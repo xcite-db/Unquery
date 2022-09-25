@@ -1,5 +1,5 @@
 {
-  "fullname": "FirstName++' '++LastName",
+  "fullname": "FirstName+' '+LastName",
   "title":"Title",
   "city": "Address.City"
  }

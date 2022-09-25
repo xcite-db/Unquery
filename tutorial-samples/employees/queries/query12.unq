@@ -1,6 +1,6 @@
 {
 	"Childen:Dependants[]?Relation='Child'" :
 	[
-		"FirstName++' '++LastName"
+		"FirstName+' '+LastName"
 	]
 }

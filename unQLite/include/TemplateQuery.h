@@ -1087,35 +1087,23 @@ private:
     TExpressionP arg;
 };
 
-class TExprArithmetic: public TExpression
+class TExprBinaryOp: public TExpression
 {
 public:
-    TExprArithmetic(const TExpressionP& x, Operator o, const TExpressionP& y)
+    TExprBinaryOp(const TExpressionP& x, Operator o, const TExpressionP& y)
         : arg1(x), op(o), arg2(y) {}
-    virtual bool isInt(TQContext* ctx) {return true;}
+    virtual bool isInt(TQContext* ctx);
     virtual bool isDouble(TQContext* ctx);
+    virtual bool isString(TQContext* ctx);
     virtual int64_t getInt(TQContext& ctx);
     virtual double getDouble(TQContext& ctx);
-    virtual bool isAggregate(TQContext* ctx)
-        {return arg1->isAggregate(ctx)||arg2->isAggregate(ctx);}
-private:
-    TExpressionP arg1;
-    TExpressionP arg2;
-    Operator op;
-};
-
-class TExprConcat: public TExpression
-{
-public:
-    TExprConcat(const TExpressionP& x, const TExpressionP& y)
-        : arg1(x), arg2(y) {}
-    virtual bool isString(TQContext* ctx) {return true;}
     virtual string getString(TQContext& ctx);
     virtual bool isAggregate(TQContext* ctx)
         {return arg1->isAggregate(ctx)||arg2->isAggregate(ctx);}
 private:
     TExpressionP arg1;
     TExpressionP arg2;
+    Operator op;
 };
 
 class TExprSubstr: public TExpression

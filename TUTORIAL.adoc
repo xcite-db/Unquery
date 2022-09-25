@@ -104,7 +104,7 @@ Note that in case we have any characters other than alphanumeric and underscore,
 Instead of just extracting a single field, we can specify multiple fields we want to extract, as an object:
 ```
 {
-  "fullname": "FirstName++' '++LastName",
+  "fullname": "FirstName+' '+LastName",
   "title":"Title",
   "city": "Address.City"
  }
@@ -119,12 +119,12 @@ This looks much more like what we think of as json. And it shows how ~Q can expr
 }
 ```
 
-Two things to note here. First, the keys in this object don't have to match the keys in the original json. We renamed `Title` as `title`, etc. Also, notice that we used an expression that connects first and last name into a single string, with the concatenation operator, `++`.
+Two things to note here. First, the keys in this object don't have to match the keys in the original json. We renamed `Title` as `title`, etc. Also, notice that we used an expression that connects first and last name into a single string, with the concatenation operator, `+`.
 
 We can also create new nested objects. For example, if we want to group title and salary together inside an "employment" object, we can write the query:
 ```
 {
-  "name": "FirstName++' '++LastName",
+  "name": "FirstName+' '+LastName",
   "employment": {
      "title":"Title",
      "salary":"Salary"
@@ -219,7 +219,7 @@ in the query. By default, the context is an empty path, and all fields are relat
 with a context modifier. For example, suppose we want to get the full address in one string. We can do it with the expression:
 ```
 [{
-	"FullAddress":"Address.Street++' '++Address.City++' '++Address.State++', '++Address.Zip"
+	"FullAddress":"Address.Street+' '+Address.City+' '+Address.State+', '+Address.Zip"
 }]
 ```
 
@@ -227,7 +227,7 @@ But if we change the context to `Address`, we no longer have to write it over an
 using a context modifier, which is an expression following a colon in the key name:
 ```
 [{
-	"FullAddress:Address":"Street++' '++City++' '++State++', '++Zip"
+	"FullAddress:Address":"Street+' '+City+' '+State+', '+Zip"
 }]
 ```
 
@@ -239,7 +239,7 @@ query:
 {
 	"Childen:Dependants[]?Relation='Child'" :
 	[
-		"FirstName++' '++LastName"
+		"FirstName+' '+LastName"
 	]
 }
 ```
@@ -251,7 +251,7 @@ If we added outer square brachets, this would change, and we'll have a seperate 
 [{
 	"Childen:Dependants[]?Relation='Child'" :
 	[
-		"FirstName++' '++LastName"
+		"FirstName+' '+LastName"
 	]
 }]
 ```
@@ -262,18 +262,18 @@ only certain elements in the array:
 [{
 	"Dependants:Dependants[]?$index<2":
 	[
-		"FirstName++' '++LastName"
+		"FirstName+' '+LastName"
 	]
 }]
 ```
 
-We can also combine multiple context modifiers with the `|` (or) operator. For example, if we want to collect both employee names
+We can also combine multiple context modifiers with the `||` (context-or) operator. For example, if we want to collect both employee names
 and dependant names into a single array, we can run the query:
 ```
 {
-        "names:.|Dependants[]":
+        "names:.||Dependants[]":
         [
-                "FirstName++' '++LastName"
+                "FirstName+' '+LastName"
         ]
 }
 ```
@@ -326,7 +326,7 @@ the last and first names for the key:
 
 ```
 {
-        "$(LastName++' '++FirstName)":"."
+        "$(LastName+' '+FirstName)":"."
 }
 ```
 
@@ -437,7 +437,7 @@ and for each dependant object, add the employee name. We can use a variable to r
 change the context to `Dependants[]`:
 ```
 {
-	"#var employee":"FirstName++' '++LastName",
+	"#var employee":"FirstName+' '+LastName",
 	"all_dependants:Dependants[]": [{
 		"{}:":".",
 		"Employee":"$var(employee)"

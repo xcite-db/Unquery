@@ -226,11 +226,18 @@ TemplateQueryP TParser::context_mod(bool frame_flag, ContextModMode parse_mode)
     bool or_start = (parse_mode==ContextModMode::Start);
     bool in_or = parse_mode==ContextModMode::OrStart || parse_mode==ContextModMode::Or;
 
-    if (eos() || lookAhead("|")) {
+    if (eos() || lookAhead("||")) {
         return res;
     }
     string next = nextToken(false);
-    if (parse_mode!=ContextModMode::OrStart && next!=":"&&next!="->"&&next[0]!='.') {
+    bool check = parse_mode == ContextModMode::OrStart;
+    if (next==":" || next=="->") {
+        check=true;
+    } else if (next=="[" || next=="{" || next[0]=='.') {
+        check = parse_mode!=ContextModMode::Start;
+    }
+
+    if (!check) {
         throwError("Unexpected token \""+next+"\" in key");
     }
     if (next==":") {
@@ -330,7 +337,7 @@ TemplateQueryP TParser::context_mod(bool frame_flag, ContextModMode parse_mode)
     } else {
         res = TemplateQueryP(new TQContextMod(res, context, mode, arrow, new_frame));
     }
-    if (or_start && ifNext("|")) {
+    if (or_start && ifNext("||")) {
         /*     /--mod--\
              or         shared--value
                \--mod--/
@@ -343,7 +350,7 @@ TemplateQueryP TParser::context_mod(bool frame_flag, ContextModMode parse_mode)
             TemplateQueryP mod2 = context_mod(true, ContextModMode::OrStart);
             mod2 = mod2->replace(shared);
             mod_or->addVal(mod2);
-        } while (ifNext("|"));
+        } while (ifNext("||"));
         res = TemplateQueryP(mod_or);
         // Look for more context modifiers after or expression
         TemplateQueryP res2 = context_mod(true, ContextModMode::None);
@@ -391,6 +398,9 @@ ValueAndCond TParser::value()
             order_num = stoi(nextToken());
             expect(")");
         }
+    }
+    if (!eos()) {
+        throwError("Could not parse text at the end");
     }
     res.first = TemplateQueryP(new TQValue(exp, order_type, order_num));
     if (cond) {
@@ -737,27 +747,23 @@ TExpressionP TParser::expression(int prec)
         if (op=="+" && prec==0) {
             consume();
             TExpressionP arg2 = expression(1);
-            res = TExpressionP(new TExprArithmetic(res, Operator::PLUS, arg2));
-        } else if (op=="++" && prec==0) {
-            consume();
-            TExpressionP arg2 = expression(1);
-            res = TExpressionP(new TExprConcat(res, arg2));
+            res = TExpressionP(new TExprBinaryOp(res, Operator::PLUS, arg2));
         } else if (op=="-" && prec==0) {
             consume();
             TExpressionP arg2 = expression(1);
-            res = TExpressionP(new TExprArithmetic(res, Operator::MINUS, arg2));
+            res = TExpressionP(new TExprBinaryOp(res, Operator::MINUS, arg2));
         } else if (op=="*" && prec<=1) {
             consume();
             TExpressionP arg2 = expression(2);
-            res = TExpressionP(new TExprArithmetic(res, Operator::MULTIPLY, arg2));
+            res = TExpressionP(new TExprBinaryOp(res, Operator::MULTIPLY, arg2));
         } else if (op=="/" && prec<=1) {
             consume();
             TExpressionP arg2 = expression(2);
-            res = TExpressionP(new TExprArithmetic(res, Operator::DIVISION, arg2));
+            res = TExpressionP(new TExprBinaryOp(res, Operator::DIVISION, arg2));
         } else if (op=="mod" && prec<=1) {
             consume();
             TExpressionP arg2 = expression(2);
-            res = TExpressionP(new TExprArithmetic(res, Operator::MOD, arg2));
+            res = TExpressionP(new TExprBinaryOp(res, Operator::MOD, arg2));
         } else if ((op=="[" || op==".") && prec<=3) {
             consume();
             TExpressionP e;

@@ -1,6 +1,6 @@
 {
-	"names:.|Dependants[]":
+	"names:.||Dependants[]":
 	[
-		"FirstName++' '++LastName"
+		"FirstName+' '+LastName"
 	]
 }

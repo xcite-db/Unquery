@@ -868,7 +868,14 @@ bool TQContextModOrData::processData(TQContext& ctx)
 
 JSONValue TQContextModOrData::getJSON(TQContext& ctx)
 {
-    return data[0]->getJSON(ctx);
+    JSONValue res;
+    for (auto& d: data) {
+        res = d->getJSON(ctx);
+        if (!res.IsNull()) {
+            break;
+        }
+    }
+    return res;
 }
 
 TQDataP TQShared::makeData()
@@ -899,6 +906,9 @@ bool TQSharedData::processData(TQContext& ctx)
 
 JSONValue TQSharedData::getJSON(TQContext& ctx)
 {
+    if (!innerData) {
+        return {};
+    }
     return innerData->getJSON(ctx);
 }
 
@@ -962,6 +972,9 @@ TemplateQueryP TQValueWithCond::replace(const TemplateQueryP& v)
 
 bool TQValueWithCondData::processData(TQContext& ctx)
 {
+    if (!innerData) {
+        innerData = q->val->makeData();
+    }
     if (q->cond->isAggregate(&ctx)) {
         // Call test just to calculate the aggregate function
         ctx.pushData(this);
@@ -969,9 +982,6 @@ bool TQValueWithCondData::processData(TQContext& ctx)
         ctx.popData(this);
     } else if (!ctx.in_get_JSON && !q->cond->test(ctx)) {
         return false;
-    }
-    if (!innerData) {
-        innerData = q->val->makeData();
     }
     return innerData->processData(ctx);
 }
@@ -986,7 +996,9 @@ JSONValue TQValueWithCondData::getJSON(TQContext& ctx)
             return {};
         }
     }
-
+    if (!innerData) {
+        return {};
+    }
     return innerData->getJSON(ctx);
 }
 
@@ -1789,13 +1801,23 @@ string TExprText::XMLToString(const pugi::xml_node& n)
     return res;
 }
 
-bool TExprArithmetic::isDouble(TQContext* ctx)
+bool TExprBinaryOp::isDouble(TQContext* ctx)
 {
-    return arg1->isDouble(ctx)||arg2->isDouble(ctx)||op==Operator::DIVISION;
+    return (arg1->isDouble(ctx)||arg2->isDouble(ctx))&&!isString(ctx);
+}
+
+bool TExprBinaryOp::isInt(TQContext* ctx)
+{
+    return arg1->isInt(ctx)&&arg2->isInt(ctx);
+}
+
+bool TExprBinaryOp::isString(TQContext* ctx)
+{
+    return arg1->isString(ctx)||arg2->isString(ctx);
 }
 
 
-int64_t TExprArithmetic::getInt(TQContext& ctx)
+int64_t TExprBinaryOp::getInt(TQContext& ctx)
 {
     int64_t x = arg1->getInt(ctx);
     int64_t y = arg2->getInt(ctx);
@@ -1816,7 +1838,7 @@ int64_t TExprArithmetic::getInt(TQContext& ctx)
     return 0;
 }
 
-double TExprArithmetic::getDouble(TQContext& ctx)
+double TExprBinaryOp::getDouble(TQContext& ctx)
 {
     double x = arg1->getDouble(ctx);
     double y = arg2->getDouble(ctx);
@@ -1837,12 +1859,15 @@ double TExprArithmetic::getDouble(TQContext& ctx)
     return 0;
 }
 
-
-string TExprConcat::getString(TQContext& ctx)
+string TExprBinaryOp::getString(TQContext& ctx)
 {
     string x = arg1->getString(ctx);
     string y = arg2->getString(ctx);
-    return x+y;
+    switch (op) {
+        case Operator::PLUS:
+            return x+y;
+    }
+    return {};
 }
 
 string TExprSubstr::getString(TQContext& ctx)
