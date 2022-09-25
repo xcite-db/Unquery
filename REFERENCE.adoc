@@ -109,7 +109,7 @@ And for: `[["Field1"]]`, the result is:
 
 For the last example, note that there are three entries for the outer array, and a single entry for each inner array. The reason is that each time we evaluate a new document, we add a new entry to the outer array. When we evaluate the second document, we add a new entry to the outer array, so we no longer modify the inner array for the first entry.
 
-Mixing arrays and objects become even more interesting once we use context modifier iterators. For example, the query:
+Mixing arrays and objects become even more interesting once we use context traversal. For example, the query:
 ```
 {"result:Array1[]": ["Field1"]}
 ```
@@ -180,7 +180,7 @@ We can use an expession instead of a constant number. For example `Field1[1+1]` 
 
 Two square brackets without any number or expression between them returns all of the elements of an array. For example: `Array1[]`. In this case, this would be equivalent to `Array1` without any square brackets, since the value of `Array1` is the entire array.
 
-Hovever, we do need to use the `[]` operator when doing array projection. For example: `Array1[].Field1` would return an array of Field1 value for each object in `Array1`. We could achieve the same effect using content iterators, as in:
+Hovever, we do need to use the `[]` operator when doing array projection. For example: `Array1[].Field1` would return an array of Field1 value for each object in `Array1`. We could achieve the same effect using context traversal, as in:
 ```
 {"result:Array1[]":["Field1"]}
 ```
@@ -319,7 +319,7 @@ When using `$(expression)`, the expression is evaluated, and the resulting value
 
 In this case, the name of the first field would be `"Field1"`, and the name of the second field would be `"Field2"`.
 
-Note that if we evaluate this object multiple times (either for multiple documents, or when using iterators), we would add more fields to the result object. This can be used to construct a dictionary-style object.
+Note that if we evaluate this object multiple times (either for multiple documents, or when using context traversal), we would add more fields to the result object. This can be used to construct a dictionary-style object.
 
 Another case where this is useful is when some key values occure multiple times. We can use the pattern:
 ```
@@ -421,14 +421,330 @@ This is equivalent to:
 }
 ```
 
-
 == Array sorting
+
+By default, array elements appear in the order they are added to the array. In case we want the array to be ordered, we can use sorting specifiers.
+
+=== Simple sorting
+
+There are four sorting specifiers in ~Q:
+* `@ascending`
+* `@descending`
+* `@unique_ascending`
+* `@unique_descending`
+
+Sorting specifiers are added at the end of a string value, after the expression (and after the predicate, if present). When used, strings are sorted by lexical order, and numbers are sorted numerically. The `@unique...` specifiers also remove duplicates.
+
+For example: `["FirstName@unique_ascending"]`
+
+=== Sorting arrays of objects
+
+For arrays of objects, we can sort the objects according to a value of a field in the object. For example:
+```
+[
+    {
+        "firstname":"FirstName@ascending",
+        "lastname":"LastName"
+    }
+]
+```
+
+This would sort the object based on first name. We can also define both primary and secondary keys for sorting (or any number of keys), by adding a number in parentheses after the sorting specifier. For example:
+```
+[
+    {
+        "firstname":"FirstName@descending(2)",
+        "lastname":"LastName@ascending(1)"
+    }
+]
+```
+
+In this case, the object are ordered in ascending order according to last name, and object with the same last name are ordered in descending order based on first name.
+
+=== Arrays with muliple items in the query
+
+It is unadvisable to use sorting specifiers with more than one item in the array in the query. For example, the sorting order for the following query is undefined:
+`["FirstName@ascending","Lastname"]`
+
+In case you do want to sort such an array, you should use the same sorting specifier for all entries. For example:
+`["FirstName@ascending","Lastname@ascending"]`
 
 == Context modifiers
 
+A context in ~Q consists of the identity of the document that is being processed, and a path within this document. Initially, the query is traversing a set of documents (for example, the JSON files that are specified at the command line), and the path is the top element for each document.
+
+A context modifier can change the context of the query. Context modifiers are specified in the key, after the key names, and their scope is the value for that key (i.e. everything in the object/array/string that is provided as a value for this key).
+
+There are two kinds of context modifiers: context modifiers that change the path within a document, which start with `:` (colon), and context modifiers that switch to a different document, which start with `->` (arrow).
+
+Some context modifiers iterate through multiple contexts (either paths, or documents). Such context modifiers are called context traversals.
+
+=== Path modifiers
+
+The simplest types of context modifiers are simply path expressions. For example:
+```
+{
+    "key:Accounts[0]": "id"
+}
+```
+
+In this case, it would return the value of `Accounts[0].id`.
+
+=== Modify context based on key name
+
+A useful abbreviation is using a colon after a key name, with nothing after that. For example:
+```
+{
+    "Field1:": "value"
+}
+```
+
+The key `Field1:` is equivalent to `Field1:Field1`. This allows us to avoid writing the same key over and over. If, for example, we want to copy the key and value for `FirstName`, we can write: `"FirstName:" : "."`
+
+=== Array traversal
+
+Context modifiers allow us to iterate through all elements in an array, by using `[]`. For example:
+```
+{
+    "key:Accounts[]": ["id"]
+}
+```
+
+Would return an array of all ids for all accounts. One subtle detail here is that in case the current value is not an array but an object or literal, it would not be an error, and the query would process this object as if it was an array with a single element containing this value.
+
+=== Object keys traversal
+
+Context modifiers also allow us to iterate trough all fields in an object, using `{}`. For example:
+```
+{
+    "result:{}": ["."]
+}
+```
+
+The above query takes an object and convert it to an array containing all the values of fields in that object.
+
+If we do not want to iterate over all fields but just some of them, one way to do this is using: `{'regex'}`. For example:
+```
+{
+    "result:{'A.*B'}": ["."]
+}
+```
+
+Another way to filter the fields is to use predicates. For example:
+
+```
+{
+    "result:{}?$key!='LastName'": ["."]
+}
+```
+
+=== Switching documents
+
+Context modifiers that switch documents start with a `->` (arrow) operator, followed by an expression specifying the new document.
+
+We currently suppot the following (there are additional arrow operations in XCiteDB):
+
+* `->$file('file-name')`: Read another json file, and swtich context to this file. This allows us to link to data in another document.
+* `->$var(variable-name)`: Switch to the JSON stored in this variable.
+
+Notes:
+
+1. It is usually better to read a file into a variable an switch to that variable, so that we won't have to read the same file mutiple times.
+2. when switching documents, it is useful to use the `<<` operator to connect between the values in the old document and values in the new document.
+
+=== Chaining context modifiers
+
+We can specify a sequence of context modifiers, by writing them one after the other. For example:
+```
+{
+    "result:[]:{}" : ["."]
+}
+```
+
+This query would return an array with all the field values of all the object in an array.
+
+```
+{
+    "result->$file('employees.json'):Employees[]" : ["FirstName"]
+}
+```
+
+This would show all the first names in the file `employees.json`.
+
+=== Context-or operator
+
+When we want to explore multiple alternative contexts, we can use the `||` (context-or) operator.
+
+For example:
+```
+{
+    "names:.||Family[]" : ["FirstName"]
+}
+```
+
+The above query would list all first names, both at the top of each JSON document, and in the `Family[]` array.
+
+=== Context predicates
+
+Optionally, a predicate can be added after each context quelifier. For example:
+```
+{
+    "result:Customers[]?Balance>100000:Accounts[]" : ["accountNumber"]
+}
+```
+
 == Directives
 
+Directives are specified using key names that start with `#`. They can be used to change the behaviour of the query or perform special actions such as variable and function declarations. The are evaluated in the order they appear.
+
+=== #assign
+
+The `#assign` directive assigns a new value into a variable. For example:
+```
+{
+    "#var x" : "1",
+    "obj": {
+        "#assign x": "2"
+    },
+    "x_value": "$var(x)"
+}
+```
+
+The result of the above query is `{"x_value": 2}`.
+
+Note: when the variable was not previously declared with `#var`, the effect of `#assign` would be the same a `#var`.
+
+=== #exists
+
+The `#exists` directive is a condition which is true only if its value is non-empty. This allows us to test if some condition holds within a complex value (arrays, objects etc.). For example:
+```
+[
+    {
+        "#exists:Employees[]" : ["Salary>100000"],
+        "company":"CompanyName"
+    }
+]
+```
+
+The above query returns the list of companies that have employees with a salary of over 100000.
+
+=== #func
+
+The `#func` directive allows adding user-defined functions. For example:
+```
+{
+    "#func fullname" : "FirstName+' '+LastName",
+    "names:Employees[]": ["$fullname"]
+}
+```
+
+This query is equivalent to:
+```
+{
+    "names:Employees[]": ["FirstName+' '+LastName"]
+}
+```
+Functions can also have parameters. For example:
+```
+{
+    "#func fullname(x,y)" : "$var(x)+' '+$var(y)",
+    "names:Employees[]": ["$fullname(FirstName, LastName)"]
+}
+```
+
+Function definitions can also be recursive, for more complicated queries.
+
 === #if[[if_directive]]
+
+An `#if` directive specifies a condition. If the condition is false, the entire object is skipped.
+
+For example:
+```
+[
+    {
+        "#if" : "Title!=CEO",
+        "FirstName:": ".",
+        "LastName:": "."
+    }
+]
+```
+
+The above query returns the list of all employees, except the CEO.
+
+=== #notexists
+
+A `#notexist` directive is a condition which is true only when the value is empty. For example:
+```
+[
+    {
+        "#notexists:Employees[]": ["Salary<30000"],
+        "company": "CompanyName"
+    }
+]
+```
+
+This query would return the list of companies that do not have employees than make under 30000.
+
+=== #return
+
+The `#return` directive breaks the second principle of ~Q. It can make the structure of the result different than the structure of the query. But it is necessary to avoid a potential limitation when using context modifiers or directives. To use context modifiers or directives, we often need to add a wrapping object in cases where we do not need an object in the result.
+
+For example:
+
+```
+{
+    "result:Employees[]": ["FirstName"]
+}
+```
+
+The above query returns an object containing a key: `result`, with an array of the first names of all employees. But in case we want to get simply an array, without the wrapping object, we can write:
+```
+{
+    "#return:Employees[]": ["FirstName"]
+}
+```
+
+Note that in case of a return, any other fields in that object would be dropped from the result. And in case of multiple `#return` directives in the same object, only the first one would be effective.
+
+=== #var
+
+A `#var` directive declares a variable, that can later be accessed with the `$var` function. A variable can store any JSON value, including simple strings and numbers, or more complex values.
+
+For example:
+```
+{
+    "#var x": "'Some string'",
+    "Field1": "$var(x)"
+}
+```
+
+And a more complex example:
+```
+{
+    "#var dic:Employees[]": {
+        "$(EmployeeId)": "."
+    },
+    "Employee1": "$var(dic).1001"
+}
+```
+
+This example transforms the array of all employees into a dictionary containing all employees and indexed by `EmployeeId` as the key. Later, we can access a specific employee with id `1001` by `$var(dic).1001`.
+
+Variables are scoped. When a variable is declared in an outer object, and a variable with the same name is declared in an inter object, the inner variable hides the outer variable.
+
+For example:
+```
+{
+    "#var x":"1", 
+    "obj":{
+        "#var x":"2", 
+        "value":"$var(x)"
+    }, 
+    "value":"$var(x)"
+}
+```
+
+Inside `obj`, the value of `x` is 2. But after getting back to the outer object, the value of `x` is 1 again.
 
 == Operators
 
