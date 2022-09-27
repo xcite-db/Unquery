@@ -345,6 +345,17 @@ bool TQContext::isObject(const string& key)
     return !s.empty()&&s[0]=='{';
 }
 
+bool TQContext::isArray(const string& key)
+{
+    if (in_local) {
+        JSONValueP val = findLocalPath(key);
+        return val->IsArray();
+    }
+
+    string path = fullPath(key);
+    string s = tr->readMetaNode(path);
+    return !s.empty()&&s[0]=='[';
+}
 
 bool TQContext::isString(const string& key)
 {
@@ -632,6 +643,9 @@ bool TQContextModData::processData(TQContext& ctx)
 
 JSONValue TQContextModData::getJSON(TQContext& ctx)
 {
+    if (!innerData) {
+        return {};
+    }
     return innerData->getJSON(ctx);
 }
 
@@ -651,7 +665,7 @@ bool TQContextModData::contextMod(const TQDataP& data, TQContext& ctx)
             res = data->processData(ctx);
             ctx.popPath();
         }
-    } else if (mode==ContextMode::Eval) {
+    } else if (mode==ContextMode::Eval && q->expr->isString(&ctx)) {
         string added = q->expr->getString(ctx);
         ctx.addToPath(added);
         res = data->processData(ctx);
@@ -665,7 +679,7 @@ bool TQContextModData::contextMod(const TQDataP& data, TQContext& ctx)
             ctx.popPath();
         }
         
-        if (size == 0 && ctx.isObject(context)) {
+        if (size == 0 && !context.empty() && context!="." && ctx.isObject(context)) {
             res = data->processData(ctx);
         }
         ctx.popPath();
@@ -679,6 +693,8 @@ bool TQContextModData::contextMod(const TQDataP& data, TQContext& ctx)
                 ctx.popPath();
             }
         }
+    } else if (mode==ContextMode::AllPaths) {
+        res = allPaths(data, ctx);
     } else if (mode==ContextMode::Reskey) {
         ctx.addToPath(ctx.reskey());
         res = data->processData(ctx) || res;
@@ -691,6 +707,28 @@ bool TQContextModData::contextMod(const TQDataP& data, TQContext& ctx)
     }
     return res;
 }
+
+bool TQContextModData::allPaths(const TQDataP& data, TQContext& ctx)
+{
+    bool res = data->processData(ctx);
+    int size = ctx.getArraySize("");
+    if (size>0) {
+        for (int i=0; i<size; i++) {
+            ctx.addToPath("["+to_string(i)+"]");
+            res = allPaths(data, ctx) || res;
+            ctx.popPath();
+        }
+    } else if (ctx.isObject("")) {
+        ObjectFieldSet obj = ctx.getMembers({});
+        for (const string& field: obj) {
+            ctx.addToPath(field);
+            res = allPaths(data, ctx) || res;
+            ctx.popPath();
+        }
+    }
+    return res;
+}
+
 
 ArrowOp getArrowOp(const string& str)
 {
@@ -1267,6 +1305,31 @@ JSONValue TQValueData::getJSON(TQContext& ctx)
 //    return std::move(val);
 }
 
+string ValToString(const JSONValueP& val)
+{
+    if (val->IsString()) {
+        return val->GetString();
+    } else if (val->IsDouble()) {
+        return to_string(val->GetDouble());
+    } else if (val->IsInt64()) {
+        return to_string(val->GetInt64());
+    } else if (val->IsBool()) {
+        return val->GetBool()?"true":"false";
+    }
+
+    return {};
+}
+
+double ValToDouble(const JSONValueP& val)
+{
+    if (val->IsDouble()) {
+        return val->GetDouble();
+    } else if (val->IsInt64()) {
+        return val->GetInt64();
+    }
+    return {};
+}
+
 bool TQValueData::compare(const TQDataP& other) const
 {
     if (q->ord_type == OrderType::None) {
@@ -1289,6 +1352,12 @@ bool TQValueData::compare(const TQDataP& other) const
         return x->val->GetInt() < y->val->GetInt();
     } else if (x->val->IsString() && y->val->IsString()) {
         return strcmp(x->val->GetString(), y->val->GetString())<0;
+    } else if (x->val->IsString() || y->val->IsString()) {
+        string sx = ValToString(x->val);
+        string sy = ValToString(y->val);
+        return sx<sy;
+    } else if (x->val->IsDouble() || y->val->IsDouble()) {
+        return ValToDouble(x->val)<ValToDouble(y->val);
     }
     return x<y;
 }
@@ -1424,6 +1493,30 @@ bool TQExistsTest::test(TQContext& ctx)
 {
     return x->exists(ctx);
 }
+
+bool TQTypeTest::test(TQContext& ctx)
+{
+    string path = x->getFieldPath(ctx);
+    switch (op) {
+        case Operator::IS_ARRAY:
+            return ctx.isArray(path);
+        case Operator::IS_OBJECT:
+            return ctx.isObject(path);
+        case Operator::IS_LITERAL:
+            return ctx.isString(path) || ctx.isDouble(path) || ctx.isInt(path) || ctx.isBool(path);
+        case Operator::IS_STRING:
+            return ctx.isString(path);
+        case Operator::IS_INT:
+            return ctx.isInt(path);
+        case Operator::IS_FLOAT:
+            return ctx.isDouble(path);
+        case Operator::IS_BOOL:
+            return ctx.isBool(path);
+
+    }
+    return false;
+}
+
 
 JSONValueP TExpression::asJSON(TQContext& ctx)
 {

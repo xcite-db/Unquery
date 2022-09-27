@@ -283,6 +283,15 @@ An exclamation mark after a field name or path is true only if the field exist i
 
 The object is evaluated only when `Field1` exists.
 
+=== Type test
+
+The type operators: `is_array`, `is_object`, `is_literal`, `is_float`, `is_int`, and `is_bool` test if a field is of a specific type. For example, to get all integer values in an array with mixed numbers and strings:
+```
+{
+    "numbers:[]": [". is_int"]
+}
+```
+
 === Conjunctions and parentheses
 
 The operators `&` (and) and `|` (or) can be used to combine conditions. `&` have higher precedence than `|'. Paretheses are allowed to change the order of precedence. 
@@ -535,6 +544,16 @@ Another way to filter the fields is to use predicates. For example:
 ```
 {
     "result:{}?$key!='LastName'": ["."]
+}
+```
+
+=== Recursive descent
+
+In case we want to traverse all paths in our context, including all array elements and all object keys, we can use the recursive descent operator : `**`. For example, the following query returns a sorted array with all keys in the document:
+
+```
+{
+    "#return:**": ["$key@unique_ascending"]
 }
 ```
 

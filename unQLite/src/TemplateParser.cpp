@@ -261,6 +261,9 @@ TemplateQueryP TParser::context_mod(bool frame_flag, ContextModMode parse_mode)
         } else {
             context.clear();
         }
+    } else if( ifNext("**")) {
+        mode = ContextMode::AllPaths;
+        context.clear();
     } else if (ifNext("$")) {
         expect("(");
         mode = ContextMode::Eval;
@@ -434,6 +437,20 @@ TQConditionP TParser::baseCondition(const TExpressionP& arg1)
         } else {
             return TQConditionP(new TQExistsTest(lhs));
         }
+    } else if (op=="is_array") {
+        return TQConditionP(new TQTypeTest(lhs, Operator::IS_ARRAY));
+    } else if (op=="is_object") {
+        return TQConditionP(new TQTypeTest(lhs, Operator::IS_OBJECT));
+    } else if (op=="is_literal") {
+        return TQConditionP(new TQTypeTest(lhs, Operator::IS_LITERAL));
+    } else if (op=="is_string") {
+        return TQConditionP(new TQTypeTest(lhs, Operator::IS_STRING));
+    } else if (op=="is_int") {
+        return TQConditionP(new TQTypeTest(lhs, Operator::IS_INT));
+    } else if (op=="is_float") {
+        return TQConditionP(new TQTypeTest(lhs, Operator::IS_FLOAT));
+    } else if (op=="is_bool") {
+        return TQConditionP(new TQTypeTest(lhs, Operator::IS_BOOL));
     }
     TExpressionP rhs = expression();
     if ((lhs->isAggregate(0)&&!rhs->isLiteral())||(rhs->isAggregate(0)&&!lhs->isLiteral())) {

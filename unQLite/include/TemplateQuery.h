@@ -153,6 +153,7 @@ public:
     }
     JSONValueP findLocalPath(const string& path, JSONValueP val);
     bool isObject(const string& key);
+    bool isArray(const string& key);
     bool isString(const string& key);
     bool isDouble(const string& key);
     bool isInt(const string& key);
@@ -326,7 +327,7 @@ public:
 };
 
 
-enum class ContextMode {None, Array, Regex, Arrow, Reskey, Eval, Var};
+enum class ContextMode {None, Array, Regex, AllPaths, Arrow, Reskey, Eval, Var};
 
 enum class ArrowOp {
     None, 
@@ -407,6 +408,7 @@ public:
 
     bool contextMod(const TQDataP& data, TQContext& ctx);
     bool handleArrow(const TQDataP& data, TQContext& ctx);
+    bool allPaths(const TQDataP& data, TQContext& ctx);
     virtual bool isAggregate(TQContext* ctx) const;
 
     bool processIdentifier(const TQDataP& data, TQContext& ctx, string identifier) {
@@ -714,6 +716,13 @@ enum class Operator {
     LT, 
     GE, 
     LE,
+    IS_ARRAY,
+    IS_OBJECT,
+    IS_LITERAL,
+    IS_STRING,
+    IS_INT,
+    IS_FLOAT,
+    IS_BOOL,
     IN,
     NOTIN, 
     PLUS, 
@@ -829,6 +838,19 @@ public:
 private:
     TExpressionP x;
 };
+
+class TQTypeTest: public TQCondition
+{
+public:
+    TQTypeTest(const TExpressionP& x1, Operator o)
+        : x(x1), op(o) {}
+    virtual bool test(TQContext& ctx);
+    
+private:
+    TExpressionP x;
+    Operator op;
+};
+
 
 class TExprField: public TExpression
 {
