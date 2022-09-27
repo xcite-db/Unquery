@@ -76,7 +76,7 @@ The implementation is fully working. All the features shown in the tutorial (and
 
 *Where is the reference manual?*
 
-Working on it. I will post it soon.
+The full language manual is at here: [Language Reference](https://github.com/xcite-db/Unquery/blob/main/LANGUAGE-REFERENCE.adoc)
 
 ### Other programming languages
 
