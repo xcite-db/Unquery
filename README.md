@@ -78,6 +78,8 @@ The implementation is fully working. All the features shown in the tutorial (and
 
 The full language manual is at here: [Language Reference](https://github.com/xcite-db/Unquery/blob/main/LANGUAGE-REFERENCE.adoc)
 
+Also, check out the [tutorial](https://github.com/xcite-db/Unquery/blob/main/TUTORIAL.adoc) for more examples.
+
 ### Other programming languages
 
 *Having a command line utility is cool. But I want to use it in a Python/NodeJS/C++ project. Do you plan to have language bindings for those languages?*
