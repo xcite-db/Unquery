@@ -859,6 +859,93 @@ The function `$size(path)` returns the size of the array in $path.
 
 === $upper
 
+The function `$upper(expr)` converts the string returned by `expr` to uppercase.
+
 === $var
 
+The function `$var(variable-name)` returns the value of a variable. For example:
+```
+{
+    "#var x": "1000",
+    "value": "$var(x)
+}
+```
+
+Would return `{"value":1000}`
+
 == Aggregate functions
+
+Aggregate functions calculate a value based on multiple fields. Each time a field is visited, the value of the aggregate function is updated. For example: `"$max(Salary)"` would return the maximum value for `Salary`.
+
+=== Aggregates and non-array values
+
+Recall that when we have values (including objects) outside of an array, it is usually updated once, even if there are multiple matching values. For example, the query `{"salary":"salary"}` 
+returns the first salary the query finds, even if there are multiple employees with different salaries. However, when we use aggregate functions, the value is updated each time we visit the
+field containing that value. For example: `{"AllSalaries":"$sum(salary)"}` would return the sum of all salaries.
+
+=== Aggregates, arrays, and grouping
+
+An aggregate value is updated each time we visit that field. This mean that in case we use an array, such as `["$sum(Salary)"]`, a new element would be added each time we update the array, and this value
+is updated based on one value alone. The result would be just an array of salaries in this case.
+
+However, if we use context traversals inside the array, aggregate functions can still be meaningful. For example:
+```
+[
+  {
+    "name":"FullName", 
+    "avgFamilyAge:Family[]": "$avg(Age)"
+  }
+]
+```
+
+Would return an array of people, and the average age of the family members for each entry in this array. This allows us to do aggregation at each level in the document.
+
+The same principle works when we group values using dynamic key names. For example, the following query would group employees by title, and display the average salary for each title:
+```
+{
+    "$(Title)":"$avg(Salary)"
+}
+```
+
+=== Aggregates and conditions
+
+An aggregate value is updated each time it is evaluated. If we skip evaluating it due to using predicates or `#if` conditions, we won't include those values. 
+For example, `"$avg(Age)?Age>=18"` would calculate the average age of those that are 18 year old or more.
+
+We can also use aggregate functions inside conditions, but with one caveat: we can only compare the aggregate functions to constant values. For example:
+```
+[
+  {
+    "name":"FullName", 
+    "avgFamilyAge:Family[]": "$avg(Age)>40"
+  }
+]
+```
+
+This would only list families with average age greater than 40.
+
+=== $avg
+
+The average value
+
+=== $count
+
+Takes no parameters, and returns the number of times we evaluated this function. Especially useful when combined with predicates. For example: `"$count?Age>=18"' would return the number
+of people that are 18 or older.
+
+=== $min
+
+The minimum value of a field
+
+=== $max
+
+The maximum value of a field
+
+=== $prev
+
+This function allows us to do aggregations that are not directly supported by a built-in function. `$prev(defalut-value)` returns `default-value` the first time we use it, and returns
+the value of the expression it appears in on subsequent calls. For example: `"$prev('')+Text"` would concatenate the text field `Text` in all documents.
+
+=== $sum
+
+The sum of the values of a field

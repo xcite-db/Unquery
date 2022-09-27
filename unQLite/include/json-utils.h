@@ -22,5 +22,4 @@ public:
     }
 private:
     std::vector<std::string> fields;
-    std::map<std::string,int> fields_map;
 };
