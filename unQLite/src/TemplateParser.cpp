@@ -15,7 +15,7 @@ TParser::TParser(const string& str)
 
 bool isalnum_(char c)
 {
-    return isalnum(c)|| c=='_' || c=='.';
+    return isalnum(c)|| c=='_';
 }
 
 bool isQuoted(const string& s)
@@ -290,13 +290,13 @@ TemplateQueryP TParser::context_mod(bool frame_flag, ContextModMode parse_mode)
                 arrow = getArrowOp(s);
             }
             if (arrow==ArrowOp::None) {
-                context = pathId();
+                context = pathWithBrackets();
             } else if (arrow==ArrowOp::Other || arrow==ArrowOp::File) {
                 expr = expression();
             } else {
                 consume();
                 if (ifNext("(")) {
-                    context = pathId();
+                    context = pathWithBrackets();
                     expect(")");
                 }
             }
@@ -738,6 +738,8 @@ TExpressionP TParser::baseExpression()
     } else if (isalnum_(token[0])) {
         string path = pathWithBrackets(token); 
         res = TExpressionP(new TExprField(path));
+    } else if (token==".") {
+        res = TExpressionP(new TExprField(token));       
     } else if (token=="-") {
         string next = nextToken();
         res = TExpressionP(new TExprIntConst(-stoi(next)));
@@ -809,7 +811,7 @@ string TParser::pathId()
     if (token.empty()) {
         return {};
     }
-    if (isalnum_(token[0])||token[0]=='$') {
+    if (isalnum_(token[0])) {
         consume();
         return token;
     } else if (token[0]=='`') {
@@ -827,9 +829,16 @@ string TParser::pathId()
 string TParser::pathWithBrackets(const std::string& path)
 {
     string res = path;
+    if (res.empty()) {
+        res = pathId();
+    }
     pushPosition();
     if (ifNext(".")) {
         string token = nextToken();
+        if (!token.empty() && token[0]=='$') {
+            restorePosition();
+            return res;
+        }
         if (token[0]=='`') {
             token = stripQuotes_(token);
         }

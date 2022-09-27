@@ -787,31 +787,75 @@ The order of precedence is `+` and `-` are lower precedence, `*`, '/', and `mod`
 
 === $() (evaluate function)
 
+The `$()` (or evaluate) treats the expression inside the parantheses as a path expression, and returns the value of that path. This is useful, for example, for retrieving a value in a dictionary object. For example, if `employees` is a dictionary from `id` to employee names, and `group` is an array of `id`s, the following query would list the employee names in `group`:
+```
+{
+    "#return:group[]": ["/employees.$(.)"]
+}
+```
+
 === $file
+
+The function `$file` reads a json file, and returns its value. For example:
+```
+{
+    "ThisJSONFile": ".",
+    "AnotherJSONFile": "$file('another-file.json')"
+}
+```
 
 === $filename
 
+`$filename` (without any parameters), returns the string for the current filename. For example, getting array with the names of all processed files:
+```
+[
+    "$filename"
+]
+```
+
 === $find
+
+The function `$find(path,string)` finds all occurrences of `string` in `path`, and returns an array with all indexes where `string` is found.  
 
 === $if[[if_function]]
 
+The function `$if(cond,then,else)` is used for a ternary if-then-else expression. For example: `"$if(x>10,'yes', 'no')"`
+
 === $ifind
+
+`$ifind(path,string)` is like `$find`, but case insensitive. Returns an array of indexes.
 
 === $index
 
+The `$index` function returns the last index in the context path. If the current path is `Field1[5]`, it would return 5, and also in case the path is `Field1[5].Field2`, or `Field1[3][5]`.
+
 === $key
+
+The `$key$` function returns the last key in the context path. For example, if the current path is `Field1.Field2`, it would return `Field2`. If the path ends with an array index, returns the key before any array index. For example, for the path `Field1.Field2[7]`, the returned key would be `Field2` as well.
 
 === $length
 
+The function `$length(expr)` returns the length of the string returned by `expr`.
+
 === $lower
+
+The function `$lower(expr)` converts the string returned by `expr` to lowercase.
 
 === $path
 
+The function `$path` (no arguments) returns the current context path.
+
 === $reskey
+
+The function `$reskey` returns the result key name in the result. For example: `{"field1:Field1":"$reskey"}` would return `{"field1":"field1"}`.
 
 === $size
 
+The function `$size(path)` returns the size of the array in $path.
+
 === $substr
+
+`$substr(stringexpr, start, length)` returns a substring of `stringexpr`, startin at offset `start`, and of length `length`.
 
 === $upper
 

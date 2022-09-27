@@ -1160,7 +1160,7 @@ bool TQObjectData::processData(TQContext& ctx)
             if (!returned) {
                 returned = m.second->makeData();
             }
-            returned->processData(ctx);
+            return returned->processData(ctx);
         }
         Strings ks = m.first->getKeys(ctx);
         bool sorted = m.first->isSorted();

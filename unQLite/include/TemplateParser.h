@@ -53,7 +53,7 @@ public:
     TExpressionP expression(int prec = 0);
     TExpressionP baseExpression();
     string pathId();
-    string pathWithBrackets(const std::string& token);
+    string pathWithBrackets(const std::string& token = {});
     void pushPosition();
     void popPosition();
     void restorePosition(); 
