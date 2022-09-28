@@ -68,7 +68,12 @@ string TParser::nextToken(bool consume)
     }
     size_t start = i;
     char c = _str[i];
-    if (isalnum_(c) || c=='$') {
+    if (isdigit(c)) {
+        while (i<_len && (isdigit(c=_str[++i])||c=='.')) {}
+        if (isalnum_(c)) {
+            while (i<_len && isalnum_(_str[++i])) {}
+        }
+    } else if (isalnum_(c) || c=='$') {
         while (i<_len && isalnum_(_str[++i])) {}
     } else if (c=='\"') {
         while (++i<_len && (_str[i]!='\"'||(i>0 && _str[i]=='\"'&&_str[i-1]=='\\'))) {}
@@ -665,6 +670,21 @@ TExpressionP TParser::baseExpression()
         TExpressionP arg = expression();
         expect(")");
         res = TExpressionP(new TExprLength(arg));
+    } else if (token=="$string" || token=="$int" || token=="$float" || token=="$bool") {
+        CastType ct;
+        if (token=="$string") {
+            ct = CastType::String;
+        } else if (token=="$int") {
+            ct = CastType::Int;
+        } else if (token=="$float") {
+            ct = CastType::Double;
+        } else if (token=="$bool") {
+            ct = CastType::Bool;
+        }
+        expect("(");
+        TExpressionP arg = expression();
+        expect(")");
+        res = TExpressionP(new TExprTypeCast(arg, ct));
     } else if (token=="$count") {
         res = TExpressionP(new TExprCount);
     } else if (token=="$sum") {

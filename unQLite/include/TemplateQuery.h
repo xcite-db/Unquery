@@ -633,7 +633,7 @@ public:
     JSONValueP asJSON(TQContext& ctx);
 
     virtual JSONValueP getJSON(TQContext& ctx)
-        {return {};}
+        {return JSONValueP(new JSONValue);}
     virtual string getString(TQContext& ctx)
         {return {};}
     virtual int64_t getInt(TQContext& ctx)
@@ -1219,6 +1219,32 @@ public:
 
 private:
     TExpressionP str;
+};
+
+enum class CastType {
+    String,
+    Int,
+    Double,
+    Bool
+};
+
+class TExprTypeCast: public TExpression
+{
+public:
+    TExprTypeCast(const TExpressionP& exp, CastType ct)
+        : arg(exp), t(ct) {}
+    virtual bool isString(TQContext* ctx) {return t==CastType::String;}
+    virtual bool isInt(TQContext* ctx) {return t==CastType::Int;}
+    virtual bool isDouble(TQContext* ctx) {return t==CastType::Double;}
+    virtual bool isBool(TQContext* ctx) {return t==CastType::Bool;}
+    virtual string getString(TQContext& ctx);
+    virtual int64_t getInt(TQContext& ctx);
+    virtual double getDouble(TQContext& ctx);
+    virtual bool getBool(TQContext& ctx);
+
+private:
+    TExpressionP arg;
+    CastType t;
 };
 
 class TQAggregateData

@@ -436,74 +436,25 @@ JSONValueP TQContext::getJSON(const string& key)
 string TQContext::getString(const string& key)
 {
     JSONValueP value = getJSON(key);
-    if (value->IsString()) {
-        return value->GetString();
-    } else if (value->IsInt()) {
-        return to_string(value->GetInt());
-    }
-    return {};   
+    return valToString(value);
 }
 
 int64_t TQContext::getInt(const string& key)
 {
-    if (in_local) {
-        JSONValueP val = findLocalPath(key);
-        if (val->IsInt64()) {
-            return val->GetInt64();
-        } else if (val->IsDouble()) {
-            return (int)val->GetDouble();
-        }
-        return {};
-    }
-    string path = fullPath(key);
-    string s = tr->readMetaNode(path);
-    if (s.empty()) {
-        return 0;
-    }
-    int64_t num = base64_decode(s);
-    return num;
+    JSONValueP value = getJSON(key);
+    return valToInt(value);
 }
 
 double TQContext::getDouble(const string& key)
 {
-    if (in_local) {
-        JSONValueP val = findLocalPath(key);
-        if (val->IsDouble()) {
-            return val->GetDouble();
-        } else if (val->IsInt64()) {
-            return val->GetInt64();
-        }
-        return {};
-    }
-    string path = fullPath(key);
-    string s = tr->readMetaNode(path);
-    if (s.empty()) {
-        return 0;
-    }
-    if (s.find('.')==string::npos) {
-        return (double)getInt(key);
-    }
-    double num = stod(s);
-    return num;
+    JSONValueP value = getJSON(key);
+    return valToDouble(value);
 }
 
 bool TQContext::getBool(const string& key)
 {
-    if (in_local) {
-        JSONValueP val = findLocalPath(key);
-        if (!val->IsBool()) {
-            return {};
-        }
-        return val->GetBool();
-    }
-
-    string path = fullPath(key);
-    string s = tr->readMetaNode(path);
-    if (s.empty()) {
-        return 0;
-    }
-    return s=="true";
-
+    JSONValueP value = getJSON(key);
+    return valToBool(value);
 }
 
 int TQContext::getArraySize(const string& key)
@@ -1305,31 +1256,6 @@ JSONValue TQValueData::getJSON(TQContext& ctx)
 //    return std::move(val);
 }
 
-string ValToString(const JSONValueP& val)
-{
-    if (val->IsString()) {
-        return val->GetString();
-    } else if (val->IsDouble()) {
-        return to_string(val->GetDouble());
-    } else if (val->IsInt64()) {
-        return to_string(val->GetInt64());
-    } else if (val->IsBool()) {
-        return val->GetBool()?"true":"false";
-    }
-
-    return {};
-}
-
-double ValToDouble(const JSONValueP& val)
-{
-    if (val->IsDouble()) {
-        return val->GetDouble();
-    } else if (val->IsInt64()) {
-        return val->GetInt64();
-    }
-    return {};
-}
-
 bool TQValueData::compare(const TQDataP& other) const
 {
     if (q->ord_type == OrderType::None) {
@@ -1353,11 +1279,11 @@ bool TQValueData::compare(const TQDataP& other) const
     } else if (x->val->IsString() && y->val->IsString()) {
         return strcmp(x->val->GetString(), y->val->GetString())<0;
     } else if (x->val->IsString() || y->val->IsString()) {
-        string sx = ValToString(x->val);
-        string sy = ValToString(y->val);
+        string sx = valToString(x->val);
+        string sy = valToString(y->val);
         return sx<sy;
     } else if (x->val->IsDouble() || y->val->IsDouble()) {
-        return ValToDouble(x->val)<ValToDouble(y->val);
+        return valToDouble(x->val)<valToDouble(y->val);
     }
     return x<y;
 }
@@ -1536,7 +1462,7 @@ JSONValueP TExpression::asJSON(TQContext& ctx)
         bool b = getBool(ctx);
         return JSONValueP(new JSONValue(b));
     }
-    return {};
+    return JSONValueP(new JSONValue);
 }
 
 bool TExprField::isString(TQContext* ctx)
@@ -2093,38 +2019,26 @@ JSONValueP TExprSubfield::getJSON(TQContext& ctx)
 string TExprSubfield::getString(TQContext& ctx)
 {
     JSONValueP v = getJSON(ctx);
-    if (v->IsString()) {
-        return v->GetString();
-    }
-    return {};
+    return valToString(v);
 }
 
 int64_t TExprSubfield::getInt(TQContext& ctx)
 {
     JSONValueP v = getJSON(ctx);
-    if (v->IsInt64()) {
-        return v->GetInt64();
-    }
-    return {};
+    return valToInt(v);
 }
 
 double TExprSubfield::getDouble(TQContext& ctx)
 {
     JSONValueP v = getJSON(ctx);
-    if (v->IsDouble()) {
-        return v->GetDouble();
-    }
-    return {};
+    return valToDouble(v);
 }
 
 bool TExprSubfield::getBool(TQContext& ctx)
 
 {
     JSONValueP v = getJSON(ctx);
-    if (v->IsBool()) {
-        return v->GetBool();
-    }
-    return {};
+    return valToBool(v);
 }
 
 
@@ -2148,6 +2062,36 @@ int64_t TExprLength::getInt(TQContext& ctx)
 {
     string s = str->getString(ctx);
     return s.length();
+}
+
+string TExprTypeCast::getString(TQContext& ctx)
+{
+    auto v = arg->asJSON(ctx);
+    return valToString(v);
+}
+
+int64_t TExprTypeCast::getInt(TQContext& ctx)
+{
+    if (arg->isString(&ctx)) {
+        return stoll(arg->getString(ctx));
+    }
+    return arg->getInt(ctx);
+}
+
+double TExprTypeCast::getDouble(TQContext& ctx)
+{
+    if (arg->isString(&ctx)) {
+        return stod(arg->getString(ctx));
+    }
+    return arg->getDouble(ctx);
+}
+
+bool TExprTypeCast::getBool(TQContext& ctx)
+{
+    if (arg->isString(&ctx)) {
+        return arg->getString(ctx)=="true";
+    }
+    return arg->getBool(ctx);
 }
 
 TQAggregateDataP TExprAggregate::getData(TQContext& ctx)
@@ -2251,20 +2195,13 @@ JSONValueP TExprPrev::getJSON(TQContext& ctx)
 int64_t TExprPrev::getInt(TQContext& ctx)
 {
     JSONValueP v = getJSON(ctx);
-    if (v->IsInt()) {
-        return v->GetInt();
-    }
-    return 0;
+    return valToInt(v);
 }
 
 string TExprPrev::getString(TQContext& ctx)
 {
     JSONValueP v = getJSON(ctx);
-    if (v->IsString()) {
-        //cerr<<"String = "<<v.GetString()<<endl;
-        return v->GetString();
-    }
-    return {};
+    return valToString(v);
 }
 
 JSONValueP TExprCall::getJSON(TQContext& ctx)
@@ -2272,6 +2209,9 @@ JSONValueP TExprCall::getJSON(TQContext& ctx)
     TQData* ctx_data = ctx.data();
     TQDataP call;
     Function& f = ctx.getFunc(proc);
+    if (!f.body) {
+        return JSONValueP(new JSONValue);
+    }
     auto it = data_map.find(ctx_data);
     if (it!=data_map.end()) {
         call =  it->second;
@@ -2334,38 +2274,26 @@ JSONValueP TExprVar::getJSON(TQContext& ctx)
 string TExprVar::getString(TQContext& ctx)
 {
     JSONValueP j = ctx.getVar(name);
-    if (!j->IsString()) {
-        return {};
-    }
-    return j->GetString();
+    return valToString(j);
 }
 
 int64_t TExprVar::getInt(TQContext& ctx)
 {
     JSONValueP j = ctx.getVar(name);
-    if (!j->IsInt()) {
-        return {};
-    }
-    return j->GetInt64();
+    return valToInt(j);
 
 }
 
 double TExprVar::getDouble(TQContext& ctx)
 {
     JSONValueP j = ctx.getVar(name);
-    if (!j->IsDouble()) {
-        return {};
-    }
-    return j->GetDouble();
+    return valToDouble(j);
 }
 
 bool TExprVar::getBool(TQContext& ctx)
 {
     JSONValueP j = ctx.getVar(name);
-    if (!j->IsBool()) {
-        return {};
-    }
-    return j->GetBool();
+    return valToBool(j);
 }
 
 bool TExprVar::exists(TQContext& ctx)

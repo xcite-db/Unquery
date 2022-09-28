@@ -873,6 +873,12 @@ The function `$var(variable-name)` returns the value of a variable. For example:
 
 Would return `{"value":1000}`
 
+=== Type cast functions: $string, $int, $float, $bool
+
+Type cast functions convert literals from one type to another. It can also convert strings to numbers. For example, `"$int('5')"` would return the integer value `"5"`.
+
+Another use case is for forcing floating point division. `"14/10"` would return `"1"`, and `"14/$float(10)"` returns `"1,4"`.
+
 == Aggregate functions
 
 Aggregate functions calculate a value based on multiple fields. Each time a field is visited, the value of the aggregate function is updated. For example: `"$max(Salary)"` would return the maximum value for `Salary`.

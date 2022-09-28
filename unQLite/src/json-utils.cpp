@@ -1,5 +1,6 @@
 #include "json-utils.h"
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
 
@@ -56,4 +57,49 @@ string ObjectFieldSet::toString() const
     }
     res+="}";
     return res;
+}
+
+string valToString(const JSONValueP& val)
+{
+    if (val->IsString()) {
+        return val->GetString();
+    } else if (val->IsDouble()) {
+        return to_string(val->GetDouble());
+    } else if (val->IsInt64()) {
+        return to_string(val->GetInt64());
+    } else if (val->IsBool()) {
+        return val->GetBool()?"true":"false";
+    }
+
+    return {};
+}
+
+double valToDouble(const JSONValueP& val)
+{
+    if (val->IsDouble()) {
+        return val->GetDouble();
+    } else if (val->IsInt64()) {
+        return val->GetInt64();
+    }
+    return {};
+}
+
+int64_t valToInt(const JSONValueP& val)
+{
+    if (val->IsInt64()) {
+        return val->GetInt64();
+    } else if (val->IsDouble()) {
+        return val->GetDouble();
+    }
+    return {};
+}
+
+bool valToBool(const JSONValueP& val)
+{
+    if (val->IsBool()) {
+        return val->GetBool();
+    } else if (val->IsInt64()) {
+        return val->GetInt64()!=0;
+    }
+    return false;
 }

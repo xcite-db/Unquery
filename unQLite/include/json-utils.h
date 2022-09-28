@@ -1,6 +1,14 @@
+#ifndef JSON_UTILS_H
+#define JSON_UTILS_H
+
 #include <string>
 #include <vector>
 #include <map>
+#include <memory>
+#include "rapidjson/document.h"
+
+typedef rapidjson::Value JSONValue;
+typedef std::shared_ptr<JSONValue> JSONValueP;
 
 class ObjectFieldSet
 {
@@ -23,3 +31,13 @@ public:
 private:
     std::vector<std::string> fields;
 };
+
+std::string valToString(const JSONValueP& val);
+
+double valToDouble(const JSONValueP& val);
+
+int64_t valToInt(const JSONValueP& val);
+
+bool valToBool(const JSONValueP& val);
+
+#endif // JSON_UTILS_H
