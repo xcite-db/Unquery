@@ -1048,6 +1048,14 @@ public:
     virtual string getString(TQContext& ctx);
 };
 
+class TExprEnv: public TExprString
+{
+public:
+    TExprEnv(const TExpressionP& exp) : name(exp) {}
+    virtual string getString(TQContext& ctx);
+private:
+    TExpressionP name;
+};
 
 class TExprIdentifier: public TExprString
 {

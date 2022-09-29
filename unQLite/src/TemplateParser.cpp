@@ -627,6 +627,11 @@ TExpressionP TParser::baseExpression()
         res = TExpressionP(new TExprReskey);
     } else if (token=="$filename") {
         res = TExpressionP(new TExprFilename);
+    } else if (token=="$env") {
+        expect("(");
+        TExpressionP exp = expression();
+        expect(")");
+        res = TExpressionP(new TExprEnv(exp));
     } else if (token=="$identifier") {
         int parts = 0;
         if (ifNext("(")) {

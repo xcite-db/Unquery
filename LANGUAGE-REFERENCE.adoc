@@ -793,7 +793,9 @@ The `$()` (or evaluate) treats the expression inside the parantheses as a path e
     "#return:group[]": ["/employees.$(.)"]
 }
 ```
+=== $env
 
+`$env(expression)`, where `expression` evaluates to a string value, returns the value of the environment variable in `expression`. For example, `"$env('BROWSER')"` returns the value of the environmet variable `BROWSER`.
 === $file
 
 The function `$file` reads a json file, and returns its value. For example:

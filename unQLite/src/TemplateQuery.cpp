@@ -1715,6 +1715,12 @@ string TExprFilename::getString(TQContext& ctx)
     return ctx.filename();
 }
 
+string TExprEnv::getString(TQContext& ctx)
+{
+    string env = name->getString(ctx);
+    return getenv(env.c_str());
+}
+
 string TExprIdentifier::getString(TQContext& ctx)
 {
     if (parts==0) {
