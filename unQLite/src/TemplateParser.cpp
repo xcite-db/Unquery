@@ -60,7 +60,7 @@ bool TParser::eos() const
 
 string TParser::nextToken(bool consume)
 {
-    static const string single_char = "()[]{};,#?!:$";
+    static const string single_char = "()[]{};,.#?!:$";
 
     size_t i = _pos;
     while (i<_len && isspace(_str[i])) {
