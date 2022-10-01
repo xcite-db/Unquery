@@ -98,6 +98,10 @@ public:
         return localJSONs.back();
     }
 
+    string unescaped_fullPath(const string& subpath) {
+        return unescape_field_name(fullPath(subpath));
+    }
+
     string fullPath(const string& subpath) {
         return fullPath(subpath, path());
     }

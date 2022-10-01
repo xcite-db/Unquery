@@ -86,6 +86,9 @@ string TParser::nextToken(bool consume)
         i++;
     } else if (single_char.find(c)!=string::npos) {
         i++;
+        if (c=='.' && _str[i]=='.') {
+            i++;
+        }
     } else {
         while (i<_len && !isspace(c) && !isalnum_(c) &&
                c!='\"' && c!='\'' && c!='`' && single_char.find(c)==string::npos) {
@@ -217,7 +220,7 @@ TQKeyP TParser::key()
             throwError("Unknown directive \""+name+"\"");
         }
     } else {
-        name = pathId();
+        name = unescape_field_name(pathId());
         res = TQKeyP(new TQSimpleKey(name));
     }
     return res;
@@ -564,7 +567,7 @@ TExpressionP TParser::baseExpression()
     }
     // This long else-if should be converted to switch-case
     if (token[0]=='`') {
-        token = stripQuotes_(token);
+        token = escape_field_name(stripQuotes_(token));
     }
     /*if (token=="(") {
         res = expression();
@@ -753,15 +756,21 @@ TExpressionP TParser::baseExpression()
     } else if (token=="/") {
         TExpressionP arg = baseExpression();
         res = TExpressionP(new TExprChangepath(arg, Operator::ROOT));
-    } else if (token=="..") {
-        expect("/");
-        TExpressionP arg = baseExpression();
+    } else if (token==".." ) {
+        TExpressionP arg;
+        if (ifNext("/")) {
+            arg = baseExpression();
+        } else {
+            arg = TExpressionP(new TExprField("."));
+        }
         res = TExpressionP(new TExprChangepath(arg, Operator::UP));
+
     } else if (token=="<<") {
         TExpressionP arg = baseExpression();
         res = TExpressionP(new TExprChangepath(arg, Operator::PREVID));
     } else if (isalnum_(token[0])) {
         string path = pathWithBrackets(token); 
+        cerr<<"P3. path="<<path<<endl;
         res = TExpressionP(new TExprField(path));
     } else if (token==".") {
         res = TExpressionP(new TExprField(token));       
@@ -786,7 +795,7 @@ TExpressionP TParser::expression(int prec)
     while (!eos()) {
         string op = nextToken(false);
         if (op[0]=='`') {
-            op = stripQuotes_(op);
+            op = escape_field_name(stripQuotes_(op));
         }
         if (op=="+" && prec==0) {
             consume();
@@ -817,6 +826,7 @@ TExpressionP TParser::expression(int prec)
             if (op=="[") {
                 expect("]");
             }
+            cerr<<"P2. \n";
             res = TExpressionP(new TExprSubfield(res, e, op=="["));
         } else if ((op[0]=='.'|| op[0]=='[') && prec<=3) {
             consume();
@@ -841,7 +851,7 @@ string TParser::pathId()
         return token;
     } else if (token[0]=='`') {
         consume();
-        return stripQuotes_(token);      
+        return escape_field_name(stripQuotes_(token));      
     } else if (token[0]=='\"' || token[0]=='\'') {
         consume();
         return token;
@@ -865,7 +875,7 @@ string TParser::pathWithBrackets(const std::string& path)
             return res;
         }
         if (token[0]=='`') {
-            token = stripQuotes_(token);
+            token = escape_field_name(stripQuotes_(token));
         }
         res = res+"."+token;
     }

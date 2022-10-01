@@ -294,6 +294,7 @@ JSONValueP TQContext::findLocalPath(const string& path, JSONValueP val)
         }
         size_t next = path.find_first_of(".[]", i);
         string f = (next==string::npos)?path.substr(i):path.substr(i,next-i);
+        f = unescape_field_name(f);
         if (i>0 && path[i-1]=='[') {
             if (!val->IsArray()) {
                 return JSONValueP(new JSONValue);
@@ -340,7 +341,7 @@ bool TQContext::isObject(const string& key)
         return val->IsObject();
     }
 
-    string path = fullPath(key);
+    string path = unescaped_fullPath(key);
     string s = tr->readMetaNode(path);
     return !s.empty()&&s[0]=='{';
 }
@@ -352,7 +353,7 @@ bool TQContext::isArray(const string& key)
         return val->IsArray();
     }
 
-    string path = fullPath(key);
+    string path = unescaped_fullPath(key);
     string s = tr->readMetaNode(path);
     return !s.empty()&&s[0]=='[';
 }
@@ -364,7 +365,7 @@ bool TQContext::isString(const string& key)
         return val->IsString();
     }
 
-    string path = fullPath(key);
+    string path = unescaped_fullPath(key);
     string s = tr->readMetaNode(path);
     return !s.empty()&&s[0]=='\"';
 
@@ -376,7 +377,7 @@ bool TQContext::isDouble(const string& key)
         JSONValueP val = findLocalPath(key);
         return val->IsDouble();
     }
-    string path = fullPath(key);
+    string path = unescaped_fullPath(key);
     string s = tr->readMetaNode(path);
     return !s.empty()&&isdigit(s[0])&&s.find('.')!=string::npos;
 
@@ -389,7 +390,7 @@ bool TQContext::isInt(const string& key)
         return val->IsInt64();
     }
 
-    string path = fullPath(key);
+    string path = unescaped_fullPath(key);
     string s = tr->readMetaNode(path);
     return !s.empty()&&s[0]>='0'&&s.find('.')==string::npos;
 
@@ -401,7 +402,7 @@ bool TQContext::isBool(const string& key)
         JSONValueP val = findLocalPath(key);
         return val->IsBool();
     }
-    string path = fullPath(key);
+    string path = unescaped_fullPath(key);
     string s = tr->readMetaNode(path);
     return s=="%T" || s=="%F";    
 }
@@ -413,7 +414,7 @@ bool TQContext::exists(const string& key)
         return !val->IsNull();
     }
 
-    string path = fullPath(key);
+    string path = unescaped_fullPath(key);
     string s = tr->readMetaNode(path);
     return !s.empty();
 }
@@ -427,7 +428,7 @@ JSONValueP TQContext::getJSON(const string& key)
         return val;
     }
 
-    string path = fullPath(key);
+    string path = unescaped_fullPath(key);
     //json_documentP doc = make_shared<rapidjson::Document>();
     JSONValueP value = JSONValueP(new JSONValue(tr->traverse(path, *doc)));
     return value;
@@ -467,7 +468,7 @@ int TQContext::getArraySize(const string& key)
         return 0;
     }
     
-    string size_txt = tr->readMetaNode(fullPath(key));
+    string size_txt = tr->readMetaNode(unescaped_fullPath(key));
     if (size_txt.empty() || size_txt[0]!='[') {
         return 0;
     }
@@ -486,7 +487,7 @@ ObjectFieldSet TQContext::getMembers(const string& key)
         }
         return obj;
     }
-    string obj_str = tr->readMetaNode(fullPath(key));
+    string obj_str = tr->readMetaNode(unescaped_fullPath(key));
     ObjectFieldSet obj(obj_str);
     return obj;
 }
@@ -639,7 +640,7 @@ bool TQContextModData::contextMod(const TQDataP& data, TQContext& ctx)
         regex re(context);
         for (const string& field: obj) {
             if (context.empty() || regex_match(field, re)) {
-                ctx.addToPath(field);
+                ctx.addToPath(escape_field_name(field));
                 res = data->processData(ctx) || res;
                 ctx.popPath();
             }
@@ -1667,7 +1668,7 @@ string TExprChangeCase::getString(TQContext& ctx)
 
 string TExprPath::getString(TQContext& ctx)
 {
-    return ctx.path();
+    return unescape_field_name(ctx.path());
 }
 
 string TExprIndex::getString(TQContext& ctx)
@@ -1702,7 +1703,7 @@ string TExprKey::getString(TQContext& ctx)
     if (pos!=string::npos) {
         res = res.substr(0,pos);
     }
-    return res;
+    return unescape_field_name(res);
 }
 
 string TExprReskey::getString(TQContext& ctx)
@@ -1942,6 +1943,7 @@ string TExprSubfield::getSubpath(TQContext& ctx)
         s = expr->getFieldPath(ctx);
         s = "."+s;
     }
+    cerr<<"P1. getSubpath = "<<s<<endl;
     return s;
 }
 

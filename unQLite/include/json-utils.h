@@ -10,6 +10,10 @@
 typedef rapidjson::Value JSONValue;
 typedef std::shared_ptr<JSONValue> JSONValueP;
 
+std::string escape_field_name(const std::string& s);
+std::string unescape_field_name(const std::string& s);
+
+
 class ObjectFieldSet
 {
 public:

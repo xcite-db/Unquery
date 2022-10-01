@@ -4,7 +4,7 @@
 
 #define MAJOR_VERSION 0
 #define MINOR_VERSION 6
-#define PATCH_VERSION 22
+#define PATCH_VERSION 23
 
 namespace xcite {
 inline std::string get_version()
