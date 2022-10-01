@@ -618,7 +618,7 @@ bool TQContextModData::contextMod(const TQDataP& data, TQContext& ctx)
             ctx.popPath();
         }
     } else if (mode==ContextMode::Eval && q->expr->isString(&ctx)) {
-        string added = q->expr->getString(ctx);
+        string added = q->expr->getFieldPath(ctx);
         ctx.addToPath(added);
         res = data->processData(ctx);
         ctx.popPath();
@@ -1504,7 +1504,7 @@ bool TExprField::exists(TQContext& ctx)
 
 string TExprField::getFieldName(TQContext* ctx)
 {
-    string name = (expr)?expr->getString(*ctx):field;
+    string name = (expr)?expr->getFieldPath(*ctx):field;
     if (name==".") {
         return {};
     }
@@ -1943,7 +1943,6 @@ string TExprSubfield::getSubpath(TQContext& ctx)
         s = expr->getFieldPath(ctx);
         s = "."+s;
     }
-    cerr<<"P1. getSubpath = "<<s<<endl;
     return s;
 }
 

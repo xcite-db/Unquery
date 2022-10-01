@@ -648,7 +648,7 @@ public:
         {return {};}
     virtual pugi::xml_node getXML(TQContext& ctx, pugi::xml_document& doc)
         {return {};}
-    virtual string getFieldPath(TQContext& ctx) {return {};}
+    virtual string getFieldPath(TQContext& ctx) {return getString(ctx);}
 };
 
 class TQValue: public TemplateQuery
@@ -1036,6 +1036,9 @@ class TExprKey: public TExprString
 {
 public:
     virtual string getString(TQContext& ctx);
+    virtual string getFieldPath(TQContext& ctx) {
+        return escape_field_name(getString(ctx));
+    }
     virtual bool isSortedKey() const {return false;}
 };
 
@@ -1043,6 +1046,9 @@ class TExprReskey: public TExprString
 {
 public:
     virtual string getString(TQContext& ctx);
+    virtual string getFieldPath(TQContext& ctx) {
+        return escape_field_name(getString(ctx));
+    }
     virtual bool isSortedKey() const {return false;}
 };
 

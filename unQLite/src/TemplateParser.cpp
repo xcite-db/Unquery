@@ -770,7 +770,6 @@ TExpressionP TParser::baseExpression()
         res = TExpressionP(new TExprChangepath(arg, Operator::PREVID));
     } else if (isalnum_(token[0])) {
         string path = pathWithBrackets(token); 
-        cerr<<"P3. path="<<path<<endl;
         res = TExpressionP(new TExprField(path));
     } else if (token==".") {
         res = TExpressionP(new TExprField(token));       
@@ -826,7 +825,6 @@ TExpressionP TParser::expression(int prec)
             if (op=="[") {
                 expect("]");
             }
-            cerr<<"P2. \n";
             res = TExpressionP(new TExprSubfield(res, e, op=="["));
         } else if ((op[0]=='.'|| op[0]=='[') && prec<=3) {
             consume();
