@@ -843,6 +843,10 @@ The function `$length(expr)` returns the length of the string returned by `expr`
 
 The function `$lower(expr)` converts the string returned by `expr` to lowercase.
 
+=== $now
+
+Current time in unix epoch time.
+
 === $path
 
 The function `$path` (no arguments) returns the current context path.
@@ -859,6 +863,13 @@ The function `$size(path)` returns the size of the array in $path.
 
 `$substr(stringexpr, start, length)` returns a substring of `stringexpr`, startin at offset `start`, and of length `length`.
 
+=== $time_to_str
+
+The function `$time_to_str(expr,format_string)` converts unix epoch time to date and time string based on a format string. The format string is the same as in `strftime` in `c`.
+
+=== $to_time
+
+The function `$to_time(string,format_string)` converts a string into unix epoch time. The format string is the same as in `strptime` in `c`.
 === $upper
 
 The function `$upper(expr)` converts the string returned by `expr` to uppercase.

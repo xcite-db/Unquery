@@ -555,7 +555,7 @@ time_t stringToTime(const std::string& s, const std::string& f)
     if (!f.empty()) {
         success = strptime(s.c_str(), f.c_str(), &dt);
     } else if (s.find('/')!=string::npos) {
-        success = strptime(s.c_str(), "%m/%d/%Y:%T", &dt);
+        success = strptime(s.c_str(), "%m/%d/%Y %T", &dt);
     } else {
         success = strptime(s.c_str(), "%FT%T%z", &dt);
     }
@@ -563,5 +563,21 @@ time_t stringToTime(const std::string& s, const std::string& f)
     time_t timestamp = mktime(&dt) - gmtoff;
     return timestamp;
 }
+
+string timeToString(time_t t, const std::string& f)
+{
+    cerr<<"P1.\n";
+    struct tm * dt;
+    char buffer [100];
+    dt = gmtime(&t);
+    if (!f.empty()) {
+        strftime(buffer, sizeof(buffer), f.c_str(), dt);
+    } else {
+        cerr<<"P2.\n";
+        strftime(buffer, sizeof(buffer), "%m/%d/%Y %T", dt);
+    }
+    return buffer;
+}
+
 
 } // namespace xcite

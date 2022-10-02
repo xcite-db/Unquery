@@ -566,9 +566,6 @@ TExpressionP TParser::baseExpression()
         throwError("Expected expression");
     }
     // This long else-if should be converted to switch-case
-    if (token[0]=='`') {
-        token = escape_field_name(stripQuotes_(token));
-    }
     /*if (token=="(") {
         res = expression();
         expect(")");
@@ -678,6 +675,27 @@ TExpressionP TParser::baseExpression()
         TExpressionP arg = expression();
         expect(")");
         res = TExpressionP(new TExprLength(arg));
+    } else if (token=="$to_time") {
+        expect("(");
+        TExpressionP arg = expression();
+        string fmt;
+        if (ifNext(",")) {
+            string fmt = stripQuotes_(nextToken());
+        }
+        expect(")");
+        res = TExpressionP(new TExprToTime(arg, fmt));
+    } else if (token=="$time_to_str") {
+        expect("(");
+        TExpressionP arg = expression();
+        string fmt;
+        if (ifNext(",")) {
+            string fmt = stripQuotes_(nextToken());
+        }
+        expect(")");
+        res = TExpressionP(new TExprTimeToString(arg, fmt));
+    } else if (token=="$now") {
+        time_t epoch = time(0)+timezone;
+        res = TExpressionP(new TExprIntConst(epoch));
     } else if (token=="$string" || token=="$int" || token=="$float" || token=="$bool") {
         CastType ct;
         if (token=="$string") {
@@ -771,6 +789,9 @@ TExpressionP TParser::baseExpression()
     } else if (isalnum_(token[0])) {
         string path = pathWithBrackets(token); 
         res = TExpressionP(new TExprField(path));
+    } else if (token[0]=='`') {
+        string path = escape_field_name(stripQuotes_(token));
+        res = TExpressionP(new TExprField(path));
     } else if (token==".") {
         res = TExpressionP(new TExprField(token));       
     } else if (token=="-") {
@@ -826,10 +847,6 @@ TExpressionP TParser::expression(int prec)
                 expect("]");
             }
             res = TExpressionP(new TExprSubfield(res, e, op=="["));
-        } else if ((op[0]=='.'|| op[0]=='[') && prec<=3) {
-            consume();
-            string spath = pathWithBrackets(op);
-            res = TExpressionP(new TExprSubfield(res, spath));
         } else {
             break;
         }

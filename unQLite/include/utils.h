@@ -70,6 +70,8 @@ long long base64_decode(const std::string& s);
 
 time_t stringToTime(const std::string& s, const std::string& f = {});
 
+std::string timeToString(time_t t, const std::string& f);
+
 } // namespace xcite
 
 #endif // UTILS_H_INCLUDED

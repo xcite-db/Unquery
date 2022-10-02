@@ -1246,6 +1246,30 @@ enum class CastType {
     Bool
 };
 
+class TExprToTime: public TExpression
+{
+public:
+    TExprToTime(const TExpressionP& arg, const std::string str)
+        : expr(arg), format(str) {}
+    virtual bool isInt(TQContext* ctx) {return true;}
+    virtual int64_t getInt(TQContext& ctx);    
+private:
+    TExpressionP expr;
+    string format;
+};
+
+class TExprTimeToString: public TExprString
+{
+public:
+    TExprTimeToString(const TExpressionP& arg, const std::string str)
+        : expr(arg), format(str) {}
+    virtual string getString(TQContext& ctx);    
+private:
+    TExpressionP expr;
+    string format;
+};
+
+
 class TExprTypeCast: public TExpression
 {
 public:

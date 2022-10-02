@@ -1504,7 +1504,7 @@ bool TExprField::exists(TQContext& ctx)
 
 string TExprField::getFieldName(TQContext* ctx)
 {
-    string name = (expr)?expr->getFieldPath(*ctx):field;
+    string name = (expr)?expr->getString(*ctx):field;
     if (name==".") {
         return {};
     }
@@ -2069,6 +2069,19 @@ int64_t TExprLength::getInt(TQContext& ctx)
 {
     string s = str->getString(ctx);
     return s.length();
+}
+
+
+int64_t TExprToTime::getInt(TQContext& ctx)
+{
+    string s = expr->getString(ctx);
+    return stringToTime(s,format);
+}
+
+string TExprTimeToString::getString(TQContext& ctx)
+{
+    time_t tm = expr->getInt(ctx);
+    return timeToString(tm, format);    
 }
 
 string TExprTypeCast::getString(TQContext& ctx)
