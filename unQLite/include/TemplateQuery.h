@@ -261,7 +261,8 @@ enum class KeyType {
     Assign,
     Exists,
     Notexists,
-    Return
+    Return,
+    ReturnIf
 };
 
 class TQKey

@@ -1113,6 +1113,17 @@ bool TQObjectData::processData(TQContext& ctx)
                 returned = m.second->makeData();
             }
             return returned->processData(ctx);
+        } else if (kt==KeyType::ReturnIf) {
+            if (!returned) {
+                TQDataP data = m.second->makeData();
+                bool res = data->processData(ctx);
+                if (res) {
+                    returned = data;
+                    return true;
+                }
+                continue;
+            }
+            return returned->processData(ctx);
         }
         Strings ks = m.first->getKeys(ctx);
         bool sorted = m.first->isSorted();

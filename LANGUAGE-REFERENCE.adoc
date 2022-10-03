@@ -725,6 +725,26 @@ The above query returns an object containing a key: `result`, with an array of t
 
 Note that in case of a return, any other fields in that object would be dropped from the result. And in case of multiple `#return` directives in the same object, only the first one would be effective.
 
+=== #returnif
+
+The `#returnif` directive is effective only if its value is non-null. This allows us to provide multiple `#returnif` directives, where each is true in different cases.
+
+One place where this is very useful is for defining a recursive function. For example, the following function works for any JSON with any structure, and replaces the value of field with the key `key1` to `'something else'`:
+
+```
+{
+	"#func rec" : {
+	       "#returnif:[]": ["$rec"],
+	       "#returnif:{}": {
+	       	   "$key":"$rec"
+	       },
+	       "#returnif":"'something else'?$key='key1'",
+	       "#return":"."
+	},
+	"#return" : "$rec"
+}
+```
+
 === #var
 
 A `#var` directive declares a variable, that can later be accessed with the `$var` function. A variable can store any JSON value, including simple strings and numbers, or more complex values.

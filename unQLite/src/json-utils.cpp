@@ -24,6 +24,8 @@ string escape_field_name(const string& s)
                 res+="@L"; break;
             case ']':
                 res+="@R"; break;
+            case '/':
+                res+="@s"; break;
             default:
                 res.push_back(c);
         }
@@ -48,6 +50,7 @@ string unescape_field_name(const string& s)
                 case 'r': c='}'; break;
                 case 'L': c='['; break;
                 case 'R': c=']'; break;
+                case 's': c='/'; break;
             }
         }
         res.push_back(c);
