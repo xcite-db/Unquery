@@ -1252,6 +1252,9 @@ bool TQValueData::processData(TQContext& ctx)
 
 JSONValue TQValueData::getJSON(TQContext& ctx)
 {
+    if (!val) {
+        return {};
+    }
     // It's a bit faster to do a move, but destroys the value in this object
     return JSONValue(*val, ctx.doc->GetAllocator());
 //    return std::move(val);
@@ -2093,7 +2096,11 @@ string TExprTypeCast::getString(TQContext& ctx)
 int64_t TExprTypeCast::getInt(TQContext& ctx)
 {
     if (arg->isString(&ctx)) {
-        return stoll(arg->getString(ctx));
+        try {
+            return stoll(arg->getString(ctx));
+        } catch (const std::invalid_argument& ia) {
+            return {};
+        }
     }
     return arg->getInt(ctx);
 }
@@ -2101,7 +2108,11 @@ int64_t TExprTypeCast::getInt(TQContext& ctx)
 double TExprTypeCast::getDouble(TQContext& ctx)
 {
     if (arg->isString(&ctx)) {
-        return stod(arg->getString(ctx));
+        try {
+            return stod(arg->getString(ctx));
+        } catch (const std::invalid_argument& ia) {
+            return {};
+        }
     }
     return arg->getDouble(ctx);
 }

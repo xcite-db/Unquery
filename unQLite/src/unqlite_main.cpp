@@ -79,8 +79,6 @@ int main(int argc, char* argv[])
         TemplateQueryP t = JSONToTQ(json_query);
         TQDataP tq = t->makeData();
         TQContext ctx;
-        JSONValueP json_val(new Document);
-        Document& json_doc = *static_cast<Document*>(json_val.get());
         bool use_stdin = args.isEnd();
         while (!args.isEnd() || use_stdin) {
             string filename;
@@ -93,28 +91,39 @@ int main(int argc, char* argv[])
             } else {
                 filename = args.nextArg();
                 fp = fopen(filename.c_str(), "r");
+                if (!fp) {
+                    cerr<<"Error. Could not open JSON file: "<<filename<<endl;
+                    exit(1);
+                }
+
             }
             char readBuffer[65536];
             FileReadStream jsonfile(fp, readBuffer, sizeof(readBuffer));
-            json_doc.ParseStream<kParseCommentsFlag>(jsonfile);
+            while (jsonfile.Peek()!=EOF) {
+                JSONValueP json_val(new Document);
+                Document& json_doc = *static_cast<Document*>(json_val.get());
+                json_doc.ParseStream<kParseCommentsFlag|kParseStopWhenDoneFlag>(jsonfile);
+                if (json_doc.HasParseError()) {
+                    if (json_doc.GetParseError()==kParseErrorDocumentEmpty) {
+                        break;
+                    }
+                    cerr<<"Not a valid JSON\n";
+                    cerr<<"Error(offset "<<static_cast<unsigned>(json_doc.GetErrorOffset())<<"): "<<GetParseError_En(json_doc.GetParseError())<<endl;
+                    exit(EXIT_FAILURE);
+                }
+                try {
+                    ctx.reset({}, {});
+                    ctx.startLocalJSON(json_val);
+                    ctx.pushFilename(filename);
+                    tq->processData(ctx);
+                    ctx.popFilename();
+                } catch (QueryError& e) {
+                    cerr<<"In file: "<<filename<<", ";
+                    cerr<<e.message()<<endl;
+                    exit(1);
+                }
+            }
             fclose(fp);
-            if (json_doc.HasParseError()) {
-                cerr<<"Not a valid JSON\n";
-                cerr<<"Error(offset "<<static_cast<unsigned>(json_doc.GetErrorOffset())<<"): "<<GetParseError_En(json_doc.GetParseError())<<endl;
-                exit(EXIT_FAILURE);
-            }
-            try {
-                ctx.reset({}, {});
-                ctx.startLocalJSON(json_val);
-                ctx.pushFilename(filename);
-                tq->processData(ctx);
-                ctx.popFilename();
-            } catch (QueryError& e) {
-                cerr<<"In file: "<<filename<<", ";
-                cerr<<e.message()<<endl;
-                exit(1);
-            }
-
         }
         ctx.in_get_JSON = true;
         JSONValue value = tq->getJSON(ctx);
