@@ -1024,7 +1024,7 @@ public:
     virtual string getString(TQContext& ctx);
 };
 
-class TExprIndex: public TExprString
+class TExprIndex: public TExpression
 {
 public:
     virtual bool isInt(TQContext* ctx) {return true;}
