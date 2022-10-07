@@ -1280,6 +1280,8 @@ public:
     virtual bool isInt(TQContext* ctx) {return t==CastType::Int;}
     virtual bool isDouble(TQContext* ctx) {return t==CastType::Double;}
     virtual bool isBool(TQContext* ctx) {return t==CastType::Bool;}
+    virtual bool isAggregate(TQContext* ctx)
+        {return arg->isAggregate(ctx);}
     virtual string getString(TQContext& ctx);
     virtual int64_t getInt(TQContext& ctx);
     virtual double getDouble(TQContext& ctx);
@@ -1293,8 +1295,15 @@ private:
 class TQAggregateData
 {
 public:
-    virtual int64_t getInt(TQContext& ctx) = 0;
+    TQAggregateData(bool isDouble = false) 
+      : is_double(isDouble) {}
+
+    virtual bool isInt(TQContext* ctx) {return !is_double;}
+    virtual bool isDouble(TQContext* ctx) {return is_double;}
+    virtual int64_t getInt(TQContext& ctx) {return {};};
     virtual double getDouble(TQContext& ctx) {return {};}
+
+    bool is_double = false;
 };
 
 typedef std::shared_ptr<TQAggregateData> TQAggregateDataP;
@@ -1303,7 +1312,8 @@ class TExprAggregate: public TExpression
 {
 public:
     virtual bool isAggregate(TQContext* ctx) {return true;}
-    virtual bool isInt(TQContext* ctx) {return true;}
+    virtual bool isInt(TQContext* ctx);
+    virtual bool isDouble(TQContext* ctx);
     virtual int64_t getInt(TQContext& ctx);
     virtual double getDouble(TQContext& ctx);
     virtual TQAggregateDataP getData(TQContext& ctx);
@@ -1322,7 +1332,7 @@ public:
 class TExprCountData: public TQAggregateData
 {
 public:
-    TExprCountData(TExprCount* e) : expr(e) {}
+    TExprCountData(TExprCount* e) : TQAggregateData(false), expr(e) {}
     virtual int64_t getInt(TQContext& ctx);
 private:
     TExprCount* expr;
@@ -1334,6 +1344,7 @@ class TExprSum: public TExprAggregate
 public:
     TExprSum(const TExpressionP& x): arg(x) {}
     virtual TQAggregateDataP makeData();
+    virtual bool isDouble(TQContext* ctx);
 
     TExpressionP arg;
 };
@@ -1343,9 +1354,11 @@ class TExprSumData: public TQAggregateData
 public:
     TExprSumData(TExprSum* e) : expr(e) {}
     virtual int64_t getInt(TQContext& ctx);
+    virtual double getDouble(TQContext& ctx);
 private:
     TExprSum* expr;
     int64_t sum = 0;
+    double sum_d = 0;
 };
 
 class TExprAvg: public TExprAggregate
@@ -1353,6 +1366,7 @@ class TExprAvg: public TExprAggregate
 public:
     TExprAvg(const TExpressionP& x): arg(x) {}
     virtual TQAggregateDataP makeData();
+    virtual bool isInt(TQContext* ctx) {return false;}
     virtual bool isDouble(TQContext* ctx) {return true;}
 
     TExpressionP arg;
@@ -1361,7 +1375,7 @@ public:
 class TExprAvgData: public TQAggregateData
 {
 public:
-    TExprAvgData(TExprAvg* e) : expr(e) {}
+    TExprAvgData(TExprAvg* e) : TQAggregateData(true), expr(e) {}
     virtual int64_t getInt(TQContext& ctx);
     virtual double getDouble(TQContext& ctx);
 private:
@@ -1375,6 +1389,7 @@ class TExprMinmax: public TExprAggregate
 public:
     TExprMinmax(bool flag, const TExpressionP& x): arg(x), max(flag) {}
     virtual TQAggregateDataP makeData();
+    virtual bool isDouble(TQContext* ctx);
 
     TExpressionP arg;
     bool max;
@@ -1385,9 +1400,11 @@ class TExprMinmaxData: public TQAggregateData
 public:
     TExprMinmaxData(TExprMinmax* e): expr(e) {}
     virtual int64_t getInt(TQContext& ctx);
+    virtual double getDouble(TQContext& ctx);
 private:
     TExprMinmax* expr;
     int64_t num = 0;
+    double num_d = 0;
     bool first = true;
 };
 

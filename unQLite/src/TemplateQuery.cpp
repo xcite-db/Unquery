@@ -2146,6 +2146,16 @@ TQAggregateDataP TExprAggregate::getData(TQContext& ctx)
     return data_map[ctx_data] = makeData();
 }
 
+bool TExprAggregate::isInt(TQContext* ctx)
+{
+    return getData(*ctx)->isInt(ctx);
+}
+
+bool TExprAggregate::isDouble(TQContext* ctx)
+{
+    return getData(*ctx)->isDouble(ctx);
+}
+
 int64_t TExprAggregate::getInt(TQContext& ctx)
 {
     return getData(ctx)->getInt(ctx);
@@ -2174,13 +2184,34 @@ TQAggregateDataP TExprSum::makeData()
     return TQAggregateDataP(new TExprSumData(this));
 }
 
+bool TExprSum::isDouble(TQContext* ctx)
+{
+    return arg->isDouble(ctx) || getData(*ctx)->isDouble(ctx);
+}
+
 int64_t TExprSumData::getInt(TQContext& ctx)
 {
+    if (expr->isDouble(&ctx)) {
+        return getDouble(ctx);
+    }
     if (ctx.in_get_JSON) {
         return sum;
     }
     return sum+=expr->arg->getInt(ctx);
 }
+
+double TExprSumData::getDouble(TQContext& ctx)
+{
+    if (ctx.in_get_JSON) {
+        return is_double?sum_d:sum;
+    }
+    if (!is_double) {
+        sum_d = sum;
+    }
+    is_double = true;
+    return sum_d += expr->arg->getDouble(ctx);
+}
+
 
 TQAggregateDataP TExprAvg::makeData()
 {
@@ -2207,8 +2238,16 @@ TQAggregateDataP TExprMinmax::makeData()
     return TQAggregateDataP(new TExprMinmaxData(this));
 }
 
+bool TExprMinmax::isDouble(TQContext* ctx)
+{
+    return arg->isDouble(ctx) || getData(*ctx)->isDouble(ctx);
+}
+
 int64_t TExprMinmaxData::getInt(TQContext& ctx)
 {
+    if (expr->isDouble(&ctx)) {
+        return getDouble(ctx);
+    }
     if (ctx.in_get_JSON) {
         return num;
     }
@@ -2223,6 +2262,28 @@ int64_t TExprMinmaxData::getInt(TQContext& ctx)
     }
     
     return num;
+}
+
+double TExprMinmaxData::getDouble(TQContext& ctx)
+{
+    if (ctx.in_get_JSON) {
+        return is_double?num_d:num;
+    }
+    double d = expr->arg->getDouble(ctx);
+    if (!is_double) {
+        num_d = num;
+    }
+    is_double = true;
+    if (first) {
+        num_d = d;
+        first = false;
+    } else if (expr->max && num_d<d) {
+        num_d=d;
+    } else if (!expr->max && num_d>d) {
+        num_d=d;
+    }
+    
+    return num_d;
 }
 
 JSONValueP TExprPrev::getJSON(TQContext& ctx)
