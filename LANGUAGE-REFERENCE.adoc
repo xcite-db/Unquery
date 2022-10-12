@@ -889,6 +889,10 @@ The function `$if(cond,then,else)` is used for a ternary if-then-else expression
 
 The `$index` function returns the last index in the context path. If the current path is `Field1[5]`, it would return 5, and also in case the path is `Field1[5].Field2`, or `Field1[3][5]`.
 
+=== $join
+
+`$join(array,delimiter)` joins all strings in an array, adding `delimiter` between them.
+
 === $key
 
 The `$key$` function returns the last key in the context path. For example, if the current path is `Field1.Field2`, it would return `Field2`. If the path ends with an array index, returns the key before any array index. For example, for the path `Field1.Field2[7]`, the returned key would be `Field2` as well.
@@ -916,6 +920,10 @@ The function `$reskey` returns the result key name in the result. For example: `
 === $size
 
 The function `$size(path)` returns the size of the array in $path.
+
+=== $split
+
+The function `$split(string, delimiter)` splits the delimiter-separated values in a string into an array.
 
 === $substr
 
