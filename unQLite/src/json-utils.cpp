@@ -6,7 +6,8 @@
 
 using namespace std;
 using namespace rapidjson;
-using namespace xcite;
+
+namespace xcite {
 
 string escape_field_name(const string& s)
 {
@@ -220,3 +221,5 @@ JSONValueP readCSV(istream& is, const std::string& delim, bool with_header)
     return json;
 
 }
+
+} // namespace xcite

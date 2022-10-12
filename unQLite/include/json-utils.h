@@ -10,9 +10,10 @@
 typedef rapidjson::Value JSONValue;
 typedef std::shared_ptr<JSONValue> JSONValueP;
 
+namespace xcite {
+
 std::string escape_field_name(const std::string& s);
 std::string unescape_field_name(const std::string& s);
-
 
 class ObjectFieldSet
 {
@@ -47,5 +48,7 @@ int64_t valToInt(const JSONValueP& val);
 bool valToBool(const JSONValueP& val);
 
 JSONValueP readCSV(std::istream& is, const std::string& delim, bool with_header);
+
+} // namespace xcite
 
 #endif // JSON_UTILS_H
