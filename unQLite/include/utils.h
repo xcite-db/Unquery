@@ -3,6 +3,7 @@
 #ifndef UTILS_H_INCLUDED
 #define UTILS_H_INCLUDED
 #include <string>
+#include <vector>
 
 namespace xcite {
 
@@ -31,6 +32,8 @@ std::string get_identifier_part(const std::string& name, const std::string& des)
 
 // Note: returns true in case its a number, a number and letters combinations (e.g. 10A), a roman numeral, or a letter numeral
 bool isNumOrNumeral(const std::string& s);
+
+bool is_number(const std::string& s);
 
 size_t find_gen_amendment(const std::string& s);
 
@@ -71,6 +74,8 @@ long long base64_decode(const std::string& s);
 time_t stringToTime(const std::string& s, const std::string& f = {});
 
 std::string timeToString(time_t t, const std::string& f);
+
+std::vector<std::string> split_string(const std::string& s, const std::string& delim);
 
 } // namespace xcite
 

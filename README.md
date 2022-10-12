@@ -36,6 +36,12 @@ Or alternatively, you can write:
 unQLite -c '["firstName"]' *.json
 ```
 
+It also allows to query CSV files by converting them on-the-fly to JSON and then processing the query. Example for a command line for processing CSV:
+
+```
+unQLite -f query.unq -csv -delim ";" users.csv
+```
+
 ## Frequently Asked Questions?
 
 ### Why do we need another json query language?

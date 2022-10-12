@@ -813,6 +813,44 @@ The `$()` (or evaluate) treats the expression inside the parantheses as a path e
     "#return:group[]": ["/employees.$(.)"]
 }
 ```
+
+=== $csv
+
+`$csv(filename [,delimiter] [,have_headers])` is a function that reads a csv file (comma seperated values), and returns a json document. The `delimiter` parameter is optional, with comma as default, and `have_deaders` is an optional boolean value, with default `true`.
+
+The function expects a file where the first line the the column names (unless `have_headers` is false), rows are seperated by newline, and columns are seperated by the specified delimiter (which is not used inside the values).
+
+The result is an array of objects. The field names in each object are the column names. The values are strings, numbers, or booleans. If the value in the csv looks like a number (i.e. containing only numeric digits and a dot), it would be converted into numbers. If it is `"true"` or `"false"`, it would be converted into boolean. Otherwise, the value is a string.
+
+For example, for the csv file:
+```
+username,user_id,active
+sela,100,true
+ari,101,true
+jack,102,false
+```
+
+The result is:
+```
+[
+    {
+        "username": "sela",
+        "user_id": 100,
+        "active": true
+    },
+    {
+        "username": "ari",
+        "user_id": 101,
+        "active": true
+    },
+    {
+        "username": "jack",
+        "user_id": 102,
+        "active": false
+    }
+]
+```
+
 === $env
 
 `$env(expression)`, where `expression` evaluates to a string value, returns the value of the environment variable in `expression`. For example, `"$env('BROWSER')"` returns the value of the environmet variable `BROWSER`.

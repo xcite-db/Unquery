@@ -1,8 +1,12 @@
 #include "json-utils.h"
+#include "utils.h"
 #include <algorithm>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
+using namespace rapidjson;
+using namespace xcite;
 
 string escape_field_name(const string& s)
 {
@@ -157,4 +161,56 @@ bool valToBool(const JSONValueP& val)
         return val->GetInt64()!=0;
     }
     return false;
+}
+
+JSONValueP readCSV(istream& is, const std::string& delim, bool with_header)
+{
+    vector<string> columns;
+    if (with_header) {
+        string header;
+        getline(is, header);
+        columns = split_string(header,delim);
+    }
+    JSONValueP json(new Document);
+    Document& json_doc = *static_cast<Document*>(json.get());
+    auto& alloc = json_doc.GetAllocator();
+    JSONValueP vec(new JSONValue(rapidjson::kArrayType));
+    while (!is.eof()) {
+        string line;
+        getline(is, line);
+        if (line.empty()) {
+            continue;
+        }
+        vector<string> values = split_string(line, delim);
+        JSONValue obj(rapidjson::kObjectType);
+        for (int i=0; i<values.size(); ++i) {
+            string key;
+            if (i<columns.size()) {
+                key = columns[i];
+            } else {
+                key = to_string(i);
+            }
+            JSONValue key_val(key.c_str(), alloc);
+            JSONValue value_val;
+            string& val = values[i];
+            if (is_number(val)) {
+                if (val.find('.')==string::npos) {
+                    value_val = JSONValue((int64_t)stoll(val));
+                } else {
+                    value_val = JSONValue(stod(val));
+                }
+            } else if (val=="true") {
+                value_val = JSONValue(true);
+            } else if (val=="false") {
+                value_val = JSONValue(false);
+            } else {
+                value_val = JSONValue(values[i].c_str(), alloc);
+            }
+            obj.AddMember(key_val, value_val, alloc);
+        }
+        vec->PushBack(obj, alloc);
+    }
+    *json = *vec;
+    return json;
+
 }

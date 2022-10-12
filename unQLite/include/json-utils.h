@@ -44,4 +44,6 @@ int64_t valToInt(const JSONValueP& val);
 
 bool valToBool(const JSONValueP& val);
 
+JSONValueP readCSV(std::istream& is, const std::string& delim, bool with_header);
+
 #endif // JSON_UTILS_H

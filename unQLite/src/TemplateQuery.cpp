@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <csignal>
 #include <sstream>
+#include <fstream>
 
 using namespace std;
 using namespace rapidjson;
@@ -704,7 +705,7 @@ ArrowOp getArrowOp(const string& str)
         return ArrowOp::All;
     } else if (str=="$var") {
         return ArrowOp::Var;
-    } else if (str=="$file") {
+    } else if (str=="$file" || str=="$csv") {
         return ArrowOp::File;
     } else {
         return ArrowOp::Other;
@@ -2456,5 +2457,22 @@ string TExprFile::getFilename(TQContext& ctx)
 {
     return filename->getString(ctx);
 }
+
+JSONValueP TExprCSV::getJSON(TQContext& ctx)
+{
+    string file_name = filename->getString(ctx);
+    if (file_name.empty()) {
+        return JSONValueP(new JSONValue);
+    }
+    ifstream is(file_name);
+    if (is.fail()) {
+        cerr<<"Warning: failed opening file "<<file_name<<endl;
+        return JSONValueP(new JSONValue);
+    }
+
+    json = readCSV(is, delim, with_header);
+    return json;
+}
+
 
 } //namespace xcite

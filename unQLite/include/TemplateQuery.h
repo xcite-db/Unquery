@@ -1482,6 +1482,18 @@ protected:
     JSONValueP json;
 };
 
+class TExprCSV: public TExprFile
+{
+public:
+    TExprCSV(const TExpressionP& e, string d = ",", bool header = true)
+      : delim(d), with_header(header), TExprFile(e) {}
+    virtual JSONValueP getJSON(TQContext& ctx);
+protected:
+    string delim;
+    bool with_header;
+};
+
+
 } // namespace xcite
 
 #endif //TEMPLATEQUERY_H

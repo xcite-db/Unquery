@@ -248,6 +248,24 @@ bool isNumOrNumeral(const string& s)
     return false;
 }
 
+
+bool is_number(const string& s)
+{
+    int point = 0;
+    bool digits = false;
+    for (char c: s) {
+        if (c=='.') {
+            point++;
+        } else if (isdigit(c)) {
+            digits = true;
+        } else {
+            return false;
+        }
+    }
+    return digits&&point<=1;
+}
+
+
 size_t find_gen_amendment(const string& s)
 {
     size_t amended_to_read = s.find("amended to read");
@@ -578,6 +596,26 @@ string timeToString(time_t t, const std::string& f)
     }
     return buffer;
 }
+
+std::vector<std::string> split_string(const std::string& s, const std::string& delim)
+{
+    vector<string> res;
+    size_t pos = 0;
+    do {
+        size_t next = s.find(delim, pos);
+        string word;
+        if (next==string::npos) {
+            word = s.substr(pos);
+            pos = next;
+        } else {
+            word = s.substr(pos, next-pos);
+            pos = next+delim.size();
+        }
+        res.push_back(word);
+    } while (pos!=string::npos && pos<s.size());
+    return res;
+}
+
 
 
 } // namespace xcite

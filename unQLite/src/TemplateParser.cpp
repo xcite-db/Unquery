@@ -28,22 +28,6 @@ bool isQuoted(const string& s)
            (s.front()=='`' && s.back()=='`');
 }
 
-bool isnumber(const string& s)
-{
-    int point = 0;
-    bool digits = false;
-    for (char c: s) {
-        if (c=='.') {
-            point++;
-        } else if (isdigit(c)) {
-            digits = true;
-        } else {
-            return false;
-        }
-    }
-    return digits&&point<=1;
-}
-
 string stripQuotes_(const string& s)
 {
     if (isQuoted(s)) {
@@ -318,7 +302,7 @@ TemplateQueryP TParser::context_mod(bool frame_flag, ContextModMode parse_mode)
             mode = ContextMode::Array;
         } else {
             string t = nextToken();
-            if (isnumber(t)) {
+            if (is_number(t)) {
                 context = "["+t+"]";
                 expect("]");
             } else {
@@ -610,6 +594,23 @@ TExpressionP TParser::baseExpression()
         TExpressionP exp = expression();
         expect(")");
         res = TExpressionP(new TExprFile(exp));
+    } else if (token=="$csv") {
+        expect("(");
+        TExpressionP exp = expression();
+        string delim = ",";
+        bool header = true;
+        if (ifNext(",")) {
+            delim =stripQuotes_(nextToken());
+        }
+        if (ifNext(",")) {
+            string next = nextToken();
+            if (next!="true" && next!="false") {
+                throwError("Expected true or false");
+            }
+            header = next=="true";
+        }
+        expect(")");
+        res = TExpressionP(new TExprCSV(exp, delim, header));
     } else if (token=="$prev") {
         expect("(");
         TExpressionP def = expression();
@@ -766,7 +767,7 @@ TExpressionP TParser::baseExpression()
         res = TExpressionP(call);
     } else if (token[0]=='\"' || token[0]=='\'') {
         res = TExpressionP( new TExprStringConst(stripQuotes_(token)));
-    } else if (isnumber(token)) {
+    } else if (is_number(token)) {
         if (token.find('.')!=string::npos) {
             res = TExpressionP(new TExprDoubleConst(stod(token)));
         } else {
@@ -900,7 +901,7 @@ string TParser::pathWithBrackets(const std::string& path)
     // If '[' followed by number, add to string. Otherwise, backtrace and return
     else if (ifNext("[")) {
         string token = nextToken();
-        if (isnumber(token) && ifNext("]")) {
+        if (is_number(token) && ifNext("]")) {
             res = res+"["+token+"]";
         } else {
             restorePosition();
