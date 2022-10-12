@@ -36,6 +36,8 @@ private:
     std::vector<std::string> fields;
 };
 
+std::string valToString(const JSONValue* val);
+
 std::string valToString(const JSONValueP& val);
 
 double valToDouble(const JSONValueP& val);

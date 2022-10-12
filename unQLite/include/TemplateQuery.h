@@ -1240,6 +1240,29 @@ private:
     TExpressionP str;
 };
 
+class TExprSplit: public TExpression
+{
+public:
+    TExprSplit(const TExpressionP& arg, const string& s)
+        : expr(arg), delim(s) {}
+    virtual bool isJSON(TQContext* ctx) {return true;}
+    virtual JSONValueP getJSON(TQContext& ctx);
+private:
+    TExpressionP expr;
+    string delim;
+};
+
+class TExprJoin: public TExprString
+{
+public:
+    TExprJoin(const TExpressionP& arg, const string& s)
+        : expr(arg), delim(s) {}
+    virtual string getString(TQContext& ctx);
+private:
+    TExpressionP expr;
+    string delim;
+};
+
 enum class CastType {
     String,
     Int,

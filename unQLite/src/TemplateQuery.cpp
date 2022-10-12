@@ -2086,6 +2086,35 @@ int64_t TExprLength::getInt(TQContext& ctx)
     return s.length();
 }
 
+JSONValueP TExprSplit::getJSON(TQContext& ctx)
+{
+    string s = expr->getString(ctx);
+    vector<string> vec = split_string(s, delim);
+    auto& alloc = ctx.doc->GetAllocator();
+    JSONValueP res(new JSONValue(rapidjson::kArrayType));
+    for (const string& s: vec) {
+        JSONValue str_val(s.c_str(),alloc);
+        res->PushBack(str_val, alloc);
+    }
+    return res;
+    
+}
+
+string TExprJoin::getString(TQContext& ctx)
+{
+    JSONValueP v = expr->getJSON(ctx);
+    if (v->IsString()) {
+        return v->GetString();
+    }
+    if (!v->IsArray() || v->Empty()) {
+        return {};
+    }
+    string res = valToString(&(*v)[0]);
+    for (int i=1; i<v->Size(); ++i) {
+        res+=delim+valToString(&(*v)[i]);
+    }
+    return res;
+}
 
 int64_t TExprToTime::getInt(TQContext& ctx)
 {

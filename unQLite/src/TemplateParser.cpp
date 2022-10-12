@@ -750,6 +750,22 @@ TExpressionP TParser::baseExpression()
         TExpressionP s = expression(0);
         expect(")");
         res = TExpressionP(new TExprFind(arg, s, token=="$find"));
+    } else if (token=="$split") {
+        expect("(");
+        TExpressionP arg = expression();
+        expect(",");
+        string d = stripQuotes_(nextToken());
+        expect(")");
+        res = TExpressionP(new TExprSplit(arg, d));
+    } else if (token=="$join") {
+        expect("(");
+        TExpressionP arg = expression();
+        string delim;
+        if (ifNext(",")) {
+            delim = stripQuotes_(nextToken());
+        }
+        expect(")");
+        res = TExpressionP(new TExprJoin(arg,delim));
     } else if (token=="$D") {
         string date = stripQuotes_(nextToken());
         time_t epoch = stringToTime(date);

@@ -118,7 +118,7 @@ string ObjectFieldSet::toString() const
     return res;
 }
 
-string valToString(const JSONValueP& val)
+string valToString(const JSONValue* val)
 {
     if (val->IsString()) {
         return val->GetString();
@@ -132,6 +132,12 @@ string valToString(const JSONValueP& val)
 
     return {};
 }
+
+std::string valToString(const JSONValueP& val)
+{
+    return valToString(val.get());
+}
+
 
 double valToDouble(const JSONValueP& val)
 {
