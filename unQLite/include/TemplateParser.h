@@ -52,6 +52,7 @@ public:
     TQConditionP condition(int prec = 0, const TExpressionP& exp = {});
     TExpressionP expression(int prec = 0);
     TExpressionP baseExpression();
+    bool boolean();
     string pathId();
     string pathWithBrackets(const std::string& token = {});
     void pushPosition();

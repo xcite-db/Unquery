@@ -603,11 +603,7 @@ TExpressionP TParser::baseExpression()
             delim =stripQuotes_(nextToken());
         }
         if (ifNext(",")) {
-            string next = nextToken();
-            if (next!="true" && next!="false") {
-                throwError("Expected true or false");
-            }
-            header = next=="true";
+            header = boolean();
         }
         expect(")");
         res = TExpressionP(new TExprCSV(exp, delim, header));
@@ -750,19 +746,34 @@ TExpressionP TParser::baseExpression()
         TExpressionP s = expression(0);
         expect(")");
         res = TExpressionP(new TExprFind(arg, s, token=="$find"));
+    } else if (token=="$replace") {
+        expect("(");
+        TExpressionP source = expression();
+        expect(",");
+        TExpressionP from = expression();
+        expect(",");
+        TExpressionP to = expression();
+        bool replace_all = true;
+        if (ifNext(",")) {
+            replace_all = boolean();
+        }
+        expect(")");
+        res = TExpressionP(new TExprReplace(source, from, to, replace_all));
     } else if (token=="$split") {
         expect("(");
         TExpressionP arg = expression();
         expect(",");
-        string d = stripQuotes_(nextToken());
+        TExpressionP d = expression();
         expect(")");
         res = TExpressionP(new TExprSplit(arg, d));
     } else if (token=="$join") {
         expect("(");
         TExpressionP arg = expression();
-        string delim;
+        TExpressionP delim;
         if (ifNext(",")) {
-            delim = stripQuotes_(nextToken());
+            delim = expression();
+        } else {
+            delim = TExpressionP(new TExprStringConst(""));
         }
         expect(")");
         res = TExpressionP(new TExprJoin(arg,delim));
@@ -872,6 +883,15 @@ TExpressionP TParser::expression(int prec)
         }
     }
     return res;
+}
+
+bool TParser::boolean()
+{
+    string token = nextToken();
+    if (token!="true" && token!="false") {
+        throwError("Expected true or false");
+    }
+    return token=="true";
 }
 
 string TParser::pathId()

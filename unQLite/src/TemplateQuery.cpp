@@ -1942,6 +1942,30 @@ JSONValueP TExprFind::getJSON(TQContext& ctx)
     return res;
 }
 
+string TExprReplace::getString(TQContext& ctx)
+{
+    string s = source->getString(ctx);
+    string f = from->getString(ctx);
+    string t = to->getString(ctx);
+    string res;
+    size_t pos = 0;
+    while (pos<s.size()) {
+        size_t next = s.find(f,pos);
+        if (next==string::npos) {
+            res += s.substr(pos);
+            break;
+        }
+        res+= s.substr(pos,next-pos) + t;
+        pos = next+f.size();
+        if (!replace_all) {
+            res+=s.substr(pos);
+            break;
+        }
+    }
+    return res;
+}
+
+
 string TExprSubfield::getSubpath(TQContext& ctx)
 {
     if (!subpath.empty()) {
@@ -2089,7 +2113,8 @@ int64_t TExprLength::getInt(TQContext& ctx)
 JSONValueP TExprSplit::getJSON(TQContext& ctx)
 {
     string s = expr->getString(ctx);
-    vector<string> vec = split_string(s, delim);
+    string d = delim->getString(ctx);
+    vector<string> vec = split_string(s, d);
     auto& alloc = ctx.doc->GetAllocator();
     JSONValueP res(new JSONValue(rapidjson::kArrayType));
     for (const string& s: vec) {
@@ -2103,17 +2128,8 @@ JSONValueP TExprSplit::getJSON(TQContext& ctx)
 string TExprJoin::getString(TQContext& ctx)
 {
     JSONValueP v = expr->getJSON(ctx);
-    if (v->IsString()) {
-        return v->GetString();
-    }
-    if (!v->IsArray() || v->Empty()) {
-        return {};
-    }
-    string res = valToString(&(*v)[0]);
-    for (int i=1; i<v->Size(); ++i) {
-        res+=delim+valToString(&(*v)[i]);
-    }
-    return res;
+    string d = delim->getString(ctx);
+    return joinAllVals(*v, d);
 }
 
 int64_t TExprToTime::getInt(TQContext& ctx)

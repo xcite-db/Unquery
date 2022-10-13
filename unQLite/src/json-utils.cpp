@@ -170,6 +170,32 @@ bool valToBool(const JSONValueP& val)
     return false;
 }
 
+std::string joinAllVals(const JSONValue& val, const string& delim)
+{
+    string res;
+    if (val.IsArray()) {
+        for (auto& v: val.GetArray()) {
+            string new_val = joinAllVals(v, delim);
+            if (!res.empty() && !new_val.empty()) {
+                res+=delim;
+            }
+            res+=new_val;
+        }
+    } else if (val.IsObject()) {
+        for (auto& i: val.GetObject()) {
+            string new_val = joinAllVals(i.value, delim);
+            if (!res.empty() && !new_val.empty()) {
+                res+=delim;
+            }
+            res+=new_val;
+        }
+    } else {
+        res = valToString(&val);
+    }
+    return res;
+}
+
+
 JSONValueP readCSV(istream& is, const std::string& delim, bool with_header)
 {
     vector<string> columns;

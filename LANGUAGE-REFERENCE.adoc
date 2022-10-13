@@ -891,7 +891,7 @@ The `$index` function returns the last index in the context path. If the current
 
 === $join
 
-`$join(array,delimiter)` joins all strings in an array, adding `delimiter` between them.
+`$join(array,delimiter)` joins all strings in a json strcture (array, object, etc), adding `delimiter` between them.
 
 === $key
 
@@ -912,6 +912,10 @@ Current time in unix epoch time.
 === $path
 
 The function `$path` (no arguments) returns the current context path.
+
+=== $replace
+
+The function `$replace(str, from, to [,replace_all?])` replaces all occurances of `from` in `str` to `to` (or first occurance if `replace_all` is false).
 
 === $reskey
 

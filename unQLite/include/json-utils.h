@@ -47,6 +47,8 @@ int64_t valToInt(const JSONValueP& val);
 
 bool valToBool(const JSONValueP& val);
 
+std::string joinAllVals(const JSONValue& val, const std::string& delim);
+
 JSONValueP readCSV(std::istream& is, const std::string& delim, bool with_header);
 
 } // namespace xcite

@@ -1179,6 +1179,19 @@ private:
     bool case_sensitive;
 };
 
+class TExprReplace: public TExprString
+{
+public:
+    TExprReplace(const TExpressionP& str, const TExpressionP& f, const TExpressionP& t, bool all)
+        : source(str), from(f), to(t), replace_all(all) {}
+    virtual string getString(TQContext& ctx);
+private:
+    TExpressionP source;
+    TExpressionP from;
+    TExpressionP to;
+    bool replace_all;
+};
+
 class TExprSubfield: public TExpression
 {
 public:
@@ -1243,24 +1256,24 @@ private:
 class TExprSplit: public TExpression
 {
 public:
-    TExprSplit(const TExpressionP& arg, const string& s)
+    TExprSplit(const TExpressionP& arg, const TExpressionP& s)
         : expr(arg), delim(s) {}
     virtual bool isJSON(TQContext* ctx) {return true;}
     virtual JSONValueP getJSON(TQContext& ctx);
 private:
     TExpressionP expr;
-    string delim;
+    TExpressionP delim;
 };
 
 class TExprJoin: public TExprString
 {
 public:
-    TExprJoin(const TExpressionP& arg, const string& s)
+    TExprJoin(const TExpressionP& arg, const TExpressionP& s)
         : expr(arg), delim(s) {}
     virtual string getString(TQContext& ctx);
 private:
     TExpressionP expr;
-    string delim;
+    TExpressionP delim;
 };
 
 enum class CastType {
