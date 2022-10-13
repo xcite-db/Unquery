@@ -66,9 +66,9 @@ Suppose we want to extract the field `FirstName` from employee1.json. All we nee
 "FirstNames"
 ```
 
-Assuming `unQLite` is in your search path, you can write:
+Assuming `unq` is in your search path, you can write:
 ```shell
-unQLite -f query1.unq employee1.json
+unq -f query1.unq employee1.json
 ```
 
 And you'll get the result:
@@ -78,7 +78,7 @@ And you'll get the result:
 
 For such a simple query, you may want to write the query directly in the command line, instead of storing the query in a file. You can do this with the `-c` option:
 ```shell
-unQLite -c '"FirstName"' employee1.json
+unq -c '"FirstName"' employee1.json
 ```
 
 Note that we use single quotes around the query, so that all the special characters (including the double quotes in this case) would be passed to the program.
@@ -136,7 +136,7 @@ We can also create new nested objects. For example, if we want to group title an
 
 Suppose we want to collect information from multiple json files. We can try, for example, to run the query `"FirstName"` on all the employees:
 ```shell
-unQLite -c '"FirstName"' *.json
+unq -c '"FirstName"' *.json
 ```
 
 Oh no! This is not what we expected. The result is only `"John"` again. What happened to all the other names? Recall that the output 
@@ -366,12 +366,12 @@ context modifier instead of `[]`.
 
 For example, we can create an dictionary-style object containing all employee records, with the `ID` as the key:
 ```shell
-unQLite -c '{"$(ID)":"."}' employee*.json > dict-employees.json
+unq -c '{"$(ID)":"."}' employee*.json > dict-employees.json
 ```
 
 If we want to go back from the dictionary-style object to an array of employee records, we can run:
 ```shell
-unQLite -c '{"employees:{}":["."]}' dict-employees.json
+unq -c '{"employees:{}":["."]}' dict-employees.json
 ```
 
 We could use field iterators to do many other things. For example, to add a field to an object. Suppose we want to collect all

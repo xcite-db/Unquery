@@ -12,34 +12,34 @@ To build the tool, you'll need cmake version 3.6.2 or higher. You can install it
 
 To build
 ```shell
-cd unQLite
+cd unq
 cmake .
 make
 ```
 
-The executable would be in bin/Release/unQLite.
+The executable would be in bin/Release/unq.
 
-## Running unQLite
+## Running unq
 
-To run `unQLite`, you'll need to provide the query, either as a file (with the option `-f`) or as a command-line option (with the option `-c`), and a list of files to query. For example, if you want to collect the value of the field `firstName` from all the json files in the current directory, the query you need is:
+To run `unq`, you'll need to provide the query, either as a file (with the option `-f`) or as a command-line option (with the option `-c`), and a list of files to query. For example, if you want to collect the value of the field `firstName` from all the json files in the current directory, the query you need is:
 ```
 ["firstName"]
 ```
 
 You can store the above query in a file, say `query.unq`, and then run:
 ```
-unQLite -f query.unq *.json
+unq -f query.unq *.json
 ```
 
 Or alternatively, you can write:
 ```
-unQLite -c '["firstName"]' *.json
+unq -c '["firstName"]' *.json
 ```
 
 It also allows to query CSV files by converting them on-the-fly to JSON and then processing the query. Example for a command line for processing CSV:
 
 ```
-unQLite -f query.unq -csv -delim ";" users.csv
+unq -f query.unq -csv -delim ";" users.csv
 ```
 
 ## Frequently Asked Questions?
@@ -74,7 +74,7 @@ The advantages of ~Q are:
 
 ### Is the implementation complete?
 
-*It looks like unQLite is still being developped. Is it ready to be used?*
+*It looks like unq is still being developped. Is it ready to be used?*
 
 The implementation is fully working. All the features shown in the tutorial (and many more) are already implemented. It is still a beta version, and may still have bugs. The more you use it, the better it would become.
 
@@ -96,4 +96,4 @@ Yes.
 
 *Can I use it? Do I need to pay?*
 
-unQLite is an open source project, disctributed under the terms Apache 2.0. So it is completely free.
+unq is an open source project, disctributed under the terms Apache 2.0. So it is completely free.
