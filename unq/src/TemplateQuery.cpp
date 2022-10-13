@@ -1987,6 +1987,9 @@ string TExprSubfield::getSubpath(TQContext& ctx)
 
 bool TExprSubfield::isString(TQContext* ctx)
 {
+    if (!ctx) {
+        return false;
+    }
     if (isField()) {
         return ctx->isString(getFieldPath(*ctx));
     }
@@ -1995,6 +1998,9 @@ bool TExprSubfield::isString(TQContext* ctx)
 
 bool TExprSubfield::isDouble(TQContext* ctx)
 {
+    if (!ctx) {
+        return false;
+    }
     if (isField()) {
         return ctx->isDouble(getFieldPath(*ctx));
     }
@@ -2004,6 +2010,9 @@ bool TExprSubfield::isDouble(TQContext* ctx)
 
 bool TExprSubfield::isInt(TQContext* ctx)
 {
+    if (!ctx) {
+        return false;
+    }
     if (isField()) {
         return ctx->isInt(getFieldPath(*ctx));
     }
@@ -2012,6 +2021,9 @@ bool TExprSubfield::isInt(TQContext* ctx)
 
 bool TExprSubfield::isBool(TQContext* ctx)
 {
+    if (!ctx) {
+        return false;
+    }
     if (isField()) {
         return ctx->isBool(getFieldPath(*ctx));
     }
@@ -2194,11 +2206,17 @@ TQAggregateDataP TExprAggregate::getData(TQContext& ctx)
 
 bool TExprAggregate::isInt(TQContext* ctx)
 {
+    if (!ctx) {
+        return true;
+    }
     return getData(*ctx)->isInt(ctx);
 }
 
 bool TExprAggregate::isDouble(TQContext* ctx)
 {
+    if (!ctx) {
+        return true;
+    }
     return getData(*ctx)->isDouble(ctx);
 }
 
@@ -2387,24 +2405,36 @@ JSONValueP TExprCall::getJSON(TQContext& ctx)
 
 bool TExprVar::isString(TQContext* ctx)
 {
+    if (!ctx) {
+        return false;
+    }
     JSONValueP j = ctx->getVar(name);
     return (j->IsString());
 }
 
 bool TExprVar::isDouble(TQContext* ctx)
 {
+    if (!ctx) {
+        return false;
+    }
     JSONValueP j = ctx->getVar(name);
     return (j->IsDouble());
 }
 
 bool TExprVar::isInt(TQContext* ctx)
 {
+    if (!ctx) {
+        return false;
+    }
     JSONValueP j = ctx->getVar(name);
     return (j->IsInt64());
 }
 
 bool TExprVar::isBool(TQContext* ctx)
 {
+    if (!ctx) {
+        return false;
+    }
     JSONValueP j = ctx->getVar(name);
     return (j->IsBool());
 }
