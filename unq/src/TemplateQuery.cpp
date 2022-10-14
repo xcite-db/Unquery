@@ -1364,21 +1364,28 @@ bool TQNumberTest::test(TQContext& ctx)
         int64_t v2 = y->getInt(ctx);
         return test(v1,v2);
     }
-    double v1;
-    double v2;
+    double v1 = 0;
+    double v2 = 0;
     if (x->isDouble(&ctx))
         v1 = x->getDouble(ctx);
     else if (x->isInt(&ctx))
         v1 = x->getInt(ctx);
-    else if (x->isString(&ctx))
-        v1 = stod(x->getString(ctx));
+    else if (x->isString(&ctx)) {
+        string str = x->getString(ctx);
+        if (is_number(str)) {
+            v1 = stod(str);
+        }
+    }
 
     if (y->isDouble(&ctx)) {
         v2 = y->getDouble(ctx);
     } else if (y->isInt(&ctx)) {
         v2 = y->getInt(ctx);
     } else if (y->isString(&ctx)) {
-        v2 = stod(y->getString(ctx));
+        string str = y->getString(ctx);
+        if (is_number(str)) {
+            v2 = stod(str);
+        }
     }
     return test(v1,v2);
 }

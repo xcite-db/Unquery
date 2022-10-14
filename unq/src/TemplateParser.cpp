@@ -402,7 +402,7 @@ ValueAndCond TParser::value()
             throwError("Error parsing value. Unknown sort order: "+token);
         }
         if (ifNext("(")) {
-            order_num = stoi(nextToken());
+            order_num = stoll(nextToken());
             expect(")");
         }
     }
@@ -807,7 +807,7 @@ TExpressionP TParser::baseExpression()
         if (token.find('.')!=string::npos) {
             res = TExpressionP(new TExprDoubleConst(stod(token)));
         } else {
-            res = TExpressionP(new TExprIntConst(stoi(token)));
+            res = TExpressionP(new TExprIntConst(stoll(token)));
         }
     } else if (token=="true"||token=="false") {
         res = TExpressionP(new TExprBoolConst(token=="true"));
@@ -839,7 +839,7 @@ TExpressionP TParser::baseExpression()
         if (!is_number(next)) {
             throwError("Expected number");
         }
-        res = TExpressionP(new TExprIntConst(-stoi(next)));
+        res = TExpressionP(new TExprIntConst(-stoll(next)));
     } else {
         throwError("Expected expression");
     }
