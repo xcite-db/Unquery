@@ -61,12 +61,21 @@ string TParser::nextToken(bool consume)
         while (i<_len && isalnum_(_str[++i])) {}
     } else if (c=='\"') {
         while (++i<_len && (_str[i]!='\"'||(i>0 && _str[i]=='\"'&&_str[i-1]=='\\'))) {}
+        if (i==_len) {
+            throwError("Missing closing doublequotes (\")");
+        }
         i++;
     } else if (c=='\'') {
         while (++i<_len && _str[i]!='\'') {}
+        if (i==_len) {
+            throwError("Missing closing quote (')");
+        }
         i++;
     } else if (c=='`') {
         while (++i<_len && _str[i]!='`') {}
+        if (i==_len) {
+            throwError("Missing closing backtick (`)");
+        }
         i++;
     } else if (single_char.find(c)!=string::npos) {
         i++;
@@ -827,6 +836,9 @@ TExpressionP TParser::baseExpression()
         res = TExpressionP(new TExprField(token));       
     } else if (token=="-") {
         string next = nextToken();
+        if (!is_number(next)) {
+            throwError("Expected number");
+        }
         res = TExpressionP(new TExprIntConst(-stoi(next)));
     } else {
         throwError("Expected expression");
@@ -1012,13 +1024,19 @@ TemplateQueryP JSONToTQ(JSONValue& v)
             res = vc.first;
         }
     } else if (v.IsInt64()) {
-        TExpressionP exp(new TExprIntConst(v.GetInt()));
+        TExpressionP exp(new TExprIntConst(v.GetInt64()));
         res = TemplateQueryP(new TQValue(exp));
     } else if (v.IsDouble()) {
         TExpressionP exp(new TExprDoubleConst(v.GetDouble()));
         res = TemplateQueryP(new TQValue(exp));
     } else if (v.IsBool()) {
         TExpressionP exp(new TExprBoolConst(v.GetBool()));
+        res = TemplateQueryP(new TQValue(exp));
+    }
+
+    if (!res) {
+        JSONValueP nulljson(new JSONValue);
+        TExpressionP exp(new TExprJSONConst(nulljson));
         res = TemplateQueryP(new TQValue(exp));
     }
 

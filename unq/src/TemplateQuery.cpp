@@ -1290,8 +1290,8 @@ bool TQValueData::compare(const TQDataP& other) const
         x = o;
         y = this;
     }
-    if (x->val->IsInt() && y->val->IsInt()) {
-        return x->val->GetInt() < y->val->GetInt();
+    if (x->val->IsInt64() && y->val->IsInt64()) {
+        return x->val->GetInt64() < y->val->GetInt64();
     } else if (x->val->IsString() && y->val->IsString()) {
         return strcmp(x->val->GetString(), y->val->GetString())<0;
     } else if (x->val->IsString() || y->val->IsString()) {

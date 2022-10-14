@@ -988,6 +988,18 @@ private:
     bool val;
 };
 
+class TExprJSONConst: public TExpression
+{
+public:
+    TExprJSONConst(const JSONValueP& v): val(v) {}
+    virtual bool isJSON(TQContext* ctx) {return true;}
+    virtual JSONValueP getJSON(TQContext& ctx)
+        {return val;}
+private:
+    JSONValueP val;
+};
+
+
 class TExprInFilter: public TExpression
 {
 public:
