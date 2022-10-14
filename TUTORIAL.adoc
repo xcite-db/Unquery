@@ -1,34 +1,34 @@
-= Unquery-lite tutorial
+= Unquery tutorial
 :sectnums:
 Sela Mador-Haim
 :toc:
 
 == Introduction
 
-~Q (pronounced un-query) is a language for querying and transforming structured documents. It was originally developed 
+Unquery is a language for querying and transforming structured documents. It was originally developed 
 for http://www.xcitedb.com[XCiteDB], a fast and reliable document-oriented noSQL database for storing structured documents,
 suppoting XML and JSON, with temporal versionning and branches.
 
-unQuery-lite is a command line tool for running ~Q queries directly on json files, without loading it to a database. It can read one or multiple json files and a ~Q query, and produce a new json file with the result of the query. This tutorial shows how to write ~Q queries and use them with unQuery-lite. It will not show parts of the language that are supported only by XCiteDB, such as reading XML, or querying across multiple versions and branches.
+unq is a command line tool for running Unquery queries directly on json files, without loading it to a database. It can read one or multiple json files and an Unquery query, and produce a new json file with the result of the query. This tutorial shows how to write Unquery queries and use them with unq. It will not show parts of the language that are supported only by XCiteDB, such as reading XML, or querying across multiple versions and branches.
 
-=== ~Q Language Overview
+=== Unquery Language Overview
 
-~Q is a powerful and easy to use querying language. For JSON, it can be used to:
+Unquery is a powerful and easy to use querying language. For JSON, it can be used to:
 
 * Extract information from a JSON file.
 * Collect information from multiple JSON files.
 * Transform a JSON file, change the way it is organized, add or remove information.
 * Perform calculations on json data, including aggregation.
 
-One of the key properties of ~Q is that each query is formatted as json, and the structure of the result always corresponds to the structure of the query.
-You can think about ~Q (or at least simple ~Q queries) as a template for the result, and structure the query according to the way you want the result to look.
-As we would show you in this tutorial, this is one of ~Q's key strengths. 
+One of the key properties of Unquery is that each query is formatted as json, and the structure of the result always corresponds to the structure of the query.
+You can think about Unquery (or at least simple Unquery queries) as a template for the result, and structure the query according to the way you want the result to look.
+As we would show you in this tutorial, this is one of Unquery's key strengths. 
 
 == Simple example: employee data
 
 === Data structure
 
-As an introdction to ~Q, we'll start with a simple dataset. We have multiple files with information about employees in some company. Those files are stored in 
+As an introdction to Unquery, we'll start with a simple dataset. We have multiple files with information about employees in some company. Those files are stored in 
 the directory `tutorial-samples/employees`. Each file contains information about one employee in this fictituous company, and looks like:
 ```
 {
@@ -83,7 +83,7 @@ unq -c '"FirstName"' employee1.json
 
 Note that we use single quotes around the query, so that all the special characters (including the double quotes in this case) would be passed to the program.
 
-But wait! Didn't I just say earlier that each query in ~Q is a json file? This doesn't look very much like json. But in fact, a string literal (in double quotes) is a legal json value. In the simplest cases, where we just want to extract a single value, this is all we need. When we want to extract a specific field, all we need to do is to write the field name in quotes. If the field is in a nested object, we can use the syntax `field1.field2`. For example, try query2.unq:
+But wait! Didn't I just say earlier that each query in Unquery is a json file? This doesn't look very much like json. But in fact, a string literal (in double quotes) is a legal json value. In the simplest cases, where we just want to extract a single value, this is all we need. When we want to extract a specific field, all we need to do is to write the field name in quotes. If the field is in a nested object, we can use the syntax `field1.field2`. For example, try query2.unq:
 ```
 "Address.City"
 ```
@@ -110,7 +110,7 @@ Instead of just extracting a single field, we can specify multiple fields we wan
  }
 ```
  
-This looks much more like what we think of as json. And it shows how ~Q can express queries as templates. The result would be:
+This looks much more like what we think of as json. And it shows how Unquery can express queries as templates. The result would be:
 ```
  {
     "fullname": "John Smith",
@@ -146,7 +146,7 @@ with `[...]`:
 ["FirstName"]
 ```
 
-Now we get an array with all the first names. In general, an array in ~Q contains a single element, which could be either a string literal or a more complex value (an object, or another array etc.). Once the query is evluated, the array is expended to include all the values from all the files we process. Without square brackets, all we can expect is a single value (or a single object).
+Now we get an array with all the first names. In general, an array in Unquery contains a single element, which could be either a string literal or a more complex value (an object, or another array etc.). Once the query is evluated, the array is expended to include all the values from all the files we process. Without square brackets, all we can expect is a single value (or a single object).
 
 The array we get with the above query is unsorted. We can sort the results by adding a sorting directive. For example, to sort the first names in ascending order, we can write:
 ```
@@ -155,7 +155,7 @@ The array we get with the above query is unsorted. We can sort the results by ad
 
 Similarly, we can use `@descending` and also `@unique_ascending` and `@unique_descending` to sort and remove duplicates.
 
-We can also use conditions to filter the results (similar to `WHERE` clauses in SQL. There are multiple ways to specify a condition in ~Q. One of them is a predicate at the end of the value expression, with `?` followed by a condition. For example, to get the last name of all employees earning over 200,000, we can write:
+We can also use conditions to filter the results (similar to `WHERE` clauses in SQL. There are multiple ways to specify a condition in Unquery. One of them is a predicate at the end of the value expression, with `?` followed by a condition. For example, to get the last name of all employees earning over 200,000, we can write:
 ```
 ["LastName?Salary>200000"]
 ```
@@ -214,7 +214,7 @@ Would return the total number of employees with salary greater than 200,000.
 
 === Context modifiers
 
-Context modifiers are one of the most powerful and versatile mechanisms in ~Q. The context is the path we use in different places
+Context modifiers are one of the most powerful and versatile mechanisms in Unquery. The context is the path we use in different places
 in the query. By default, the context is an empty path, and all fields are relative to the top node, but we can change it
 with a context modifier. For example, suppose we want to get the full address in one string. We can do it with the expression:
 ```
@@ -303,13 +303,13 @@ We can do it using context modifiers and aggregation function, as in the followi
 }]
 ```
 
-Though ~Q allows using aggregation functions in conditions, as shown in the above example, note that this should be done with
-caution, and it is not always possible. ~Q allows comparing aggregation functions with a constant literal (e.g. a number),
+Though Unquery allows using aggregation functions in conditions, as shown in the above example, note that this should be done with
+caution, and it is not always possible. Unquery allows comparing aggregation functions with a constant literal (e.g. a number),
 but does not allow comparing aggregation function with some field value in the json file.
 
 === Dynamic key names
 
-So far, the key names we used were constants. But ~Q allows us to use expressions for key names as well. 
+So far, the key names we used were constants. But Unquery allows us to use expressions for key names as well. 
 The function `$(expression)` allows us to evaluate the expression and use it as a value. For example:
 ```
 {
@@ -361,7 +361,7 @@ Similarly, we can perform aggregation on each group. For example, if we want to 
 === Field iterators
 
 We showed earlier we can use context modifiers to iterate over array elements. But what if we want to iterate over fields
-of an object, instead of an array? Fortunately, ~Q allows use to do it in the same way. We just need to use `{}` in the 
+of an object, instead of an array? Fortunately, Unquery allows use to do it in the same way. We just need to use `{}` in the 
 context modifier instead of `[]`.
 
 For example, we can create an dictionary-style object containing all employee records, with the `ID` as the key:
@@ -386,7 +386,7 @@ employees into a dictionary-style object with `ID` as key, and add the filename 
 ```
 
 Here, `$key` is the name of the last key in the pass. And in this case, since we iterate over all the fields, each time `$key`
-is the field selected in that iteration. Recall that ~Q doesn't create duplicate keys with the same name. So we add `Filename`
+is the field selected in that iteration. Recall that Unquery doesn't create duplicate keys with the same name. So we add `Filename`
 only once.
 
 Similarly, we can also remove fields. Suppose, again, we create a dictionary, with the `ID` as the key. Since we already use `ID`
@@ -431,7 +431,7 @@ Similarly, we can also remove fields:
 
 === Using variables
 
-For more advanced queries, ~Q allows the user to define variables and use them. The simplest way to use variable is
+For more advanced queries, Unquery allows the user to define variables and use them. The simplest way to use variable is
 to store some value and use it later (possibly multiple times). For example, we want to create an array of all dependants,
 and for each dependant object, add the employee name. We can use a variable to remember the employee name before we
 change the context to `Dependants[]`:
