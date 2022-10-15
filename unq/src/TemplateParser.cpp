@@ -319,7 +319,11 @@ TemplateQueryP TParser::context_mod(bool frame_flag, ContextModMode parse_mode)
             }
         }
     } else {
-        context = pathWithBrackets(pathId());
+        if (ifNext(".")) {
+            context = ".";
+        } else {
+            context = pathWithBrackets(pathId());
+        }
         if (context.empty() && !lookAhead("[")) {
             mode = ContextMode::Reskey;
         }
