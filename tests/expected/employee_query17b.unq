@@ -1,0 +1,139 @@
+[
+    {
+        "employee": {
+            "Filename": "../tutorial-samples/employees/employee1.json",
+            "ID": "1001",
+            "FirstName": "John",
+            "LastName": "Smith",
+            "Title": "CTO",
+            "Salary": 320000,
+            "Address": {
+                "Street": "123 Oak Street",
+                "City": "Austin",
+                "State": "TX",
+                "Zip": 78705
+            },
+            "Dependants": [
+                {
+                    "FirstName": "Jane",
+                    "LastName": "Smith",
+                    "Relation": "Spouse"
+                },
+                {
+                    "FirstName": "Jake",
+                    "LastName": "Smith",
+                    "Relation": "Child"
+                },
+                {
+                    "FirstName": "Jenna",
+                    "LastName": "Smith",
+                    "Relation": "Child"
+                }
+            ]
+        }
+    },
+    {
+        "employee": {
+            "Filename": "../tutorial-samples/employees/employee2.json",
+            "ID": "1002",
+            "FirstName": "Dganit",
+            "LastName": "Tirosh",
+            "Title": "CEO",
+            "Salary": 500000,
+            "Address": {
+                "Street": "500 Temple Street",
+                "City": "Oakland",
+                "State": "CA",
+                "Zip": 94001
+            },
+            "Dependants": [
+                {
+                    "FirstName": "Yaniv",
+                    "LastName": "Tirosh-Ron",
+                    "Relation": "Spouse"
+                },
+                {
+                    "FirstName": "Galit",
+                    "LastName": "Tirosh-Ron",
+                    "Relation": "Child"
+                }
+            ]
+        }
+    },
+    {
+        "employee": {
+            "Filename": "../tutorial-samples/employees/employee3.json",
+            "ID": "1003",
+            "FirstName": "Arthur",
+            "LastName": "McLaud",
+            "Title": "Developer",
+            "Salary": 120000,
+            "Address": {
+                "Street": "701H Highlander Avenue",
+                "City": "Oakland",
+                "State": "CA",
+                "Zip": 94001
+            }
+        }
+    },
+    {
+        "employee": {
+            "Filename": "../tutorial-samples/employees/employee4.json",
+            "ID": "1004",
+            "FirstName": "Elena",
+            "LastName": "Brioche",
+            "Title": "Senior Developer",
+            "Salary": 150000,
+            "Address": {
+                "Street": "2 Manticore Ct",
+                "City": "Atlantic City",
+                "State": "NJ",
+                "Zip": 12345
+            },
+            "Dependants": [
+                {
+                    "FirstName": "Jacques",
+                    "LastName": "Macaron",
+                    "Relation": "Spouse"
+                },
+                {
+                    "FirstName": "Suzette",
+                    "LastName": "Macaron",
+                    "Relation": "Child"
+                },
+                {
+                    "FirstName": "Galette",
+                    "LastName": "Macaron",
+                    "Relation": "Child"
+                }
+            ]
+        }
+    },
+    {
+        "employee": {
+            "Filename": "../tutorial-samples/employees/employee5.json",
+            "ID": "1005",
+            "FirstName": "Rene",
+            "LastName": "Descartes",
+            "Title": "Janitor",
+            "Salary": 700000,
+            "Address": {
+                "Street": "17 Whoknows street",
+                "City": "Nowhere",
+                "State": "NY",
+                "Zip": 10001
+            },
+            "Dependants": [
+                {
+                    "FirstName": "Shrodinger",
+                    "Relation": "Cat"
+                },
+                {
+                    "FirstName": "Cogito",
+                    "LastName": "Ergo-Sum",
+                    "Relation": "Tortoise"
+                }
+            ]
+        }
+    }
+]

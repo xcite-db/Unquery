@@ -99,7 +99,6 @@ void help()
 {
   cerr<<"Syntax: JSONCompare [flags] <expected> <actual>"<<endl;
   cerr<<"   Supported flags:"<<endl;
-  cerr<<"   -any: compare any JSON file (not just amendment format)"<<endl;
   cerr<<"   -report <regex>: report only key names that match regex"<<endl;
   cerr<<"   -ignore <regex>: skip keys that match regex"<<endl;
   cerr<<"   -context <regex>: when mismatch is reported, print fields in the same amendment that match regex"<<endl;
@@ -125,9 +124,7 @@ int main(int argc, char* argv[])
   
   for (int i=1; i<argc; i++) {
     string arg = argv[i];
-    if (arg=="-any") {
-        traversal.opt_any = true;
-    } else if (arg=="-report") {
+    if (arg=="-report") {
 		traversal.opt_report_str = argv[++i];
         traversal.opt_report = regex(traversal.opt_report_str);
     } else if (arg=="-ignore") {
@@ -150,6 +147,7 @@ int main(int argc, char* argv[])
   if (recursive) {
       handleDirectory(expected_filename, actual_filename, traversal);
   } else {
+    traversal.filename = actual_filename;
     handleFile(expected_filename, actual_filename, traversal);
   }
   traversal.report_summary();

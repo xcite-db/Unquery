@@ -1,0 +1,29 @@
+{
+    "employees": [
+        {
+            "FirstName": "John",
+            "LastName": "Smith",
+            "State": "Texas"
+        },
+        {
+            "FirstName": "Dganit",
+            "LastName": "Tirosh",
+            "State": "California"
+        },
+        {
+            "FirstName": "Arthur",
+            "LastName": "McLaud",
+            "State": "California"
+        },
+        {
+            "FirstName": "Elena",
+            "LastName": "Brioche",
+            "State": "New Jersey"
+        },
+        {
+            "FirstName": "Rene",
+            "LastName": "Descartes",
+            "State": "New York"
+        }
+    ]
+}

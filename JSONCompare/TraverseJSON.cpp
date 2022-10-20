@@ -62,12 +62,15 @@ void TraverseJSON::report(MISMATCH_T type, const Path& path, const string& key, 
 
 void TraverseJSON::report_summary()
 {
-    cout<<endl<<endl<<"Summary: "<<endl;
-    cout<<"  Fields with different values: "<<count_diffs[MISMATCH_T::DIFFERENT_VALUE]<<endl;
-    cout<<"  Fields in expected, but missing in actual: "<<count_diffs[MISMATCH_T::FIELD_NOT_ACTUAL]<<endl;
-    cout<<"  Fields in actual, but not in expected: "<<count_diffs[MISMATCH_T::FIELD_NOT_EXPECTED]<<endl;
-    cout<<"  Amentments in expected, but missing in actual: "<<count_diffs[MISMATCH_T::AMENDMENT_NOT_ACTUAL]<<endl;
-    cout<<"  Amendments in actual, but not in expected: "<<count_diffs[MISMATCH_T::AMENDMENT_NOT_EXPECTED]<<endl;
+    if (count_diffs[MISMATCH_T::DIFFERENT_VALUE]>0) {
+        cout<<"  Fields with different values: "<<count_diffs[MISMATCH_T::DIFFERENT_VALUE]<<endl;
+    }
+    if (count_diffs[MISMATCH_T::FIELD_NOT_ACTUAL]>0) {
+        cout<<"  Fields in expected, but missing in actual: "<<count_diffs[MISMATCH_T::FIELD_NOT_ACTUAL]<<endl;
+    }
+    if (count_diffs[MISMATCH_T::FIELD_NOT_EXPECTED]>0) {
+        cout<<"  Fields in actual, but not in expected: "<<count_diffs[MISMATCH_T::FIELD_NOT_EXPECTED]<<endl;
+    }
     int expected_files = count_diffs[MISMATCH_T::NO_EXPECTED_FILE];
     if (expected_files) {
         cout<<"  Expected files missing: "<<expected_files<<endl;
@@ -81,9 +84,6 @@ void TraverseJSON::report_summary()
 
 void TraverseJSON::compareGenericJson(Value& expected, Value& actual)
 {
-    if (!opt_any) {
-        bad_format();
-    }
     compareValues(Path(""), expected, actual);
 }
 
@@ -130,8 +130,6 @@ void TraverseJSON::compareValues(const Path& path, Value& expected, Value& actua
             auto it = actual.FindMember(key.c_str());
             if (it==actual.MemberEnd()) {
                 report(MISMATCH_T::FIELD_NOT_ACTUAL, path.addKey(key), key, "Field \""+key+"\" in expected not found in actual");
-            } else if (key=="amendments") {
-                compareAmendments(path, m.value, it->value);
             } else {
                 compareValues(path.addKey(key), m.value, it->value);
             }
@@ -160,43 +158,6 @@ void TraverseJSON::compareValues(const Path& path, Value& expected, Value& actua
         }
     }
 
-
-}
-
-void TraverseJSON::compareAmendments(const Path& path, Value& expected, Value& actual)
-{
-    auto exp_array = expected.GetArray();
-    auto act_array = actual.GetArray();
-    unordered_map<string, Value> expected_ids;
-    unordered_map<string, Value> actual_ids;
-    for (auto& m:exp_array) {
-        auto it = m.FindMember("id");
-        if (it==m.MemberEnd()) {
-            continue;
-        }
-        string id = it->value.GetString();
-        expected_ids[id] = m;
-    }
-    for (auto& m:act_array) {
-        auto it = m.FindMember("id");
-        if (it==m.MemberEnd()) {
-            continue;
-        }
-        string id = it->value.GetString();
-        auto exp_it = expected_ids.find(id);
-        if (exp_it!=expected_ids.end()) {
-            compareValues(path.addObjectWithID(&m), exp_it->second,m);
-        } else {
-            report(MISMATCH_T::AMENDMENT_NOT_EXPECTED, path, path.getKey(), "Amendment id:"+id+" in actual, but not in expected");
-        }
-        actual_ids[id] = m;
-    }
-    for (auto& m: expected_ids) {
-        const string& id = m.first;
-        if (actual_ids.find(id)==actual_ids.end()) {
-            report(MISMATCH_T::AMENDMENT_NOT_ACTUAL, path, path.getKey(), "Amendment id:"+id+" in expected, but not in actual");
-        }
-    }
 
 }
 
@@ -250,13 +211,7 @@ void TraverseJSON::searchJSON(const Path& path, rapidjson::Value& value, const s
                     continue;
                 }
             }
-            if (path.getKey()=="amendments") {
-                if (opt_cond.empty() || testCond(m, opt_cond)) {
-                    searchJSON(path.addObjectWithID(&m), m, search_str);
-                }
-            } else {
-                searchJSON(path.addIndex(i), m, search_str);
-            }
+            searchJSON(path.addIndex(i), m, search_str);
         }
     }
 }

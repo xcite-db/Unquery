@@ -1,0 +1,25 @@
+[
+    {
+        "FirstName": "John",
+        "LastName": "Smith",
+        "NumOfChildren": 2
+    },
+    {
+        "FirstName": "Dganit",
+        "LastName": "Tirosh",
+        "NumOfChildren": 1
+    },
+    {
+        "FirstName": "Arthur",
+        "LastName": "McLaud"
+    },
+    {
+        "FirstName": "Elena",
+        "LastName": "Brioche",
+        "NumOfChildren": 2
+    },
+    {
+        "FirstName": "Rene",
+        "LastName": "Descartes"
+    }
+]

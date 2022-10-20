@@ -1,0 +1,8 @@
+{
+    "dependants": {
+        "Cat": 1,
+        "Child": 5,
+        "Spouse": 3,
+        "Tortoise": 1
+    }
+}

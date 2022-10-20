@@ -1,0 +1,7 @@
+{
+    "name": "John Smith",
+    "employment": {
+        "title": "CTO",
+        "salary": 320000
+    }
+}

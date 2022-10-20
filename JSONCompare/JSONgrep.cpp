@@ -43,8 +43,6 @@ void help()
   cerr<<"   Supported flags:"<<endl;
   cerr<<"   -report <regex>: report only key names that match regex"<<endl;
   cerr<<"   -ignore <regex>: skip keys that match regex"<<endl;
-  cerr<<"   -context <regex>: when mismatch is reported, print fields in the same amendment that match regex"<<endl;
-  cerr<<"   -if <path>:<string>: report results only for amendments where the key in <path> contains the substring <string>"<<endl;
   cerr<<"   -r: recursively traverse all JSON files in a directory"<<endl;
   cerr<<"   -q: quiet mode. Hide filename and path."<<endl;
   exit(1);
