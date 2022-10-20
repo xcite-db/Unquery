@@ -1,0 +1,124 @@
+[
+    {
+        "address": {
+            "city": "Austin",
+            "state": "TX",
+            "street": "123 Oak Street",
+            "zip": 78705
+        },
+        "dependants": [
+            {
+                "firstname": "Jane",
+                "lastname": "Smith",
+                "relation": "Spouse"
+            },
+            {
+                "firstname": "Jake",
+                "lastname": "Smith",
+                "relation": "Child"
+            },
+            {
+                "firstname": "Jenna",
+                "lastname": "Smith",
+                "relation": "Child"
+            }
+        ],
+        "firstname": "John",
+        "id": "1001",
+        "lastname": "Smith",
+        "salary": 320000,
+        "title": "CTO"
+    },
+    {
+        "address": {
+            "city": "Oakland",
+            "state": "CA",
+            "street": "500 Temple Street",
+            "zip": 94001
+        },
+        "dependants": [
+            {
+                "firstname": "Yaniv",
+                "lastname": "Tirosh-Ron",
+                "relation": "Spouse"
+            },
+            {
+                "firstname": "Galit",
+                "lastname": "Tirosh-Ron",
+                "relation": "Child"
+            }
+        ],
+        "firstname": "Dganit",
+        "id": "1002",
+        "lastname": "Tirosh",
+        "salary": 500000,
+        "title": "CEO"
+    },
+    {
+        "address": {
+            "city": "Oakland",
+            "state": "CA",
+            "street": "701H Highlander Avenue",
+            "zip": 94001
+        },
+        "firstname": "Arthur",
+        "id": "1003",
+        "lastname": "McLaud",
+        "salary": 120000,
+        "title": "Developer"
+    },
+    {
+        "address": {
+            "city": "Atlantic City",
+            "state": "NJ",
+            "street": "2 Manticore Ct",
+            "zip": 12345
+        },
+        "dependants": [
+            {
+                "firstname": "Jacques",
+                "lastname": "Macaron",
+                "relation": "Spouse"
+            },
+            {
+                "firstname": "Suzette",
+                "lastname": "Macaron",
+                "relation": "Child"
+            },
+            {
+                "firstname": "Galette",
+                "lastname": "Macaron",
+                "relation": "Child"
+            }
+        ],
+        "firstname": "Elena",
+        "id": "1004",
+        "lastname": "Brioche",
+        "salary": 150000,
+        "title": "Senior Developer"
+    },
+    {
+        "address": {
+            "city": "Nowhere",
+            "state": "NY",
+            "street": "17 Whoknows street",
+            "zip": 10001
+        },
+        "dependants": [
+            {
+                "firstname": "Shrodinger",
+                "relation": "Cat"
+            },
+            {
+                "firstname": "Cogito",
+                "lastname": "Ergo-Sum",
+                "relation": "Tortoise"
+            }
+        ],
+        "firstname": "Rene",
+        "id": "1005",
+        "lastname": "Descartes",
+        "salary": 700000,
+        "title": "Janitor"
+    }
+]

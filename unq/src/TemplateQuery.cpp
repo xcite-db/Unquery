@@ -100,7 +100,7 @@ void TQContext::adjustPath(const string& path)
 {
     pushPath(path);
     if (in_local) {
-        JSONValueP val = findLocalPath(path, localDocs.back());
+        JSONValueP val = findLocalPath(path, localDocs.back(), true);
         localJSONs.push_back(val);
     }
 }
@@ -265,8 +265,8 @@ string TQContext::fullPath(const string& subpath, string currpath)
 }
 
 
-JSONValueP TQContext::findLocalPath(const string& path, JSONValueP val)
-{   
+JSONValueP TQContext::findLocalPath(const string& path, JSONValueP val, bool allow_projection)
+{
     if (val->IsNull()) {
         return JSONValueP(new JSONValue);
     }
@@ -274,7 +274,7 @@ JSONValueP TQContext::findLocalPath(const string& path, JSONValueP val)
         return val;
     }
     if (path[0]=='/') {
-        return findLocalPath(path.substr(1), localDocs.back());
+        return findLocalPath(path.substr(1), localDocs.back(), allow_projection);
     }
     if (path.compare(0,3,"../")==0) {
         int i = localJSONs.size()-2;
@@ -284,7 +284,7 @@ JSONValueP TQContext::findLocalPath(const string& path, JSONValueP val)
         if (i<0) {
             return JSONValueP(new JSONValue);
         }
-        return findLocalPath(path.substr(3), localJSONs[i]);
+        return findLocalPath(path.substr(3), localJSONs[i], allow_projection);
     }
 
     size_t i = 0;
@@ -307,7 +307,7 @@ JSONValueP TQContext::findLocalPath(const string& path, JSONValueP val)
             val = JSONValueP(&val->GetArray()[inx], DontDeleteJSONValue());
             next++;
         } else {
-            if (val->IsArray() && !val->GetArray().Empty()) {
+            if (allow_projection && val->IsArray() && !val->GetArray().Empty()) {
                 JSONValueP newval(new JSONValue(rapidjson::kArrayType));
                 for (auto& i: val->GetArray()) {
                     if (!i.IsObject()) {
@@ -315,7 +315,7 @@ JSONValueP TQContext::findLocalPath(const string& path, JSONValueP val)
                     }
                     auto it = i.FindMember(f.c_str());
                     if (it!=i.MemberEnd()) {
-                        newval->PushBack(it->value, doc->GetAllocator());
+                        newval->PushBack(JSONValue(it->value,doc->GetAllocator()), doc->GetAllocator());
                     }
                 }
                 val = newval;
@@ -411,7 +411,7 @@ bool TQContext::isBool(const string& key)
 bool TQContext::exists(const string& key)
 {
     if (in_local) {
-        JSONValueP val = findLocalPath(key);
+        JSONValueP val = findLocalPath(key, false);
         return !val->IsNull();
     }
 

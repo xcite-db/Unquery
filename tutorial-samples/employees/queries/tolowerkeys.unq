@@ -1,0 +1,9 @@
+{
+	"#func lower_keys" : {
+	       "#returnif:[]" : ["$lower_keys"],
+	       "#returnif:{}" : {"$lower($key)":"$lower_keys"},
+	       "#return" : "."
+	},
+
+	"#return" : ["$lower_keys"]
+}

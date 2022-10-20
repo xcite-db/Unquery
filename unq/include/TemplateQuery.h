@@ -152,10 +152,10 @@ public:
     void popFrame();
 
     // Data access
-    JSONValueP findLocalPath(const string& path) {
-        return findLocalPath(path, localJSON());
+    JSONValueP findLocalPath(const string& path,bool allow_projection = true) {
+        return findLocalPath(path, localJSON(), allow_projection);
     }
-    JSONValueP findLocalPath(const string& path, JSONValueP val);
+    JSONValueP findLocalPath(const string& path, JSONValueP val, bool allow_projection);
     bool isObject(const string& key);
     bool isArray(const string& key);
     bool isString(const string& key);
