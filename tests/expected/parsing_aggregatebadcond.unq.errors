@@ -1,0 +1,2 @@
+Error parsing Q! Query: Error at: $max(Salary)<Salary/*error*/
+Aggregates can only be compared with literals
