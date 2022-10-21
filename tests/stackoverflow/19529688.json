@@ -1,0 +1,37 @@
+//File 1
+{
+    "value1": 200,
+    "timestamp": 1382461861,
+    "value": {
+        "aaa": {
+            "value1": "v1",
+            "value2": "v2"
+        },
+        "bbb": {
+            "value1": "v1",
+            "value2": "v2"
+        },
+        "ccc": {
+            "value1": "v1",
+            "value2": "v2"
+        }
+    }
+}
+// File 2
+{
+    "status": 200,
+    "timestamp": 1382461861,
+    "value": {
+        "aaa": {
+            "value3": "v3",
+            "value4": 4
+        },
+        "bbb": {
+            "value3": "v3"
+        },      
+        "ddd": {
+            "value3": "v3",
+            "value4": 4
+        }
+    }
+}

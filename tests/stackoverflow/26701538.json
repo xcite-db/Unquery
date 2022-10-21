@@ -1,0 +1,29 @@
+// https://stackoverflow.com/questions/26701538/how-to-filter-an-array-of-objects-based-on-values-in-an-inner-array-with-jq
+
+[
+  {
+    "Id": "cb94e7a42732b598ad18a8f27454a886c1aa8bbba6167646d8f064cd86191e2b",
+    "Names": [
+      "condescending_jones",
+      "loving_hoover"
+    ]
+  },
+  {
+    "Id": "186db739b7509eb0114a09e14bcd16bf637019860d23c4fc20e98cbe068b55aa",
+    "Names": [
+      "foo_data"
+    ]
+  },
+  {
+    "Id": "a4b7e6f5752d8dcb906a5901f7ab82e403b9dff4eaaeebea767a04bac4aada19",
+    "Names": [
+      "jovial_wozniak"
+    ]
+  },
+  {
+    "Id": "76b71c496556912012c20dc3cbd37a54a1f05bffad3d5e92466900a003fbb623",
+    "Names": [
+      "bar_data"
+    ]
+  }
+]

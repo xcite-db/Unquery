@@ -1,0 +1,10 @@
+/*
+Source:
+https://stackoverflow.com/questions/33895076/exclude-column-from-jq-json-output
+
+*/
+{
+   "#return:[]": [{
+      "{}:" : ".?$key!='timestamp'"
+   }]
+}

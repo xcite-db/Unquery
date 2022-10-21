@@ -1,0 +1,23 @@
+{
+    "value": {
+        "aaa": {
+            "value1": "v1",
+            "value2": "v2",
+            "value3": "v3",
+            "value4": 4
+        },
+        "bbb": {
+            "value1": "v1",
+            "value2": "v2",
+            "value3": "v3"
+        },
+        "ccc": {
+            "value1": "v1",
+            "value2": "v2"
+        },
+        "ddd": {
+            "value3": "v3",
+            "value4": 4
+        }
+    }
+}

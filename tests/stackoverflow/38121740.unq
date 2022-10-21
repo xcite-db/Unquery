@@ -1,0 +1,8 @@
+/*
+Source:
+https://stackoverflow.com/questions/38121740/how-to-filter-array-of-objects-by-element-property-values-using-jq
+
+*/
+{
+  "#return:theList[]": [ ".?id=2|id=4"]
+}

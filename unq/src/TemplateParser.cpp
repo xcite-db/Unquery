@@ -994,11 +994,18 @@ TemplateQueryP JSONToTQ(JSONValue& v)
                 if (key->getKeyType()==KeyType::Cond) {
                     cond = parse_val.condition();
                     //obj->add(key, {}, cond);
-                } else {
+                } else if (key->getKeyType()==KeyType::Values) {
                     auto vc = parse_val.value();
                     q = vc.first;
                     cond = vc.second;
                     //obj->add(key, vc.first, vc.second);
+                } else {
+                    auto vc = parse_val.value();
+                    if (vc.second) {
+                        q = TemplateQueryP(new TQValueWithCond(vc.first, vc.second));
+                    } else {
+                        q = vc.first;
+                    }
                 }
                 if (cond) {
                     condq = TemplateQueryP(new TQCondWrapper(cond));

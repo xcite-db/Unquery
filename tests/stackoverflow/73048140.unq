@@ -1,0 +1,15 @@
+/*
+Source:
+https://stackoverflow.com/questions/73048140/jq-filter-json-array-as-per-stedolan-jq-library
+
+*/
+{
+	"msg":"message",
+	"status":"status",
+	"details:details[]": {
+	   "$(test)": {
+	      "amount:":".",
+	      "pre:":"."
+	   }
+	}
+}

@@ -1,0 +1,24 @@
+{
+  "theList": [
+    {
+      "id": 1,
+      "name": "Horst"
+    },
+    {
+      "id": 2,
+      "name": "Fritz"
+    },
+    {
+      "id": 3,
+      "name": "Walter"
+    },
+    {
+      "id": 4,
+      "name": "Gerhart"
+    },
+    {
+      "id": 5,
+      "name": "Harmut"
+    }
+  ]
+}

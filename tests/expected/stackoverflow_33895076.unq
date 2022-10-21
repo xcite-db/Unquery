@@ -1,0 +1,14 @@
+[
+    {
+        "group": "employees",
+        "uid": "elgalu"
+    },
+    {
+        "group": "employees",
+        "uid": "mike"
+    },
+    {
+        "group": "services",
+        "uid": "pacts"
+    }
+]

@@ -1,0 +1,9 @@
+/*
+Source:
+https://stackoverflow.com/questions/18592173/select-objects-based-on-value-of-variable-in-object-using-jq
+
+The corresponding jq query:
+jq '.[] | select(.location=="Stockholm") | .name' json
+
+*/
+{ "#return:{}": ["name?location='Stockholm'"]}

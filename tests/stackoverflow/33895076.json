@@ -1,0 +1,17 @@
+[
+  {
+    "timestamp": 1448369447295,
+    "group": "employees",
+    "uid": "elgalu"
+  },
+  {
+    "timestamp": 1448369447296,
+    "group": "employees",
+    "uid": "mike"
+  },
+  {
+    "timestamp": 1448369786667,
+    "group": "services",
+    "uid": "pacts"
+  }
+]

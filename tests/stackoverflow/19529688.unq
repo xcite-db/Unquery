@@ -1,0 +1,12 @@
+/*
+source:
+https://stackoverflow.com/questions/19529688/how-to-merge-2-json-objects-from-2-files-using-jq
+*/
+
+{
+   "value:value{}": {
+      "$key": {
+	 "{}:":"."
+      }
+   }
+}

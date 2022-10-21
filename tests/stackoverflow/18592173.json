@@ -1,0 +1,15 @@
+// https://stackoverflow.com/questions/18592173/select-objects-based-on-value-of-variable-in-object-using-jq
+{
+    "FOO": {
+        "name": "Donald",
+        "location": "Stockholm"
+    },
+    "BAR": {
+        "name": "Walt",
+        "location": "Stockholm"
+    },
+    "BAZ": {
+        "name": "Jack",
+        "location": "Whereever"
+    }
+}

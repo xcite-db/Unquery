@@ -1,0 +1,39 @@
+{
+    "msg": "Details fetched successfully",
+    "status": 1,
+    "details": {
+        "a": {
+            "amount": 2500.0,
+            "pre": [
+                "11",
+                "429393",
+                "543216",
+                "987657"
+            ]
+        },
+        "b": {
+            "amount": 1500.0,
+            "pre": [
+                "480855"
+            ]
+        },
+        "c": {
+            "amount": 0.0,
+            "pre": [
+                "No data present"
+            ]
+        },
+        "d": {
+            "amount": 1500.0,
+            "pre": [
+                "526702"
+            ]
+        },
+        "e": {
+            "amount": 2500.0,
+            "pre": [
+                "No data present"
+            ]
+        }
+    }
+}
