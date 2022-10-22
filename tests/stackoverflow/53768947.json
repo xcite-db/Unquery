@@ -1,0 +1,38 @@
+[
+  {
+  "account": "1",
+  "cost": [
+      {
+         "usage":"low",
+         "totalcost": "2.01"
+      }
+   ]
+  },
+  {
+  "account": "2",
+  "cost": [
+      {
+         "usage":"low",
+         "totalcost": "2.25"
+      }
+   ]
+  },
+  {
+  "account": "1",
+  "cost": [
+      {
+         "usage":"low",
+         "totalcost": "15"
+      }
+   ]
+  },
+  {
+  "anotheraccount": "a",
+  "cost": [
+      {
+         "usage":"low",
+         "totalcost": "2"
+      }
+   ]
+  }
+]

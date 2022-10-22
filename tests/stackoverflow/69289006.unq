@@ -1,0 +1,10 @@
+/*
+Source:
+https://stackoverflow.com/questions/69289006/jq-idiomatically-aggregate-object-keys-by-value
+*/
+
+{
+   "#return:{}": {
+      "$(.)":["$key"]
+   }
+}

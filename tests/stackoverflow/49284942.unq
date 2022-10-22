@@ -1,0 +1,10 @@
+/*
+Source:
+https://stackoverflow.com/questions/49284942/jq-build-lookup-table
+*/
+
+{
+   "#return:{}": {
+      "$(name)":"id"
+   }
+}

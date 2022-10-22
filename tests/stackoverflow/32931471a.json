@@ -1,0 +1,7 @@
+{
+  "Tags": [
+           {  "Key": "Team",     "Value": "AA" },
+           {  "Key": "Division", "Value": "BB" },
+           {  "Key": "Name",     "Value": "CC" }
+        ]
+}

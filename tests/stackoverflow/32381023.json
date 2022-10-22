@@ -1,0 +1,32 @@
+{
+  "StatusInfos": null,
+  "ReadReplicaSourceDBInstanceIdentifier": null,
+  "DBInstanceIdentifier": "test1"
+}
+{
+  "StatusInfos": null,
+  "ReadReplicaSourceDBInstanceIdentifier": null,
+  "DBInstanceIdentifier": "test2"
+}
+{
+  "StatusInfos": [
+    {
+      "Status": "replicating",
+      "StatusType": "read replication",
+      "Normal": true
+    }
+  ],
+  "ReadReplicaSourceDBInstanceIdentifier": "test1",
+  "DBInstanceIdentifier": "read-rep-test1"
+}
+{
+  "StatusInfos": [
+    {
+      "Status": "replicating",
+      "StatusType": "read replication",
+      "Normal": true
+    }
+  ],
+  "ReadReplicaSourceDBInstanceIdentifier": "test2",
+  "DBInstanceIdentifier": "read-rep-test2"
+}

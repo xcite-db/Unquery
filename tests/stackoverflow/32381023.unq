@@ -1,0 +1,16 @@
+/*
+Source:
+https://stackoverflow.com/questions/32381023/jq-select-or-if
+
+*/
+[
+  {
+    "#returnif:StatusInfos[]?StatusType='read replication'": {
+    	"RepStatus":"Status",
+	"RepStatusType":"StatusType",
+	"ReadReplicaSourceDBInstanceIdentifier":"../ReadReplicaSourceDBInstanceIdentifier",
+	"DBInstanceIdentifier":"../DBInstanceIdentifier"
+    },
+    "#return":"."
+  }
+]

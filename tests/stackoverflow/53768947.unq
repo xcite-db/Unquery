@@ -1,0 +1,22 @@
+/*
+Source:
+https://stackoverflow.com/questions/53768947/jq-count-nest-object-values-based-on-group-by
+
+Proposed jq code:
+def sigma( f ): reduce .[] as $o (null; . + ($o | f )) ;
+
+def group( keyname ):
+  map(select(has(keyname)))
+  | group_by( .[keyname] )
+  | map({(keyname) : .[0][keyname], 
+          cost: sigma(.cost[].totalcost | tonumber) })
+;
+group("account"),
+group("anotheraccount")
+*/
+
+{
+   "#return:[]:cost[]": {
+      "$(../account)":"$sum($float(totalcost))"
+   }
+}

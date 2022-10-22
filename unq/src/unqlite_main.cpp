@@ -112,6 +112,7 @@ void print_help_message(int exit_code)
     cerr<<"Options:\n";
     cerr<<"  -c <query-string>: query as string in the command line.\n";
     cerr<<"  -f <query-file>: a filename containing the query.\n";
+    cerr<<"  -show-nulls (or -n): do not hide null values.\n";
     cerr<<"  -csv: input files as csv files, instead of json.\n";
     cerr<<"  -delim <delimiter>: a character (or string) used as a delimiter for csv files.\n";
     cerr<<"  -csv-no-headers: the csv file contains no headers in the first line.\n";
@@ -127,6 +128,7 @@ int main(int argc, char* argv[])
     bool csv_opt = false;
     string delim = ",";
     bool csv_headers_opt = true;
+    bool show_nulls_opt = false;
 
     while (!args.isEnd() && args.isOpt()) {
         string arg = args.nextArg();
@@ -134,6 +136,8 @@ int main(int argc, char* argv[])
             query_file = args.nextArg();
         } else if (arg=="-c") {
             query_txt = args.nextArg();
+        } else if (arg=="-show-nulls" || arg=="-n") {
+            show_nulls_opt = true;
         } else if (arg=="-csv") {
             csv_opt = true;
         } else if (arg=="-csv-no-headers") {
@@ -142,6 +146,9 @@ int main(int argc, char* argv[])
             delim = args.nextArg();
         } else if (arg=="-h") {
             print_help_message(0);
+        } else {
+            cerr<<"Error: unknown option "<<arg<<endl<<endl;
+            print_help_message(1);
         }
     }
     if (query_file.empty()==query_txt.empty()) {
@@ -178,6 +185,7 @@ int main(int argc, char* argv[])
         TemplateQueryP t = JSONToTQ(json_query);
         TQDataP tq = t->makeData();
         TQContext ctx;
+        ctx.opt_show_null = show_nulls_opt;
         bool use_stdin = args.isEnd();
         while (!args.isEnd() || use_stdin) {
             if (csv_opt) {

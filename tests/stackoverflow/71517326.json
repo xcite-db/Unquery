@@ -1,0 +1,63 @@
+{
+  "content": {
+    "user": {
+      "name": "Bill",
+      "items": [
+        {
+          "name": "shovel",
+          "details": {
+            "heavy": false
+          }
+        },
+        {
+          "name": "hammer"
+        }
+      ],
+      "details": {
+        "age": 60
+      }
+    }
+  }
+}
+{
+  "content": {
+    "user": {
+      "name": "Bill",
+      "items": [
+        {
+          "name": "shovel",
+          "details": {
+            "heavy": false
+          }
+        },
+        {
+          "name": "hammer"
+        }
+      ],
+      "details": {
+        "age": 21
+      }
+    }
+  }
+}
+{
+  "content": {
+    "user": {
+      "name": "Alice",
+      "items": [
+        {
+          "name": "hammer",
+          "details": {
+            "heavy": true
+          }
+        },
+        {
+          "name": "shovel"
+        }
+      ],
+      "details": {
+        "age": 30
+      }
+    }
+  }
+}

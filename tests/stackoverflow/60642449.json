@@ -1,0 +1,20 @@
+{
+  "apps": [
+    {
+      "memory": 512,
+      "instances": 3
+    },
+    {
+      "memory": 256,
+      "instances": 1
+    },
+    {
+      "memory": 128,
+      "instances": 6
+    },
+    {
+      "memory": 1024,
+      "instances": 2
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+    "user.details.age": {
+        "21": 1,
+        "30": 1,
+        "60": 1
+    },
+    "user.items[0].details.heavy": {
+        "false": 2,
+        "true": 1
+    },
+    "user.items[0].name": {
+        "hammer": 1,
+        "shovel": 2
+    },
+    "user.items[1].name": {
+        "hammer": 2,
+        "shovel": 1
+    },
+    "user.name": {
+        "Alice": 1,
+        "Bill": 2
+    }
+}

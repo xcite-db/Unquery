@@ -175,6 +175,8 @@ public:
     XMLReaderP xml_reader;
     json_documentP doc;
     bool in_get_JSON = false;
+    bool opt_show_null = false;
+    bool in_key = false;
 
 private:
     typedef std::vector<std::string> StringQueue;
@@ -1167,7 +1169,7 @@ public:
     virtual bool isString(TQContext* ctx) {return true;}
     virtual string getString(TQContext& ctx);
     virtual bool isAggregate(TQContext* ctx)
-        {return str->isAggregate(ctx)||start->isAggregate(ctx)||length->isAggregate(ctx);}
+        {return str->isAggregate(ctx)||start->isAggregate(ctx)||(length&&length->isAggregate(ctx));}
 
 private:
     TExpressionP str;

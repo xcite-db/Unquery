@@ -1,0 +1,9 @@
+/*
+Source:
+https://stackoverflow.com/questions/32931471/jq-missing-json-object-detection
+
+*/
+{
+   "#returnif:Tags[]?Key='Name'":"Value",
+   "#return":"'N/A'"
+}

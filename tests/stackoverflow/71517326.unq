@@ -1,0 +1,11 @@
+/*
+https://stackoverflow.com/questions/71517326/using-jq-for-statistical-aggregation-of-key-values-in-a-large-data-set
+*/
+
+{
+   "#return:**": {
+     "$substr($path,$length('content.'))": {
+        "$(.)" : "$count"
+     }
+   }
+}

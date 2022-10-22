@@ -1,0 +1,7 @@
+/*
+Source:
+https://stackoverflow.com/questions/19441454/json-parsing-on-cli-using-jq
+*/
+{
+  "#return:**?$key='foo'":"."
+}

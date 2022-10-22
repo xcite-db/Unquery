@@ -1,0 +1,19 @@
+{
+  "blah0": "zeroblah",
+  "Array": [
+    {
+      "blah1": [
+        "key1:val1"
+      ],
+      "foobar0": "barfoo0",
+      "foobar1": "barfoo1"
+    },
+    {
+      "blah2": [
+        "key2:val2"
+      ],
+      "foobar2": "barfoo2",
+      "foobar3": "barfoo3"
+    }
+  ]
+}

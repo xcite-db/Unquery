@@ -1,0 +1,13 @@
+{
+    "Accounting": [
+        "Person A",
+        "Person B"
+    ],
+    "Marketing": [
+        "Person E"
+    ],
+    "Production": [
+        "Person C",
+        "Person D"
+    ]
+}

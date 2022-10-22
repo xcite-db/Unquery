@@ -1,0 +1,10 @@
+  {
+    "Object1": {
+        "id": 1,
+        "name": "object1name"
+    },
+    "Object2": {
+        "id": 24,
+        "name": "object2name"
+    }
+  }

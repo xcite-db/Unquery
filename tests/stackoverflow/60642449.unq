@@ -1,0 +1,11 @@
+/*
+Source:
+https://stackoverflow.com/questions/60642449/jq-sum-and-multiply-values-to-get-an-aggregate
+
+jq solution:
+reduce .apps[] as $x (0; . + ($x | .memory * .instances))
+*/
+
+{
+   "#return:apps[]": "$sum(memory*instances)"
+}

@@ -1,0 +1,15 @@
+/*
+Source:
+https://stackoverflow.com/questions/63264954/aggregate-json-arrays-from-multiple-files-using-jq-grouping-by-key
+*/
+// This solution defines a generic merge function that works for any structure
+
+{
+  "#func merge": {
+     "#returnif:{}":{"$key":"$merge"},
+     "#returnif:[]":["$merge"],
+     "#return":"."
+  },
+  "#return":"$merge"
+}
+

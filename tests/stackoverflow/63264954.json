@@ -1,0 +1,22 @@
+// File 1
+{
+  "shapes": [
+    {
+      "id": "1",
+      "name": "circle"
+    },
+    {
+      "id": "2",
+      "name": "square"
+    }
+  ]
+}
+// File 2
+{
+  "shapes": [
+    {
+      "id": "3",
+      "name": "triangle"
+    }
+  ]
+}

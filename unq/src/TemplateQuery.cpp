@@ -515,14 +515,17 @@ Strings TQParamKey::getKeys(TQContext& ctx)
 {
     Strings res;
     string key;
+    ctx.in_key = true;
     if (expr->isString(&ctx)) {
         key = expr->getString(ctx);
     } else if (expr->isInt(&ctx)) {
         key = to_string(expr->getInt(ctx));
     } else if (expr->isDouble(&ctx)) {
         key = to_string(expr->getDouble(ctx));
+    } else if (expr->isJSON(&ctx)) {
+        key = valToString(expr->getJSON(ctx));
     }
-
+    ctx.in_key = false;
     if (!key.empty()) {
         res.push_back(key);
     }
@@ -1171,7 +1174,7 @@ JSONValue TQObjectData::getJSON(TQContext& ctx)
     for (auto& m: unsorted_fields) {
         JSONValue key_val(m.first.c_str(), alloc);
         JSONValue val = m.second->getJSON(ctx);
-        if (!val.IsNull()) {
+        if (!val.IsNull() || ctx.opt_show_null) {
             res.AddMember(key_val, val, alloc);
         }
     }
@@ -1180,7 +1183,7 @@ JSONValue TQObjectData::getJSON(TQContext& ctx)
         
         JSONValue key_val(m.first.c_str(), alloc);
         JSONValue val = m.second->getJSON(ctx);
-        if (!val.IsNull()) {
+        if (!val.IsNull() || ctx.opt_show_null) {
             res.AddMember(key_val, val, alloc);
         }
     }
@@ -1256,7 +1259,7 @@ bool TQValueData::processData(TQContext& ctx)
     //val = q->exp->asJSON(ctx);
     ctx.popData(this);
     if (val->IsNull()) {
-        return false;
+        return ctx.opt_show_null;
     }
     updated = true;
     return true;
@@ -1922,6 +1925,9 @@ string TExprSubstr::getString(TQContext& ctx)
 {
     string s = str->getString(ctx);
     int64_t st = start->getInt(ctx);
+    if (st>=s.size()) {
+        return {};
+    }
     if (length) {
         int64_t l = length->getInt(ctx);
         return s.substr(st, l);
@@ -2386,11 +2392,15 @@ JSONValueP TExprCall::getJSON(TQContext& ctx)
     if (!f.body) {
         return JSONValueP(new JSONValue);
     }
-    auto it = data_map.find(ctx_data);
-    if (it!=data_map.end()) {
-        call =  it->second;
+    if (ctx.in_key) {
+        call = f.body->makeData();
     } else {
-        call =  data_map[ctx_data] = f.body->makeData();
+        auto it = data_map.find(ctx_data);
+        if (it!=data_map.end()) {
+            call =  it->second;
+        } else {
+            call =  data_map[ctx_data] = f.body->makeData();
+        }
     }
     if (args.size()!=f.params.size()) {
         return JSONValueP(new JSONValue);

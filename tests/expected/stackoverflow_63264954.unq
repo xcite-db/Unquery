@@ -1,0 +1,16 @@
+{
+    "shapes": [
+        {
+            "id": "1",
+            "name": "circle"
+        },
+        {
+            "id": "2",
+            "name": "square"
+        },
+        {
+            "id": "3",
+            "name": "triangle"
+        }
+    ]
+}

@@ -1,0 +1,8 @@
+/*
+Source:
+https://stackoverflow.com/questions/35876490/how-to-remove-an-array-element-with-jq
+*/
+{
+  "blah0:":".",
+  "Array:Array[]?$index=0":["."]
+}
