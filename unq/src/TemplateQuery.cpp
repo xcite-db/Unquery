@@ -212,7 +212,9 @@ void TQContext::pushLastFrame()
     if (identifier_frames.empty() || path_frames.empty()) {
         return;
     }
-    pushIdentifier(identifiers[identifier_frames.back()], indexes[index_frames.back()]);
+    if (!identifiers.empty()) {
+        pushIdentifier(identifiers[identifier_frames.back()], indexes[index_frames.back()]);
+    }
     paths.push_back(paths[path_frames.back()]);
     int local = local_json_frames.back();
     if (local<0) {
@@ -227,7 +229,9 @@ void TQContext::popFrame()
     if (identifier_frames.empty() || path_frames.empty()) {
         return;
     }
-    popIdentifier();
+    if (!identifiers.empty()) {
+        popIdentifier();
+    }
     paths.pop_back();
     if (!localJSONs.empty()) {
         if (!in_local) {

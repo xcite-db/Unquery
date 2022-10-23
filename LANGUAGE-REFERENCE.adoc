@@ -747,13 +747,13 @@ One place where this is very useful is for defining a recursive function. For ex
 
 === #var
 
-A `#var` directive declares a variable, that can later be accessed with the `$var` function. A variable can store any JSON value, including simple strings and numbers, or more complex values.
+A `#var` directive declares a variable, that can later be accessed either with the `$var` function or with `%name`. A variable can store any JSON value, including simple strings and numbers, or more complex values.
 
 For example:
 ```
 {
     "#var x": "'Some string'",
-    "Field1": "$var(x)"
+    "Field1": "%x"
 }
 ```
 
@@ -955,6 +955,8 @@ The function `$var(variable-name)` returns the value of a variable. For example:
 ```
 
 Would return `{"value":1000}`
+
+Note: instead of `$var(x)`, you can also write: `%x`.
 
 === Type cast functions: $string, $number, $int, $float, $bool
 

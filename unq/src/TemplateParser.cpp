@@ -44,7 +44,7 @@ bool TParser::eos() const
 
 string TParser::nextToken(bool consume)
 {
-    static const string single_char = "()[]{};,.#?!:$";
+    static const string single_char = "()[]{};,.#?!:$%";
 
     size_t i = _pos;
     while (i<_len && isspace(_str[i])) {
@@ -57,7 +57,7 @@ string TParser::nextToken(bool consume)
         if (isalnum_(c)) {
             while (i<_len && isalnum_(_str[++i])) {}
         }
-    } else if (isalnum_(c) || c=='$') {
+    } else if (isalnum_(c) || c=='$' || c=='%') {
         while (i<_len && isalnum_(_str[++i])) {}
     } else if (c=='\"') {
         while (++i<_len && (_str[i]!='\"'||(i>0 && _str[i]=='\"'&&_str[i-1]=='\\'))) {}
@@ -168,7 +168,7 @@ TQKeyP TParser::key()
         TExpressionP expr = expression();
         res = TQKeyP(new TQParamKey(expr));
         expect(")");
-    } else if (nextToken(false)[0]=='$') {
+    } else if (nextToken(false)[0]=='$'||nextToken(false)[0]=='%') {
         // If key start with $ sign, handle as expression
         TExpressionP expr = expression();
         res = TQKeyP(new TQParamKey(expr));
@@ -282,7 +282,7 @@ TemplateQueryP TParser::context_mod(bool frame_flag, ContextModMode parse_mode)
             throwError("Error parsing [expression] in context modifier");
         }
         expect(")");
-    } else if (nextToken(false)[0]=='$') {
+    } else if (nextToken(false)[0]=='$'||nextToken(false)[0]=='%') {
         mode = ContextMode::Eval;
         expr = expression();
         if (!expr) {
@@ -299,7 +299,11 @@ TemplateQueryP TParser::context_mod(bool frame_flag, ContextModMode parse_mode)
             if (s[0]=='$') {
                 arrow = getArrowOp(s);
             }
-            if (arrow==ArrowOp::None) {
+            if (s[0]=='%') {
+                consume();
+                arrow = ArrowOp::Var;
+                context = s.substr(1);
+            } else if (arrow==ArrowOp::None) {
                 context = pathWithBrackets();
             } else if (arrow==ArrowOp::Other || arrow==ArrowOp::File) {
                 expr = expression();
@@ -804,6 +808,9 @@ TExpressionP TParser::baseExpression()
         string date = stripQuotes_(nextToken());
         time_t epoch = stringToTime(date);
         res = TExpressionP(new TExprIntConst(epoch));
+    } else if (token[0]=='%') {
+        string name = token.substr(1);
+        res = TExpressionP(new TExprVar(name));
     } else if (token[0]=='$') {
         string name = token.substr(1);
         if (sym_table->funcs.find(name)==sym_table->funcs.end()) {

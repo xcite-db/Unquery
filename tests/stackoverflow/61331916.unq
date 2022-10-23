@@ -1,0 +1,21 @@
+/*
+based on:
+https://stackoverflow.com/questions/61331916/combine-json-field-and-add-values-using-jq
+
+jq -nr '
+  [inputs | .results[] | map( { (.field) : .value} ) | add] 
+  | group_by(.AccountId)
+  | map([.[0].AccountId, (map(.number_of_requests|tonumber) | add)])
+  | sort_by(.[1]) | reverse
+  | .[]
+  | join(" : ")
+'
+
+*/
+{
+   "#return:results[]" : {
+      "#var account:[]?field='AccountId'":"value",
+      "#var requests:[]?field='number_of_requests'":"$number(value)",
+      "$var(account)":"$sum($var(requests))"
+   }
+}

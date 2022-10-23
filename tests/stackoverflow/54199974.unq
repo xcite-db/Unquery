@@ -1,0 +1,33 @@
+/*
+Based on:
+https://stackoverflow.com/questions/54199974/json-parsing-group-by-date-range-with-jq
+
+Proposed jq solution:
+# $day should be the day (an integer) that defines the cutoff point;
+# input should be a Y-M-D string
+def bucket($day):
+  def prev: if .m > 1 then .m -= 1 else .m = 12 | .y -= 1 end;
+  def fmt: if .m <= 9 then "\(.y)-0\(.m)" else "\(.y)-\(.m)" end;
+  capture("(?<y>[0-9]+)-(?<m>[0-9]+)-(?<d>[0-9]+)")
+  | map_values(tonumber)
+  | if .d >= $day then . else prev end
+  | fmt ;
+
+.data
+| (.[0].date | capture("(?<d>[0-9]+)$") | .d | tonumber) as $day
+| reduce .[] as $pair ({};
+  .[$pair.date | bucket($day)] += ($pair.value) )
+
+*/
+{
+   "#var dates": [
+   	 "'2018-08-22'",
+   	 "'2018-09-22'",
+   	 "'2018-10-22'",
+   	 "'2018-11-22'"
+   ],
+   "#return:data[]": {
+   	"#var i->%dates:[]?$to_time(<<date)<$to_time(.)":"'up to '+.",
+	"%i":"$sum(value)"
+   }
+}
