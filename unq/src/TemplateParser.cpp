@@ -8,8 +8,8 @@ using namespace std;
 
 namespace xcite {
 
-TParser::TParser(const string& str)
-    : _str(str), _len(str.size()), _pos(0)
+TParser::TParser(const string& str, const TSymTableP& st)
+    : _str(str), sym_table(st), _len(str.size()), _pos(0)
 {
 }
 
@@ -188,14 +188,20 @@ TQKeyP TParser::key()
             res = TQKeyP(new TQDirectiveKey(KeyType::Cond));
         } else if (name=="func") {
             string token = nextToken();
+            if (sym_table->funcs.find(token)!=sym_table->funcs.end()) {
+                throwError("Function "+token+" previously defined");
+            }
             TQFuncDefinition* func = new TQFuncDefinition(KeyType::Func, token);
+            int params = 0;
             if (ifNext("(")) {
                 do {
                     string param = nextToken();
+                    params++;
                     func->addParam(param);
                 } while (ifNext(","));
                 expect(")");
             }
+            sym_table->funcs[token] = params;
             res = TQKeyP(func);
         } else if (name=="var") {
             string token = nextToken();
@@ -453,6 +459,8 @@ TQConditionP TParser::baseCondition(const TExpressionP& arg1)
         return TQConditionP(new TQTypeTest(lhs, Operator::IS_LITERAL));
     } else if (op=="is_string") {
         return TQConditionP(new TQTypeTest(lhs, Operator::IS_STRING));
+    } else if (op=="is_number") {
+        return TQConditionP(new TQTypeTest(lhs, Operator::IS_NUMBER));
     } else if (op=="is_int") {
         return TQConditionP(new TQTypeTest(lhs, Operator::IS_INT));
     } else if (op=="is_float") {
@@ -709,10 +717,12 @@ TExpressionP TParser::baseExpression()
     } else if (token=="$now") {
         time_t epoch = time(0)+timezone;
         res = TExpressionP(new TExprIntConst(epoch));
-    } else if (token=="$string" || token=="$int" || token=="$float" || token=="$bool") {
+    } else if (token=="$string" || token=="$number" || token=="$int" || token=="$float" || token=="$bool") {
         CastType ct;
         if (token=="$string") {
             ct = CastType::String;
+        } else if (token=="$number") {
+            ct = CastType::Number;
         } else if (token=="$int") {
             ct = CastType::Int;
         } else if (token=="$float") {
@@ -796,6 +806,9 @@ TExpressionP TParser::baseExpression()
         res = TExpressionP(new TExprIntConst(epoch));
     } else if (token[0]=='$') {
         string name = token.substr(1);
+        if (sym_table->funcs.find(name)==sym_table->funcs.end()) {
+            throwError("Function "+token+" not defined");
+        }
         TExprCall* call = new TExprCall(name);
         if (ifNext("(")) {
             do {
@@ -967,15 +980,14 @@ string TParser::pathWithBrackets(const std::string& path)
     return pathWithBrackets(res);
 }
 
-
-TemplateQueryP JSONToTQ(JSONValue& v)
+TemplateQueryP JSONToTQ(JSONValue& v, const TSymTableP& st)
 {
     TemplateQueryP res;
     if (v.IsArray()) {
         TQArray* array = new TQArray;
         res = TemplateQueryP(array);
         for (auto& e: v.GetArray()) {
-            TemplateQueryP val = JSONToTQ(e);
+            TemplateQueryP val = JSONToTQ(e, st);
             array->add(val);
         }
     } else if (v.IsObject()) {
@@ -983,11 +995,11 @@ TemplateQueryP JSONToTQ(JSONValue& v)
         res = TemplateQueryP(obj);
         for (auto& m: v.GetObject()) {
             string name =m.name.GetString();
-            TParser parse_name(name);
+            TParser parse_name(name, st);
             TQKeyP key = parse_name.key();
             TemplateQueryP context_mod = parse_name.context_mod(true, ContextModMode::Start);
             if (m.value.IsString()) {
-                TParser parse_val(m.value.GetString());
+                TParser parse_val(m.value.GetString(), st);
                 TQConditionP cond;
                 TemplateQueryP condq;
                 TemplateQueryP q;
@@ -1018,7 +1030,7 @@ TemplateQueryP JSONToTQ(JSONValue& v)
                 }
                 obj->add(key, q, condq);
             } else {
-                TemplateQueryP val = JSONToTQ(m.value);
+                TemplateQueryP val = JSONToTQ(m.value, st);
                 if (context_mod) {
                     val = context_mod->replace(val);
                 }
@@ -1027,7 +1039,7 @@ TemplateQueryP JSONToTQ(JSONValue& v)
 
         }
     } else if (v.IsString()) {
-        TParser parse(v.GetString());
+        TParser parse(v.GetString(), st);
         auto vc = parse.value();
         if (vc.second) {
             res = TemplateQueryP(new TQValueWithCond(vc.first, vc.second));
@@ -1054,5 +1066,10 @@ TemplateQueryP JSONToTQ(JSONValue& v)
     return res;
 }
 
+TemplateQueryP JSONToTQ(JSONValue& v)
+{
+    TSymTableP st(new TSymTable);
+    return JSONToTQ(v, st);
+}
 
 } // namespace xcite

@@ -1,0 +1,13 @@
+/*
+Based on:
+https://stackoverflow.com/questions/69137721/how-to-merge-and-aggregate-values-in-2-json-files-using-jq
+*/
+
+{
+   "#return:[]": {
+      "$(A)" : {
+      	     "A":"A",
+      	     "{}:":"$sum($number(.))"
+      }
+   }
+}

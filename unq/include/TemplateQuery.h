@@ -727,6 +727,7 @@ enum class Operator {
     IS_OBJECT,
     IS_LITERAL,
     IS_STRING,
+    IS_NUMBER,
     IS_INT,
     IS_FLOAT,
     IS_BOOL,
@@ -1294,6 +1295,7 @@ enum class CastType {
     String,
     Int,
     Double,
+    Number,
     Bool
 };
 
@@ -1327,8 +1329,8 @@ public:
     TExprTypeCast(const TExpressionP& exp, CastType ct)
         : arg(exp), t(ct) {}
     virtual bool isString(TQContext* ctx) {return t==CastType::String;}
-    virtual bool isInt(TQContext* ctx) {return t==CastType::Int;}
-    virtual bool isDouble(TQContext* ctx) {return t==CastType::Double;}
+    virtual bool isInt(TQContext* ctx);
+    virtual bool isDouble(TQContext* ctx);
     virtual bool isBool(TQContext* ctx) {return t==CastType::Bool;}
     virtual bool isAggregate(TQContext* ctx)
         {return arg->isAggregate(ctx);}

@@ -1458,6 +1458,8 @@ bool TQTypeTest::test(TQContext& ctx)
             return ctx.isString(path) || ctx.isDouble(path) || ctx.isInt(path) || ctx.isBool(path);
         case Operator::IS_STRING:
             return ctx.isString(path);
+        case Operator::IS_NUMBER:
+            return ctx.isInt(path) || ctx.isDouble(path);
         case Operator::IS_INT:
             return ctx.isInt(path);
         case Operator::IS_FLOAT:
@@ -2167,6 +2169,38 @@ string TExprTimeToString::getString(TQContext& ctx)
 {
     time_t tm = expr->getInt(ctx);
     return timeToString(tm, format);    
+}
+
+bool TExprTypeCast::isInt(TQContext* ctx) 
+{
+    if (t==CastType::Int) {
+        return true;
+    }
+    if (t==CastType::Number) {
+        if (arg->isString(ctx)) {
+            string res = arg->getString(*ctx);
+            return res.find('.')==string::npos;
+        } else {
+            return arg->isInt(ctx);
+        }
+    }
+    return false;
+}
+
+bool TExprTypeCast::isDouble(TQContext* ctx) 
+{
+    if (t==CastType::Double) {
+        return true;
+    }
+    if (t==CastType::Number) {
+        if (arg->isString(ctx)) {
+            string res = arg->getString(*ctx);
+            return res.find('.')!=string::npos;
+        } else {
+            return arg->isDouble(ctx);
+        }
+    }
+    return false;
 }
 
 string TExprTypeCast::getString(TQContext& ctx)

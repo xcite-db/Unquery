@@ -285,7 +285,7 @@ The object is evaluated only when `Field1` exists.
 
 === Type test
 
-The type operators: `is_array`, `is_object`, `is_literal`, `is_float`, `is_int`, and `is_bool` test if a field is of a specific type. For example, to get all integer values in an array with mixed numbers and strings:
+The type operators: `is_array`, `is_object`, `is_literal`, `is_number`, `is_float`, `is_int`, and `is_bool` test if a field is of a specific type. For example, to get all integer values in an array with mixed numbers and strings:
 ```
 {
     "numbers:[]": [". is_int"]
@@ -956,11 +956,13 @@ The function `$var(variable-name)` returns the value of a variable. For example:
 
 Would return `{"value":1000}`
 
-=== Type cast functions: $string, $int, $float, $bool
+=== Type cast functions: $string, $number, $int, $float, $bool
 
 Type cast functions convert literals from one type to another. It can also convert strings to numbers. For example, `"$int('5')"` would return the integer value `"5"`.
 
 Another use case is for forcing floating point division. `"14/10"` would return `"1"`, and `"14/$float(10)"` returns `"1,4"`.
+
+`$number` casts strings to either int or float type, depending on the string's content.
 
 == Aggregate functions
 

@@ -30,11 +30,19 @@ enum class ContextModMode {
     Or
 };
 
+class TSymTable
+{
+public:
+    std::map<std::string, int> funcs;
+};
+
+typedef std::shared_ptr<TSymTable> TSymTableP;
+
 class TParser
 {
 public:
 
-    TParser(const std::string& str);
+    TParser(const std::string& str, const TSymTableP& st);
 
     bool eos() const;
 
@@ -64,6 +72,7 @@ private:
     size_t _pos;
     size_t _len;
     std::vector<size_t> _positions;
+    TSymTableP sym_table;
 
 };
 
