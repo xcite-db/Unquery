@@ -1,0 +1,8 @@
+/*
+Based on:
+https://stackoverflow.com/questions/70097992/json-query-with-wildcard
+*/
+
+{
+	"#return:[]?folder starts_with 'User/Admin'": ["."]
+}

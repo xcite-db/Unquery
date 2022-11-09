@@ -1,0 +1,12 @@
+[    {
+    "folder" : "User/Admin/UserA",
+    "User" :  "Linda"
+},
+ {
+    "folder" : "User/Service/UserB",
+    "User" :  "John"
+},
+{
+    "folder" : "User/Admin/UserC",
+    "User" :  "Peter"
+} ]

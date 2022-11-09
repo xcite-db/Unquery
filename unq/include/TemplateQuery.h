@@ -743,6 +743,7 @@ enum class Operator {
     UP,
     PREVID};
 
+
 class TQCondBool: public TQCondition
 {
 public:
@@ -770,10 +771,10 @@ private:
     Operator op;
 };
 
-class TQNumberTest: public TQCondition
+class TQCompareTest: public TQCondition
 {
 public:
-    TQNumberTest(const TExpressionP& x1, const TExpressionP& y1, Operator o)
+    TQCompareTest(const TExpressionP& x1, const TExpressionP& y1, Operator o)
         : x(x1), y(y1), op(o) {}
     virtual bool test(TQContext& ctx);
     template<typename T> bool test(T v1, T v2);
@@ -785,7 +786,7 @@ private:
     Operator op;
 };
 
-template<typename T> bool TQNumberTest::test(T v1, T v2)
+template<typename T> bool TQCompareTest::test(T v1, T v2)
 {
     switch (op) {
         case Operator::EQ:
@@ -804,21 +805,6 @@ template<typename T> bool TQNumberTest::test(T v1, T v2)
             return false;
     }
 }
-
-
-class TQBoolTest: public TQCondition
-{
-public:
-    TQBoolTest(const TExpressionP& x1, const TExpressionP& y1, Operator o)
-        : x(x1), y(y1), op(o) {}
-    virtual bool test(TQContext& ctx);
-    virtual bool isAggregate(TQContext* ctx) {return x->isAggregate(ctx)||y->isAggregate(ctx);}
-    
-private:
-    TExpressionP x;
-    TExpressionP y;
-    Operator op;
-};
 
 class TQJSONTest: public TQCondition
 {

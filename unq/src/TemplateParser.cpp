@@ -476,54 +476,34 @@ TQConditionP TParser::baseCondition(const TExpressionP& arg1)
     if ((lhs->isAggregate(0)&&!rhs->isLiteral())||(rhs->isAggregate(0)&&!lhs->isLiteral())) {
         throwError("Aggregates can only be compared with literals");
     }
-    if (lhs->isString() && rhs->isString()) {
-        if (op=="=") {
-            return TQConditionP(new TQStringTest(lhs, rhs, Operator::EQ));
-        } else if (op=="!=") {
-            return TQConditionP(new TQStringTest(lhs, rhs, Operator::NEQ));
-        } else if (op=="contains") {
-            return TQConditionP(new TQStringTest(lhs, rhs, Operator::CONTAINS));
-        } else if (op=="starts_with") {
-            return TQConditionP(new TQStringTest(lhs, rhs, Operator::STARTS));
-        } else if (op=="ends_with") {
-            return TQConditionP(new TQStringTest(lhs, rhs, Operator::ENDS));
-        } else if (op=="matches") {
-            return TQConditionP(new TQStringTest(lhs, rhs, Operator::MATCH));
-        }
-    } else if (lhs->isInt() && rhs->isInt() || lhs->isDouble() && rhs->isDouble()) {
-        if (op=="=") {
-            return TQConditionP(new TQNumberTest(lhs, rhs, Operator::EQ));
-        } else if (op=="!=") {
-            return TQConditionP(new TQNumberTest(lhs, rhs, Operator::NEQ));
-        } else if (op==">") {
-            return TQConditionP(new TQNumberTest(lhs, rhs, Operator::GT));
-        } else if (op=="<") {
-            return TQConditionP(new TQNumberTest(lhs, rhs, Operator::LT));
-        } else if (op==">=") {
-            return TQConditionP(new TQNumberTest(lhs, rhs, Operator::GE));
-        } else if (op=="<=") {
-            return TQConditionP(new TQNumberTest(lhs, rhs, Operator::LE));
-        }
-    } else if (lhs->isBool() && rhs->isBool()) {
-        if (op=="=") {
-            return TQConditionP(new TQBoolTest(lhs, rhs, Operator::EQ));
-        } else if (op=="!=") {
-            return TQConditionP(new TQBoolTest(lhs, rhs, Operator::NEQ));
-        }
-    }
 
-    // In any other case, call operators between JSON expressions
-    if (op=="=") {
-        return TQConditionP(new TQJSONTest(lhs, rhs, Operator::EQ));
+    if (op=="contains") {
+        return TQConditionP(new TQStringTest(lhs, rhs, Operator::CONTAINS));
+    } else if (op=="starts_with") {
+        return TQConditionP(new TQStringTest(lhs, rhs, Operator::STARTS));
+    } else if (op=="ends_with") {
+        return TQConditionP(new TQStringTest(lhs, rhs, Operator::ENDS));
+    } else if (op=="matches") {
+        return TQConditionP(new TQStringTest(lhs, rhs, Operator::MATCH));
+    } else if (op=="=") {
+        return TQConditionP(new TQCompareTest(lhs, rhs, Operator::EQ));
     } else if (op=="!=") {
-        return TQConditionP(new TQJSONTest(lhs, rhs, Operator::NEQ));
+        return TQConditionP(new TQCompareTest(lhs, rhs, Operator::NEQ));
+    } else if (op==">") {
+        return TQConditionP(new TQCompareTest(lhs, rhs, Operator::GT));
+    } else if (op=="<") {
+        return TQConditionP(new TQCompareTest(lhs, rhs, Operator::LT));
+    } else if (op==">=") {
+        return TQConditionP(new TQCompareTest(lhs, rhs, Operator::GE));
+    } else if (op=="<=") {
+        return TQConditionP(new TQCompareTest(lhs, rhs, Operator::LE));
     } else if (op=="in") {
         return TQConditionP(new TQJSONTest(lhs, rhs, Operator::IN));
     } else if (op=="not_in") {
         return TQConditionP(new TQJSONTest(lhs, rhs, Operator::NOTIN));
     }
 
-    throwError("Error parsing condition");
+    throwError("Error parsing condition. unknown operator: "+op);
    
 
     return {};

@@ -1364,52 +1364,24 @@ bool TQStringTest::test(TQContext& ctx)
     }
 }
 
-bool TQNumberTest::test(TQContext& ctx)
+bool TQCompareTest::test(TQContext& ctx)
 {
+    if (x->isString(&ctx)||y->isString(&ctx)) {
+        return test(x->getString(ctx),y->getString(ctx));
+    }
+
     if (x->isInt(&ctx)&&y->isInt(&ctx)) {
         int64_t v1 = x->getInt(ctx);
         int64_t v2 = y->getInt(ctx);
         return test(v1,v2);
     }
-    double v1 = 0;
-    double v2 = 0;
-    if (x->isDouble(&ctx))
-        v1 = x->getDouble(ctx);
-    else if (x->isInt(&ctx))
-        v1 = x->getInt(ctx);
-    else if (x->isString(&ctx)) {
-        string str = x->getString(ctx);
-        if (is_number(str)) {
-            v1 = stod(str);
-        }
+    if (x->isDouble(&ctx)||y->isDouble(&ctx)) {
+        return test(x->getDouble(ctx),y->getDouble(ctx));      
     }
-
-    if (y->isDouble(&ctx)) {
-        v2 = y->getDouble(ctx);
-    } else if (y->isInt(&ctx)) {
-        v2 = y->getInt(ctx);
-    } else if (y->isString(&ctx)) {
-        string str = y->getString(ctx);
-        if (is_number(str)) {
-            v2 = stod(str);
-        }
+    if (x->isBool(&ctx)&&y->isBool(&ctx)) {
+        return test(x->getBool(ctx),y->getBool(ctx));
     }
-    return test(v1,v2);
-}
-
-bool TQBoolTest::test(TQContext& ctx)
-{
-    bool v1 = x->getBool(ctx);
-    bool v2 = y->getBool(ctx);
-
-    switch (op) {
-        case Operator::EQ:
-            return v1==v2;
-        case Operator::NEQ:
-            return v1!=v2;
-        default:
-            return false;
-    }
+    return test(x->asJSON(ctx),y->asJSON(ctx));
 }
 
 bool TQJSONTest::test(TQContext& ctx)
