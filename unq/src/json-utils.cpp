@@ -202,6 +202,9 @@ JSONValueP readCSV(istream& is, const std::string& delim, bool with_header)
     if (with_header) {
         string header;
         getline(is, header);
+        if (header.back()=='\r') {
+            header.pop_back();
+        }
         columns = split_string(header,delim);
     }
     JSONValueP json(new Document);
@@ -211,6 +214,9 @@ JSONValueP readCSV(istream& is, const std::string& delim, bool with_header)
     while (!is.eof()) {
         string line;
         getline(is, line);
+        if (!line.empty() && line.back()=='\r') {
+            line.pop_back();
+        }
         if (line.empty()) {
             continue;
         }
