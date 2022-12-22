@@ -25,6 +25,10 @@ for f in parsing/*.unq; do
     test_query $f parsing_ $EMPLOYEES/employee1.json
 done
 
+for f in extra/*.unq; do
+    test_query $f extra_ ${f%.*}.json
+done
+
 for f in stackoverflow/*.unq; do
     test_query $f stackoverflow_ ${f%.*}.json
 done

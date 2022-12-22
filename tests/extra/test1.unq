@@ -1,0 +1,8 @@
+{
+	"#var x": {
+	      "a":"true",
+	      "b":"true",
+	      "c":"false"
+	 },
+	 "#return":"'yes'?%x.a=true"
+}

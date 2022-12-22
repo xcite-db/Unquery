@@ -1388,7 +1388,6 @@ bool TQJSONTest::test(TQContext& ctx)
 {
     JSONValueP v1 = x->asJSON(ctx);
     JSONValueP v2 = y->asJSON(ctx);
-
     switch (op) {
         case Operator::EQ:
             return *v1==*v2;
@@ -1984,7 +1983,7 @@ bool TExprSubfield::isString(TQContext* ctx)
     if (isField()) {
         return ctx->isString(getFieldPath(*ctx));
     }
-    return false;
+    return getJSON(*ctx)->IsString();;
 }
 
 bool TExprSubfield::isDouble(TQContext* ctx)
@@ -1995,7 +1994,7 @@ bool TExprSubfield::isDouble(TQContext* ctx)
     if (isField()) {
         return ctx->isDouble(getFieldPath(*ctx));
     }
-    return false;
+    return getJSON(*ctx)->IsDouble();
 
 }
 
@@ -2007,7 +2006,7 @@ bool TExprSubfield::isInt(TQContext* ctx)
     if (isField()) {
         return ctx->isInt(getFieldPath(*ctx));
     }
-    return false;
+    return getJSON(*ctx)->IsInt();
 }
 
 bool TExprSubfield::isBool(TQContext* ctx)
@@ -2018,7 +2017,7 @@ bool TExprSubfield::isBool(TQContext* ctx)
     if (isField()) {
         return ctx->isBool(getFieldPath(*ctx));
     }
-    return false;
+    return getJSON(*ctx)->IsBool();
 }
 
 bool TExprSubfield::exists(TQContext& ctx)
