@@ -584,14 +584,12 @@ time_t stringToTime(const std::string& s, const std::string& f)
 
 string timeToString(time_t t, const std::string& f)
 {
-    cerr<<"P1.\n";
     struct tm * dt;
     char buffer [100];
     dt = gmtime(&t);
     if (!f.empty()) {
         strftime(buffer, sizeof(buffer), f.c_str(), dt);
     } else {
-        cerr<<"P2.\n";
         strftime(buffer, sizeof(buffer), "%m/%d/%Y %T", dt);
     }
     return buffer;

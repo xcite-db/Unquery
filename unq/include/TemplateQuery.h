@@ -5,6 +5,7 @@
 
 #include "xcitedb-stubs.h"
 //#include "JSONTraversal.h"
+//#include "query.h"
 #include <memory>
 #include <vector>
 #include <iostream>
@@ -1186,6 +1187,9 @@ public:
     TExprReplace(const TExpressionP& str, const TExpressionP& f, const TExpressionP& t, bool all)
         : source(str), from(f), to(t), replace_all(all) {}
     virtual string getString(TQContext& ctx);
+    virtual bool isAggregate(TQContext* ctx)
+        {return source->isAggregate(ctx);}
+
 private:
     TExpressionP source;
     TExpressionP from;
@@ -1261,6 +1265,9 @@ public:
         : expr(arg), delim(s) {}
     virtual bool isJSON(TQContext* ctx) {return true;}
     virtual JSONValueP getJSON(TQContext& ctx);
+    virtual bool isAggregate(TQContext* ctx)
+        {return expr->isAggregate(ctx);}
+
 private:
     TExpressionP expr;
     TExpressionP delim;
@@ -1272,6 +1279,9 @@ public:
     TExprJoin(const TExpressionP& arg, const TExpressionP& s)
         : expr(arg), delim(s) {}
     virtual string getString(TQContext& ctx);
+    virtual bool isAggregate(TQContext* ctx)
+        {return expr->isAggregate(ctx);}
+
 private:
     TExpressionP expr;
     TExpressionP delim;
@@ -1292,6 +1302,9 @@ public:
         : expr(arg), format(str) {}
     virtual bool isInt(TQContext* ctx) {return true;}
     virtual int64_t getInt(TQContext& ctx);    
+    virtual bool isAggregate(TQContext* ctx)
+        {return expr->isAggregate(ctx);}
+
 private:
     TExpressionP expr;
     string format;
@@ -1303,6 +1316,9 @@ public:
     TExprTimeToString(const TExpressionP& arg, const std::string str)
         : expr(arg), format(str) {}
     virtual string getString(TQContext& ctx);    
+    virtual bool isAggregate(TQContext* ctx)
+        {return expr->isAggregate(ctx);}
+
 private:
     TExpressionP expr;
     string format;
