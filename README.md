@@ -1,4 +1,4 @@
-# unq: a command line tool for `unquery`
+# unqery: a command line tool for querying and transforming JSON data
 
 ## About
 
