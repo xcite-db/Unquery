@@ -75,6 +75,18 @@ public:
         }
         return identifiers.back();
     }
+    const string& date() {
+        if (dates.empty()) {
+            return empty_string;
+        }
+        return dates.back();
+    }
+    const string& branch() {
+        if (branches.empty()) {
+            return empty_string;
+        }
+        return branches.back();
+    }
     const string& index() {
         if (indexes.empty()) {
             return empty_string;
@@ -133,6 +145,8 @@ public:
     void adjustPath(const string& path);
     void addToPath(const string& added);
     void pushIdentifier(const string& identifier, const string& index = {});
+    void pushDate(const string& date);
+    void pushBranch(const string& branch);
     void startLocalJSON(const JSONValueP& json);
     void endLocalJSON();
 
@@ -142,6 +156,8 @@ public:
 
     void popPath();
     void popIdentifier();
+    void popDate();
+    void popBranch();
     void popJSON();
     void popData(TQData* data);
     void popReskey();
@@ -165,6 +181,7 @@ public:
     bool isBool(const string& key);
     bool exists(const string& key);
     JSONValueP getJSON(const string& key);
+    string getMetaKey(const string& key);
     string getString(const string& key);
     int64_t getInt(const string& key);
     double getDouble(const string& key);
@@ -188,6 +205,8 @@ private:
     StringQueue indexes;
     StringQueue identifiers;
     StringQueue filenames;
+    StringQueue dates;
+    StringQueue branches;
     JSONQueue localJSONs;
     JSONQueue localDocs;
     // Keep track of result keys
@@ -345,7 +364,9 @@ enum class ArrowOp {
     AncestorsAndSelf, 
     Children, 
     Descendants, 
-    DescendantsAndSelf, 
+    DescendantsAndSelf,
+    Date,
+    Branch,
     All, 
     Var,
     File, 
@@ -1120,6 +1141,17 @@ private:
     string name;
 };
 
+class TExprXPath: public TExprXML
+{
+public:
+    TExprXPath(const string& path_expr, bool no_children);
+    virtual pugi::xml_node getXML(TQContext& ctx, pugi::xml_document& xmldoc);
+    virtual string getString(TQContext& ctx);
+private:
+    pugi::xpath_node getXPathNode(TQContext& ctx, pugi::xml_document& xmldoc);
+    pugi::xpath_query query;
+};
+
 class TExprText: public TExprString
 {
 public:
@@ -1322,6 +1354,23 @@ public:
 private:
     TExpressionP expr;
     string format;
+};
+
+
+class TExprLastChange: public TExpression
+{
+public:
+    TExprLastChange(bool is_meta, bool is_tree, TExpressionP field = {})
+        : for_meta(is_meta), for_tree(is_tree), arg(field) {}
+    virtual bool isInt(TQContext* ctx) {return true;}
+    virtual int64_t getInt(TQContext& ctx);    
+    virtual bool isAggregate(TQContext* ctx)
+        {return false;}
+
+private:
+    bool for_meta;
+    bool for_tree;
+    TExpressionP arg;
 };
 
 

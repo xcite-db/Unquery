@@ -1,0 +1,9 @@
+{
+  "cond1":"ID?Title='CTO'",
+  "cond2":"ID?(Title='President'|Title='CTO')",
+  "cond3":"ID?(Title)='CTO'",
+  "cond4":"ID?((Title)='CTO')",
+  "cond5":"ID?!(Title='President'|Title='CEO')",
+  "cond6":"ID?((Title='President')|(Title='CTO'))&(Salary>10000)",
+  "cond7":"ID?((Title='President')|(Title='CTO'))&(Salary<10000)"
+}

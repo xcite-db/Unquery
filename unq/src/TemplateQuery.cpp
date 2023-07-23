@@ -33,12 +33,16 @@ TQContext::TQContext(XMLDBSettings& settings, MDB_txn* txn, const string& identi
 {
     pushIdentifier(identifier, index);
     pushPath({});
+    pushDate(settings.date);
+    pushBranch(settings.branch);
 }
 
 void TQContext::reset(const string& identifier, const string& index)
 {
     paths.clear();
     identifiers.clear();
+    dates.clear();
+    branches.clear();
     indexes.clear();
     reskeys.clear();
     curr_data.clear();
@@ -52,6 +56,10 @@ void TQContext::reset(const string& identifier, const string& index)
         pushIdentifier(identifier, index);
     }
     pushPath({});
+    if (tr) {
+        pushDate(tr->getDate());
+        pushBranch(tr->getBranch());
+    }
     in_local = false;
 }
 
@@ -122,6 +130,20 @@ void TQContext::pushIdentifier(const string& identifier, const string& index)
     tr->changeNode(idx);
 }
 
+void TQContext::pushDate(const string& date)
+{
+    dates.push_back(date);
+    tr->setDate(date);
+    xml_reader->setDate(date);
+}
+
+void TQContext::pushBranch(const string& branch)
+{
+    branches.push_back(branch);
+    tr->setBranch(branch);
+    xml_reader->setBranch(branch);
+}
+
 void TQContext::startLocalJSON(const JSONValueP& json)
 {
     localJSONs.push_back(json);
@@ -164,6 +186,20 @@ void TQContext::popIdentifier()
     identifiers.pop_back();
     indexes.pop_back();
     tr->changeNode(indexes.back());
+}
+
+void TQContext::popDate()
+{
+    dates.pop_back();
+    tr->setDate(dates.back());
+    xml_reader->setDate(dates.back());
+}
+
+void TQContext::popBranch()
+{
+    branches.pop_back();
+    tr->setBranch(branches.back());
+    xml_reader->setBranch(branches.back());
 }
 
 void TQContext::popJSON()
@@ -439,6 +475,15 @@ JSONValueP TQContext::getJSON(const string& key)
     return value;
 }
 
+string TQContext::getMetaKey(const string& key)
+{
+    if (in_local) {
+        return {};
+    }
+    string path = unescaped_fullPath(key);
+    return tr->readMetaNodeKey(path);
+}
+
 string TQContext::getString(const string& key)
 {
     JSONValueP value = getJSON(key);
@@ -708,6 +753,10 @@ ArrowOp getArrowOp(const string& str)
         return ArrowOp::Descendants;
     } else if (str=="$descendants_and_self") {
         return ArrowOp::DescendantsAndSelf;
+    } else if (str=="$date") {
+        return ArrowOp::Date;
+    } else if (str=="$branch") {
+        return ArrowOp::Branch;
     } else if (str=="$all") {
         return ArrowOp::All;
     } else if (str=="$var") {
@@ -723,20 +772,15 @@ bool TQContextModData::handleArrow(const TQDataP& data, TQContext& ctx)
 {
     bool res = false;
     const string& context = q->context;
-    bool started_frame = false;
     ArrowOp arrow = q->arrow;
+    if (q->new_frame) {
+        ctx.beginFrame();
+    }
 
     if (arrow==ArrowOp::AncestorsAndSelf||arrow==ArrowOp::DescendantsAndSelf||arrow==ArrowOp::Self) {
-        if (q->new_frame) {
-            ctx.beginFrame();
-            started_frame = true;
-        }
         res = processIdentifier(data, ctx, ctx.identifier()) || res;
     }
     if (arrow==ArrowOp::Var) {
-        if (q->new_frame) {
-            ctx.beginFrame();
-        }
         JSONValueP j = ctx.getVar(context);
         if (j->IsNull()) {
             return false;
@@ -745,9 +789,6 @@ bool TQContextModData::handleArrow(const TQDataP& data, TQContext& ctx)
         res = data->processData(ctx);
         ctx.endLocalJSON();
     } else if (arrow==ArrowOp::Other || arrow==ArrowOp::File) {
-        if (q->new_frame) {
-            ctx.beginFrame();
-        }
         if (arrow==ArrowOp::File) {
             TExprFile* f = static_cast<TExprFile*>(q->expr.get());
             string filename = f->getFilename(ctx);
@@ -760,18 +801,22 @@ bool TQContextModData::handleArrow(const TQDataP& data, TQContext& ctx)
             ctx.popFilename();
         }
         ctx.endLocalJSON();
+    } else if (arrow==ArrowOp::Date) {
+        string date = q->expr.get()->getString(ctx);
+        ctx.pushDate(date2key(date));
+        res = data->processData(ctx);
+        ctx.popDate();
+    } else if (arrow==ArrowOp::Branch) {
+        string branch = q->expr.get()->getString(ctx);
+        ctx.pushBranch(branch);
+        res = data->processData(ctx);
+        ctx.popBranch();
     } else if (arrow==ArrowOp::None && (context[0]=='\"'||context[0]=='\'')) {
         string identifier = context.substr(1, context.size()-2);
-        if (q->new_frame) {
-            ctx.beginFrame();
-        }
         res = processIdentifier(data, ctx, identifier) || res;
     } else if (q->expr || arrow==ArrowOp::None) {
         string name = (q->expr)?q->expr->getString(ctx):context;
         JSONValueP value = ctx.getJSON(name);
-        if (q->new_frame) {
-            ctx.beginFrame();
-        }
 
         if (value->IsString()) {
             res = processIdentifier(data, ctx, value->GetString()) || res;            
@@ -787,9 +832,6 @@ bool TQContextModData::handleArrow(const TQDataP& data, TQContext& ctx)
     } else if (arrow==ArrowOp::Parent|| arrow==ArrowOp::Ancestors || arrow==ArrowOp::AncestorsAndSelf) {
         string identifier = ctx.identifier();
         size_t pos;
-        if (q->new_frame && !started_frame) {
-            ctx.beginFrame();
-        }
 
         while ((pos=identifier.rfind('/'))!=string::npos && pos>5) {
             identifier=identifier.substr(0, pos);
@@ -802,9 +844,6 @@ bool TQContextModData::handleArrow(const TQDataP& data, TQContext& ctx)
     } else if (arrow==ArrowOp::Descendants||arrow==ArrowOp::DescendantsAndSelf||arrow==ArrowOp::Children||arrow==ArrowOp::All) {
         SimpleQuery query(ctx.xml_reader->get_txn(), ctx.xml_reader->get_base_txn());
         string cur_id = ctx.identifier();
-        if (q->new_frame) {
-            ctx.beginFrame();
-        }
 
         if (arrow!=ArrowOp::All) {
             query.match_start = cur_id+"/";
@@ -1797,6 +1836,40 @@ pugi::xml_node TExprChild::getXML(TQContext& ctx, pugi::xml_document& xmldoc)
     return top;
 }
 
+TExprXPath::TExprXPath(const string& path_expr, bool no_children_)
+   : query(path_expr.c_str()), TExprXML(no_children_)
+{
+}
+
+pugi::xpath_node TExprXPath::getXPathNode(TQContext& ctx, pugi::xml_document& xmldoc)
+{
+    pugi::xml_node top = TExprXML::getXML(ctx, xmldoc);
+    pugi::xpath_node_set nodes = query.evaluate_node_set(top);
+    if (nodes.empty()) {
+        return {};
+    }
+    return nodes[0];
+}
+
+pugi::xml_node TExprXPath::getXML(TQContext& ctx, pugi::xml_document& xmldoc)
+{
+    pugi::xpath_node ret = getXPathNode(ctx, xmldoc);
+    return ret.node();
+}
+
+string TExprXPath::getString(TQContext& ctx)
+{
+    pugi::xml_document xmldoc;
+    pugi::xpath_node ret = getXPathNode(ctx, xmldoc);
+    if (!ret.node().empty()) {
+        ostringstream oss;
+        ret.node().print(oss);
+        return oss.str();
+    }
+    return ret.attribute().value();
+}
+
+
 bool TExprInFilter::getBool(TQContext& ctx)
 {
     pugi::xml_document xmldoc;
@@ -2144,6 +2217,20 @@ string TExprTimeToString::getString(TQContext& ctx)
 {
     time_t tm = expr->getInt(ctx);
     return timeToString(tm, format);    
+}
+
+int64_t TExprLastChange::getInt(TQContext& ctx)
+{
+    if (!for_meta && ! for_tree) {
+        auto p = ctx.xml_reader->read_node_revision(ctx.index());
+        string date = node_date(p.first);
+        return base64_decode(date);
+    } else if (for_meta) {
+        string key = ctx.getMetaKey(arg->getFieldPath(ctx));
+        string date = node_date(key);
+        return base64_decode(date);
+    }
+    return 0;
 }
 
 bool TExprTypeCast::isInt(TQContext* ctx) 

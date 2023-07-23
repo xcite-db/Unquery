@@ -307,6 +307,11 @@ TemplateQueryP TParser::context_mod(bool frame_flag, ContextModMode parse_mode)
                 context = pathWithBrackets();
             } else if (arrow==ArrowOp::Other || arrow==ArrowOp::File) {
                 expr = expression();
+            } else if (arrow==ArrowOp::Date || arrow==ArrowOp::Branch) {
+                consume();
+                expect("(");
+                expr = expression();
+                expect(")");
             } else {
                 consume();
                 if (ifNext("(")) {
@@ -515,11 +520,18 @@ TQConditionP TParser::condition(int prec, const TExpressionP& exp)
     TQConditionP res;
     if (!exp && ifNext("(")) {
         // The parenthesis can contain either a condition or expression, so we try both
-        TExpressionP exp1 = expression(0);
-        if (ifNext(")")) {
-            res = baseCondition(exp1);
-        } else {
-            res = condition(0,exp1);
+        size_t oldp = _pos;
+        try {
+            TExpressionP exp1 = expression(0);
+            if (ifNext(")")) {
+                res = baseCondition(exp1);
+            } else {
+                res = condition(0,exp1);
+                expect(")");
+            }
+        } catch (ParsingError& er) {
+            _pos = oldp;
+            res = condition(0);
             expect(")");
         }
     } else if (!exp && prec<=3 && ifNext("!")) {
@@ -660,6 +672,16 @@ TExpressionP TParser::baseExpression()
         string param = stripQuotes_(nextToken());
         expect(")");
         res = TExpressionP(new TExprChild(param));
+    } else if (token=="$xpath") {
+        expect("(");
+        string path_expr = stripQuotes_(nextToken());
+        expect(")");
+        res = TExpressionP(new TExprXPath(path_expr,false));
+    } else if (token=="$lxpath") {
+        expect("(");
+        string path_expr = stripQuotes_(nextToken());
+        expect(")");
+        res = TExpressionP(new TExprXPath(path_expr,true));
     } else if (token=="$in_filter") {
         expect("(");
         string filter = stripQuotes_(nextToken());
@@ -718,6 +740,17 @@ TExpressionP TParser::baseExpression()
         TExpressionP arg = expression();
         expect(")");
         res = TExpressionP(new TExprTypeCast(arg, ct));
+    } else if (token=="$node_date") {
+        res = TExpressionP(new TExprLastChange(false,false));
+    } else if (token=="$data_date") {
+        TExpressionP arg;
+        if (ifNext("(")) {
+            arg = expression();
+            expect(")");
+        } else {
+            arg = TExpressionP(new TExprField("."));
+        }
+        res = TExpressionP(new TExprLastChange(true, false, arg));
     } else if (token=="$count") {
         res = TExpressionP(new TExprCount);
     } else if (token=="$sum") {
