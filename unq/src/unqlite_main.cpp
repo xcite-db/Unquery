@@ -105,10 +105,10 @@ void process_csv_file(
 
 void print_help_message(int exit_code)
 {
-    cerr<<"(c) 2022 Sela Mador-Haim All rights Reserved.\n\n";
-    cerr<<"unQLite Version: v"<<get_version()<<endl<<endl;
+    cerr<<"(c) 2024 Sela Mador-Haim All rights Reserved.\n\n";
+    cerr<<"unq Version: v"<<get_version()<<endl<<endl;
     cerr<<"Command-line syntax:\n";
-    cerr<<"  unQLite [-c <query-string>] [-f <query-file>] <json-file-list>\n\n";
+    cerr<<"  unq [options] <json-file-list>\n\n";
     cerr<<"Options:\n";
     cerr<<"  -c <query-string>: query as string in the command line.\n";
     cerr<<"  -f <query-file>: a filename containing the query.\n";

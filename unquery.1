@@ -1,0 +1,32 @@
+.\" Manpage for Unquery.
+.\" Contact selama@gmail.com to correct errors or typos.
+.TH unq 1 "19 April 2024" "1.0" "unq man page"
+.SH NAME
+unq \- Tool for querying JSON files 
+.SH SYNOPSIS
+unq [\fB\-c\fR\ \fI\query-string\fR] [\fB\-f\fR\ \fI\query-file\fR] [\fB\-csv\fR] [\fB\-delim\fR\ \fI\delimiter\fR] [\fB\-csv-no-headers\fR] [\fB\-show-nulls\fR]
+.IR json-file-list
+.SH DESCRIPTION
+unq is a command-line tool for querying and transforming JSON files
+.SH OPTIONS
+.PP
+Command-line options:
+.TP
+\fB\-c\fI query-string\fR: query as string in the command line.
+.TP
+\fB\-f\fI query-file\fR: a filename containing the query.
+.TP
+\fB\-show-nulls\fR (or \fB\-n\fR): do not hide null values.
+.TP
+\fB\-csv\fR: input files as csv files, instead of json.
+.TP
+\fB\-delim\fI delimiter\fR: a character (or string) used as a delimiter for csv files.
+.TP
+\fB\-csv-no-headers\fR: the csv file contains no headers in the first line.
+
+.SH SEE ALSO
+
+.SH BUGS
+No known bugs.
+.SH AUTHOR
+Sela Mador-Haim (selama@gmail.com)
