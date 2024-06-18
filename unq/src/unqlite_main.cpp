@@ -14,14 +14,16 @@
 #include <fstream>
 #include <string>
 #include <memory>
+#include <filesystem>
 
 using namespace std;
 using namespace rapidjson;
 using namespace xcite;
 
 typedef std::shared_ptr<rapidjson::Document> json_documentP;
+using recursive_directory_iterator = std::filesystem::recursive_directory_iterator;
 
-void process_json_file(TQDataP& tq, TQContext& ctx, Params& args, bool use_stdin)
+void process_json_file(TQDataP& tq, TQContext& ctx, const string& fname, bool use_stdin)
 {
     string filename;
     //cerr<<"Filename: "<<filename<<endl;
@@ -30,7 +32,7 @@ void process_json_file(TQDataP& tq, TQContext& ctx, Params& args, bool use_stdin
         fp = stdin;
         filename = "stdin";
     } else {
-        filename = args.nextArg();
+        filename = fname;
         fp = fopen(filename.c_str(), "r");
         if (!fp) {
             cerr<<"Error. Could not open JSON file: "<<filename<<endl;
@@ -70,7 +72,7 @@ void process_json_file(TQDataP& tq, TQContext& ctx, Params& args, bool use_stdin
 void process_csv_file(
     TQDataP& tq, 
     TQContext& ctx, 
-    Params& args, 
+    const string& fname, 
     const string& delim, 
     bool with_headers, 
     bool use_stdin)
@@ -81,7 +83,7 @@ void process_csv_file(
         file_name = "stdin";
         json = readCSV(cin, delim, with_headers);
     } else {
-        file_name = args.nextArg();
+        file_name = fname;
         ifstream is(file_name);
         if (is.fail()) {
             cerr<<"Error: failed opening CSV file: "<<file_name<<endl;
@@ -116,6 +118,7 @@ void print_help_message(int exit_code)
     cerr<<"  -csv: input files as csv files, instead of json.\n";
     cerr<<"  -delim <delimiter>: a character (or string) used as a delimiter for csv files.\n";
     cerr<<"  -csv-no-headers: the csv file contains no headers in the first line.\n";
+    cerr<<"  -r: treat each filename as directory name, and recursively traverse it.\n";
     cerr<<endl;
     exit(exit_code);
 }
@@ -129,6 +132,7 @@ int main(int argc, char* argv[])
     string delim = ",";
     bool csv_headers_opt = true;
     bool show_nulls_opt = false;
+    bool recursive_opt = false;
 
     while (!args.isEnd() && args.isOpt()) {
         string arg = args.nextArg();
@@ -144,6 +148,8 @@ int main(int argc, char* argv[])
             csv_headers_opt = false;
         } else if (arg=="-delim") {
             delim = args.nextArg();
+        } else if (arg=="-r") {
+            recursive_opt = true;
         } else if (arg=="-h") {
             print_help_message(0);
         } else {
@@ -188,10 +194,21 @@ int main(int argc, char* argv[])
         ctx.opt_show_null = show_nulls_opt;
         bool use_stdin = args.isEnd();
         while (!args.isEnd() || use_stdin) {
-            if (csv_opt) {
-                process_csv_file(tq, ctx, args, delim, csv_headers_opt, use_stdin);
+            string fname = args.isEnd()?"":args.nextArg();
+            if (recursive_opt && !use_stdin) {
+                for (const auto& dirEntry : recursive_directory_iterator(fname)) {
+                    if (csv_opt) {
+                        process_csv_file(tq, ctx, dirEntry.path(), delim, csv_headers_opt, false);
+                    } else {
+                        process_json_file(tq, ctx, dirEntry.path(), false);
+                    }
+                }
             } else {
-                process_json_file(tq, ctx, args, use_stdin);
+                if (csv_opt) {
+                    process_csv_file(tq, ctx, fname, delim, csv_headers_opt, use_stdin);
+                } else {
+                    process_json_file(tq, ctx, fname, use_stdin);
+                }
             }
 
             use_stdin = false;
