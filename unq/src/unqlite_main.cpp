@@ -118,7 +118,7 @@ void print_help_message(int exit_code)
     cerr<<"  -csv: input files as csv files, instead of json.\n";
     cerr<<"  -delim <delimiter>: a character (or string) used as a delimiter for csv files.\n";
     cerr<<"  -csv-no-headers: the csv file contains no headers in the first line.\n";
-    cerr<<"  -r: treat each filename as directory name, and recursively traverse it.\n";
+    cerr<<"  -r: recursively traverse directories. Instead of a json file list, expect a list of directories.\n";
     cerr<<endl;
     exit(exit_code);
 }

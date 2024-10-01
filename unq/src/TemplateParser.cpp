@@ -707,7 +707,7 @@ TExpressionP TParser::baseExpression()
         TExpressionP arg = expression();
         string fmt;
         if (ifNext(",")) {
-            string fmt = stripQuotes_(nextToken());
+            fmt = stripQuotes_(nextToken());
         }
         expect(")");
         res = TExpressionP(new TExprToTime(arg, fmt));
@@ -716,7 +716,7 @@ TExpressionP TParser::baseExpression()
         TExpressionP arg = expression();
         string fmt;
         if (ifNext(",")) {
-            string fmt = stripQuotes_(nextToken());
+            fmt = stripQuotes_(nextToken());
         }
         expect(")");
         res = TExpressionP(new TExprTimeToString(arg, fmt));
