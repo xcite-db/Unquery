@@ -1,0 +1,15 @@
+# Aftershock: indexes this repository on every push to the default branch and nightly,
+# and posts the blast radius of every pull request as a comment. Written by `aftershock init`.
+name: aftershock
+on:
+  push: { branches: [main] }
+  pull_request: {}
+  schedule: [{ cron: '17 3 * * *' }]
+  workflow_dispatch: {}
+permissions: { contents: read, pull-requests: write }
+concurrency: { group: "aftershock-${{ github.ref }}", cancel-in-progress: true }
+jobs:
+  aftershock:
+    uses: xcite-db/aftershock-action/.github/workflows/aftershock.yml@main
+    with: { store: git, graph-repo: xcite-db/aftershock-graph, fail-on: breaking }
+    secrets: inherit   # AFTERSHOCK_TOKEN; ANTHROPIC_API_KEY and OPENROUTER_API_KEY turn the model route on

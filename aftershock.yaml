@@ -1,0 +1,10 @@
+# aftershock.yaml: drafted by `aftershock init` from the code; review before merging.
+# Reference: https://github.com/xcite-db/aftershock-action#the-configuration-file
+service: aftershock-init-9sDz2T
+# No spec, Express app or proto service was found. With a model key (ANTHROPIC_API_KEY or OPENROUTER_API_KEY)
+# the index finds surfaces of these kinds in the code; or list them under surfaces: yourself, e.g.
+#   - { kind: http, identity: "GET /orders/{id}", file: app/api.py, symbol: get_order }
+detect: [http, grpc, topic-producer, topic-consumer]
+# What this repository calls over HTTP, when it is another repository of the organization:
+# consumes:
+#   - { kind: http, service: billing-api, via: fetch, envs: [BILLING_URL] }
